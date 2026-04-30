@@ -57,6 +57,7 @@ export default function StudentLayout() {
       }} />
       <Tabs.Screen name="attendance" options={{
         title: tr('navAttendance'),
+        href: null,
         tabBarIcon: ({ color, size }) => <MaterialIcons name="person-outline" size={size} color={color} />,
       }} />
       <Tabs.Screen name="results" options={{

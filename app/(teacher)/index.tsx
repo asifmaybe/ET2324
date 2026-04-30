@@ -5,6 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../hooks/useAuth';
 import { useLang } from '../../hooks/useLang';
+import { HamburgerMenu } from '../../components/ui/HamburgerMenu';
 import { useData } from '../../hooks/useData';
 import { ScreenHeader } from '../../components/ui/ScreenHeader';
 import { Card } from '../../components/ui/Card';
@@ -31,8 +32,8 @@ const actionLabelEn: Record<string, string> = {
 };
 
 export default function TeacherDashboard() {
-  const { user, logout, setPanelMode, panelMode } = useAuth();
-  const { lang, tr, toggleLang } = useLang();
+  const { user, setPanelMode, panelMode } = useAuth();
+  const { lang, tr } = useLang();
   const { assignments, exams, results, auditLog, notices } = useData();
   const router = useRouter();
 
@@ -73,15 +74,7 @@ export default function TeacherDashboard() {
             <TouchableOpacity style={styles.iconBtn}>
               <MaterialIcons name="notifications-off" size={20} color={Colors.textSecondary} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.langBtn} onPress={toggleLang} activeOpacity={0.75}>
-              <MaterialIcons name="translate" size={13} color={Colors.accent} />
-              <Text style={[styles.langText, { fontFamily: Fonts.en.semiBold }]}>
-                {lang === 'bn' ? 'EN' : 'বাং'}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.iconBtn} onPress={logout} activeOpacity={0.75}>
-              <MaterialIcons name="logout" size={20} color={Colors.textSecondary} />
-            </TouchableOpacity>
+            <HamburgerMenu />
           </View>
         </View>
 
@@ -207,13 +200,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accentLight, alignItems: 'center', justifyContent: 'center',
     borderWidth: 1.5, borderColor: Colors.accent,
   },
-  langBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    paddingHorizontal: 10, height: 38, borderRadius: 19,
-    backgroundColor: Colors.white, borderWidth: 1, borderColor: Colors.borderColor,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
-  },
-  langText: { fontSize: FontSize.xs, color: Colors.accent },
+
   pad: { paddingHorizontal: 16 },
   noticeHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   noticeHeaderLeft: { flexDirection: 'row', alignItems: 'center', gap: 6 },

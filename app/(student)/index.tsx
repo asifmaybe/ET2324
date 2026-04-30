@@ -5,6 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../hooks/useAuth';
 import { useLang } from '../../hooks/useLang';
+import { HamburgerMenu } from '../../components/ui/HamburgerMenu';
 import { useData } from '../../hooks/useData';
 import { Card } from '../../components/ui/Card';
 import { Colors, FontSize, Radius, Fonts } from '../../constants/theme';
@@ -51,8 +52,8 @@ function getNextSession() {
 }
 
 export default function StudentDashboard() {
-  const { user, logout, setPanelMode } = useAuth();
-  const { lang, toggleLang, tr } = useLang();
+  const { user, setPanelMode } = useAuth();
+  const { lang, tr } = useLang();
   const { assignments, exams, notices } = useData();
   const router = useRouter();
 
@@ -108,17 +109,8 @@ export default function StudentDashboard() {
             <TouchableOpacity style={styles.iconBtn} activeOpacity={0.75}>
               <MaterialIcons name="notifications-off" size={19} color={Colors.textSecondary} />
             </TouchableOpacity>
-            {/* Lang */}
-            <TouchableOpacity style={styles.langBtn} onPress={toggleLang} activeOpacity={0.75}>
-              <MaterialIcons name="translate" size={12} color={Colors.accent} />
-              <Text style={[styles.langBtnText, { fontFamily: Fonts.en.semiBold }]}>
-                {lang === 'bn' ? 'EN' : 'বাং'}
-              </Text>
-            </TouchableOpacity>
-            {/* Logout */}
-            <TouchableOpacity style={styles.iconBtn} onPress={logout} activeOpacity={0.75}>
-              <MaterialIcons name="logout" size={19} color={Colors.textSecondary} />
-            </TouchableOpacity>
+            {/* Hamburger Menu */}
+            <HamburgerMenu />
           </View>
         </View>
 
@@ -348,15 +340,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5, borderColor: Colors.accent,
     alignItems: 'center', justifyContent: 'center',
   },
-  langBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    paddingHorizontal: 10, height: 38, borderRadius: 19,
-    backgroundColor: Colors.white,
-    borderWidth: 1, borderColor: Colors.borderColor,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06, shadowRadius: 3, elevation: 1,
-  },
-  langBtnText: { fontSize: FontSize.xs, color: Colors.accent },
+
 
   pad: { paddingHorizontal: 16 },
 

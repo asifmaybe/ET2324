@@ -4,6 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, FontSize, Fonts } from '../../constants/theme';
 import { useLang } from '../../hooks/useLang';
 import { useAuth } from '../../hooks/useAuth';
+import { HamburgerMenu } from './HamburgerMenu';
 
 interface Props {
   title: string;
@@ -14,8 +15,8 @@ interface Props {
 }
 
 export function ScreenHeader({ title, subtitle, showLogout = false, showNotification = false, showPanelSwitch = false }: Props) {
-  const { lang, toggleLang } = useLang();
-  const { logout, user, panelMode, setPanelMode } = useAuth();
+  const { lang } = useLang();
+  const { user, panelMode, setPanelMode } = useAuth();
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
 
   return (
@@ -40,17 +41,7 @@ export function ScreenHeader({ title, subtitle, showLogout = false, showNotifica
             <MaterialIcons name="notifications-none" size={20} color={Colors.textSecondary} />
           </TouchableOpacity>
         ) : null}
-        <TouchableOpacity style={[styles.langBtn]} onPress={toggleLang}>
-          <MaterialIcons name="translate" size={13} color={Colors.accent} />
-          <Text style={[styles.langText, { fontFamily: Fonts.en.semiBold }]}>
-            {lang === 'bn' ? 'EN' : 'বাং'}
-          </Text>
-        </TouchableOpacity>
-        {showLogout ? (
-          <TouchableOpacity style={styles.iconBtn} onPress={logout}>
-            <MaterialIcons name="logout" size={20} color={Colors.textSecondary} />
-          </TouchableOpacity>
-        ) : null}
+        <HamburgerMenu />
       </View>
     </View>
   );
@@ -85,12 +76,4 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: Colors.borderColor,
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
   },
-  langBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    paddingHorizontal: 10, height: 38, borderRadius: 19,
-    backgroundColor: Colors.white,
-    borderWidth: 1, borderColor: Colors.borderColor,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
-  },
-  langText: { fontSize: FontSize.xs, color: Colors.accent },
 });
