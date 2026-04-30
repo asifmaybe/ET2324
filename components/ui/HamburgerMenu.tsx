@@ -71,6 +71,13 @@ export function HamburgerMenu() {
     setTimeout(() => router.push(route as any), 150);
   };
 
+  const handleResults = () => {
+    handleClose();
+    const isTeacherPanel = user?.role === 'teacher' || (user?.role === 'cr' && panelMode === 'teacher');
+    const route = isTeacherPanel ? '/(teacher)/results' : '/(student)/results';
+    setTimeout(() => router.push(route as any), 150);
+  };
+
   const handleLogout = () => {
     handleClose();
     setTimeout(() => logout(), 200);
@@ -118,6 +125,22 @@ export function HamburgerMenu() {
               <View style={styles.menuTextCol}>
                 <Text style={[styles.menuLabel, { fontFamily: FF.semiBold }]}>
                   {lang === 'bn' ? 'উপস্থিতি' : 'Attendance'}
+                </Text>
+              </View>
+              <MaterialIcons name="chevron-right" size={20} color={Colors.textMuted} />
+            </TouchableOpacity>
+
+            {/* Divider */}
+            <View style={styles.divider} />
+
+            {/* Results */}
+            <TouchableOpacity style={styles.menuItem} onPress={handleResults} activeOpacity={0.7}>
+              <View style={[styles.menuIconBg, { backgroundColor: Colors.accentLight }]}>
+                <MaterialIcons name="bar-chart" size={18} color={Colors.accent} />
+              </View>
+              <View style={styles.menuTextCol}>
+                <Text style={[styles.menuLabel, { fontFamily: FF.semiBold }]}>
+                  {lang === 'bn' ? 'ফলাফল' : 'Results'}
                 </Text>
               </View>
               <MaterialIcons name="chevron-right" size={20} color={Colors.textMuted} />

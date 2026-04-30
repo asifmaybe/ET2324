@@ -18,7 +18,8 @@ import { Assignment } from '../../types';
 import { SUBJECTS } from '../../constants/mockData';
 
 const STATUS_OPTIONS_EN = ['active', 'pending', 'completed'];
-const STATUS_BN: Record<string, string> = { active: 'সক্রিয়', pending: 'মুলতুবি', completed: 'সম্পন্ন' };
+const STATUS_OPTIONS_LABEL: Record<string, string> = { active: 'Ongoing', pending: 'Pending', completed: 'Completed' };
+const STATUS_BN: Record<string, string> = { active: 'চলমান', pending: 'মুলতুবি', completed: 'সম্পন্ন' };
 const EMPTY: Partial<Assignment> = { title: '', subject: SUBJECTS[0], description: '', assigned_date: '', due_date: '', status: 'active' };
 
 export default function TeacherAssignments() {
@@ -63,14 +64,22 @@ export default function TeacherAssignments() {
           <Card padding={16}>
             <View style={styles.row}>
               <View style={{ flex: 1 }}>
-                <Text style={[styles.title, { fontFamily: FF.semiBold }]}>{item.title}</Text>
-                <Text style={[styles.subject, { fontFamily: FF.regular }]}>{item.subject}</Text>
+                <Text style={[styles.subject, { fontFamily: FF.regular, marginBottom: 2 }]}>{item.subject}</Text>
+                <Text style={[styles.title, { fontFamily: FF.semiBold, marginBottom: 4 }]}>{item.title}</Text>
                 <Text style={[styles.desc, { fontFamily: FF.regular }]} numberOfLines={2}>{item.description}</Text>
-                <View style={styles.meta}>
-                  <MaterialIcons name="event" size={12} color={Colors.textMuted} />
-                  <Text style={[styles.metaText, { fontFamily: Fonts.en.regular }]}>
-                    {lang === 'bn' ? 'জমা:' : 'Due:'} {item.due_date}
-                  </Text>
+                <View style={styles.metaRow}>
+                  <View style={styles.meta}>
+                    <MaterialIcons name="event" size={12} color={Colors.textMuted} />
+                    <Text style={[styles.metaText, { fontFamily: Fonts.en.regular }]}>
+                      {lang === 'bn' ? 'শুরু:' : 'Start:'} {item.assigned_date}
+                    </Text>
+                  </View>
+                  <View style={styles.meta}>
+                    <MaterialIcons name="event-available" size={12} color={Colors.textMuted} />
+                    <Text style={[styles.metaText, { fontFamily: Fonts.en.regular }]}>
+                      {lang === 'bn' ? 'জমা:' : 'Due:'} {item.due_date}
+                    </Text>
+                  </View>
                 </View>
               </View>
               <View style={styles.actions}>
@@ -150,7 +159,7 @@ export default function TeacherAssignments() {
                   {STATUS_OPTIONS_EN.map(s => (
                     <TouchableOpacity key={s} style={[styles.statusChip, editItem?.status === s && styles.statusChipActive]} onPress={() => setEditItem(p => ({ ...p, status: s as any }))}>
                       <Text style={[styles.statusChipText, { fontFamily: FF.medium }, editItem?.status === s && { color: Colors.accent }]}>
-                        {lang === 'bn' ? (STATUS_BN[s] ?? s) : s}
+                        {lang === 'bn' ? (STATUS_BN[s] ?? s) : (STATUS_OPTIONS_LABEL[s] ?? s)}
                       </Text>
                     </TouchableOpacity>
                   ))}
@@ -184,6 +193,7 @@ const styles = StyleSheet.create({
   title: { fontSize: FontSize.md, color: Colors.textPrimary, marginBottom: 3 },
   subject: { fontSize: FontSize.sm, color: Colors.accent, marginBottom: 4 },
   desc: { fontSize: FontSize.sm, color: Colors.textSecondary, lineHeight: 19, marginBottom: 6 },
+  metaRow: { flexDirection: 'row', gap: 12, marginTop: 2 },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   metaText: { fontSize: FontSize.xs, color: Colors.textMuted },
   actions: { alignItems: 'flex-end', justifyContent: 'space-between', gap: 8 },

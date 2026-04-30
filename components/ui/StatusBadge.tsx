@@ -6,7 +6,7 @@ import { useLang } from '../../hooks/useLang';
 type BadgeType = 'active' | 'pending' | 'overdue' | 'completed' | 'submitted' | 'upcoming' | 'past' | 'present' | 'absent' | 'late' | 'important' | 'classTest' | 'quiz' | 'midTerm' | 'final';
 
 const CONFIG_EN: Record<BadgeType, { bg: string; color: string; label: string }> = {
-  active: { bg: Colors.successBg, color: Colors.success, label: 'Active' },
+  active: { bg: Colors.successBg, color: Colors.success, label: 'Ongoing' },
   pending: { bg: Colors.warningBg, color: Colors.warning, label: 'Pending' },
   overdue: { bg: Colors.dangerBg, color: Colors.danger, label: 'Overdue' },
   completed: { bg: 'rgba(100,116,139,0.12)', color: '#64748B', label: 'Completed' },
@@ -24,7 +24,7 @@ const CONFIG_EN: Record<BadgeType, { bg: string; color: string; label: string }>
 };
 
 const CONFIG_BN: Record<BadgeType, { bg: string; color: string; label: string }> = {
-  active: { bg: Colors.successBg, color: Colors.success, label: 'সক্রিয়' },
+  active: { bg: Colors.successBg, color: Colors.success, label: 'চলমান' },
   pending: { bg: Colors.warningBg, color: Colors.warning, label: 'মুলতুবি' },
   overdue: { bg: Colors.dangerBg, color: Colors.danger, label: 'মেয়াদোত্তীর্ণ' },
   completed: { bg: 'rgba(100,116,139,0.12)', color: '#64748B', label: 'সম্পন্ন' },

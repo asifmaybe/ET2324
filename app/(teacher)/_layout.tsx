@@ -63,6 +63,7 @@ export default function TeacherLayout() {
       }} />
       <Tabs.Screen name="results" options={{
         title: lang === 'bn' ? 'ফলাফল' : 'Results',
+        href: null,
         tabBarIcon: ({ color, size }) => <MaterialIcons name="bar-chart" size={size} color={color} />,
       }} />
       <Tabs.Screen name="notices" options={{

@@ -63,7 +63,12 @@ export default function StudentLayout() {
       }} />
       <Tabs.Screen name="results" options={{
         title: tr('navResults'),
+        href: null,
         tabBarIcon: ({ color, size }) => <MaterialIcons name="bar-chart" size={size} color={color} />,
+      }} />
+      <Tabs.Screen name="notices" options={{
+        title: lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notices',
+        tabBarIcon: ({ color, size }) => <MaterialIcons name="campaign" size={size} color={color} />,
       }} />
       <Tabs.Screen name="routine" options={{
         title: tr('navRoutine'),

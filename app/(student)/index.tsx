@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -8,6 +8,7 @@ import { useLang } from '../../hooks/useLang';
 import { HamburgerMenu } from '../../components/ui/HamburgerMenu';
 import { useData } from '../../hooks/useData';
 import { Card } from '../../components/ui/Card';
+import { NoticeModal } from '../../components/ui/NoticeModal';
 import { Colors, FontSize, Radius, Fonts } from '../../constants/theme';
 import { MOCK_ROUTINE } from '../../constants/mockData';
 
@@ -56,6 +57,8 @@ export default function StudentDashboard() {
   const { lang, tr } = useLang();
   const { assignments, exams, notices } = useData();
   const router = useRouter();
+
+  const [selectedNotice, setSelectedNotice] = useState<any>(null);
 
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
 
@@ -116,42 +119,74 @@ export default function StudentDashboard() {
 
         <View style={styles.pad}>
 
-          {/* ── Notice Card ── */}
+          {/* ── Notice Section ── */}
           {topNotice ? (
-            <Card padding={16}>
-              <View style={styles.noticeTopRow}>
-                <View style={styles.noticeTitleRow}>
-                  <MaterialIcons name="notifications-none" size={16} color={Colors.accent} />
-                  <Text style={[styles.noticeSectionLabel, { fontFamily: FF.semiBold }]}>
-                    {lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notice'}
-                  </Text>
-                </View>
-                <TouchableOpacity>
-                  <Text style={[styles.seeAllText, { fontFamily: FF.semiBold }]}>
+            <View style={{ marginBottom: 24 }}>
+              <View style={styles.noticeSectionHeader}>
+                <Text style={[styles.noticeMainTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>
+                  {lang === 'bn' ? 'বিশেষ বিজ্ঞপ্তি' : 'Special Notice'}
+                </Text>
+                <TouchableOpacity onPress={() => router.push('/(student)/notices')}>
+                  <Text style={[styles.seeAllGreen, { fontFamily: FF.semiBold }]}>
                     {lang === 'bn' ? 'সব দেখুন' : 'See all'}
                   </Text>
                 </TouchableOpacity>
               </View>
-              <View style={styles.noticeBody}>
-                {topNotice.important ? <View style={styles.redDot} /> : null}
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.noticeTitle, { fontFamily: FF.semiBold }]}>
-                    {topNotice.title}
-                  </Text>
-                  <Text style={[styles.noticeDesc, { fontFamily: FF.regular }]} numberOfLines={2}>
-                    {topNotice.description}
-                  </Text>
-                  <Text style={[styles.noticeMeta, { fontFamily: Fonts.en.regular }]}>
-                    {topNotice.date} · {topNotice.time} · {topNotice.author}
-                  </Text>
+
+              <Card padding={16}>
+                <View style={styles.noticeCardTop}>
+                  <View style={styles.noticeBadge}>
+                    <Text style={[styles.noticeBadgeText, { fontFamily: FF.medium }]}>
+                      {lang === 'bn' ? 'একাডেমিক' : 'Academic'}
+                    </Text>
+                  </View>
+                  <TouchableOpacity style={styles.detailsBtn} onPress={() => setSelectedNotice(topNotice)}>
+                    <MaterialIcons name="visibility" size={16} color={Colors.textSecondary} />
+                    <Text style={[styles.detailsText, { fontFamily: FF.regular }]}>
+                      {lang === 'bn' ? 'বিস্তারিত দেখুন' : 'See details'}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
-              </View>
-              <View style={styles.dotRow}>
+
+                <Text style={[styles.noticeTitleLg, { fontFamily: FF.bold }]} numberOfLines={2}>
+                  {topNotice.title}
+                </Text>
+                <Text style={[styles.noticeDescLg, { fontFamily: FF.regular }]} numberOfLines={3}>
+                  {topNotice.description}
+                </Text>
+
+                <View style={styles.noticeDivider} />
+
+                <View style={styles.noticeBottomRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.noticeAuthor, { fontFamily: Fonts.en.medium }]}>
+                      {topNotice.author || 'Dr. Ariful Islam'}
+                    </Text>
+                    <Text style={[styles.noticeDateTime, { fontFamily: FF.regular }]}>
+                      {topNotice.date} • {topNotice.time}
+                    </Text>
+                  </View>
+                  
+                  <View style={styles.noticePagination}>
+                    <TouchableOpacity style={styles.pageBtn}>
+                      <MaterialIcons name="chevron-left" size={20} color={Colors.textPrimary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.pageBtnRight}>
+                      <Text style={[styles.pageBtnText, { fontFamily: FF.medium }]}>
+                        {lang === 'bn' ? 'পরবর্তী' : 'Next'}
+                      </Text>
+                      <MaterialIcons name="chevron-right" size={20} color={Colors.textPrimary} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Card>
+
+              <View style={styles.dotRowCenter}>
                 {[0, 1, 2, 3].map(i => (
-                  <View key={i} style={[styles.dot, i === 0 && styles.dotActive]} />
+                  <View key={i} style={[styles.dotCircle, i === 0 && styles.dotCircleActive]} />
                 ))}
               </View>
-            </Card>
+            </View>
           ) : null}
 
           {/* ── Section: সারসংক্ষেপ ── */}
@@ -305,6 +340,12 @@ export default function StudentDashboard() {
 
         </View>
       </ScrollView>
+
+      <NoticeModal 
+        visible={!!selectedNotice} 
+        notice={selectedNotice} 
+        onClose={() => setSelectedNotice(null)} 
+      />
     </SafeAreaView>
   );
 }
@@ -345,21 +386,54 @@ const styles = StyleSheet.create({
   pad: { paddingHorizontal: 16 },
 
   /* Notice */
-  noticeTopRow: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'center', marginBottom: 10,
+  noticeSectionHeader: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    marginBottom: 12, paddingHorizontal: 4,
   },
-  noticeTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  noticeSectionLabel: { fontSize: FontSize.md, color: Colors.accent },
-  seeAllText: { fontSize: FontSize.sm, color: Colors.accent },
-  noticeBody: { flexDirection: 'row', gap: 10 },
-  redDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: Colors.danger, marginTop: 5 },
-  noticeTitle: { fontSize: FontSize.md, color: Colors.textPrimary, marginBottom: 3 },
-  noticeDesc: { fontSize: FontSize.sm, color: Colors.textSecondary, lineHeight: 20, marginBottom: 5 },
-  noticeMeta: { fontSize: FontSize.xs, color: Colors.textMuted },
-  dotRow: { flexDirection: 'row', justifyContent: 'flex-end', gap: 4, marginTop: 12 },
-  dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: Colors.borderColor },
-  dotActive: { backgroundColor: Colors.accent, width: 14 },
+  noticeMainTitle: { fontSize: FontSize.lg + 2, color: Colors.textPrimary },
+  seeAllGreen: { fontSize: FontSize.sm, color: Colors.accent },
+  
+  noticeCardTop: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    marginBottom: 14,
+  },
+  noticeBadge: {
+    backgroundColor: '#E6F0F9',
+    paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.full,
+  },
+  noticeBadgeText: { fontSize: FontSize.xs, color: '#1A5A8A' },
+  detailsBtn: { 
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: 12, paddingVertical: 6,
+    borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.borderColor,
+    backgroundColor: Colors.white 
+  },
+  detailsText: { fontSize: FontSize.sm, color: Colors.textSecondary },
+  
+  noticeTitleLg: { fontSize: FontSize.md + 1, color: Colors.textPrimary, marginBottom: 8, lineHeight: 24 },
+  noticeDescLg: { fontSize: FontSize.sm, color: Colors.textSecondary, lineHeight: 22, marginBottom: 16 },
+  
+  noticeDivider: { height: 1, backgroundColor: Colors.borderColor, marginBottom: 12 },
+  
+  noticeBottomRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  noticeAuthor: { fontSize: FontSize.sm, color: Colors.textPrimary, marginBottom: 2 },
+  noticeDateTime: { fontSize: FontSize.xs, color: Colors.textMuted },
+  
+  noticePagination: { flexDirection: 'row', gap: 8 },
+  pageBtn: { 
+    width: 36, height: 36, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.borderColor,
+    justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.white 
+  },
+  pageBtnRight: {
+    flexDirection: 'row', alignItems: 'center', height: 36, paddingHorizontal: 12,
+    borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.borderColor,
+    backgroundColor: Colors.white, gap: 4,
+  },
+  pageBtnText: { fontSize: FontSize.sm, color: Colors.textPrimary },
+  
+  dotRowCenter: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 16, marginBottom: 4 },
+  dotCircle: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.borderColor },
+  dotCircleActive: { backgroundColor: Colors.accent, width: 8, height: 8 },
 
   /* Section title */
   sectionTitle: {

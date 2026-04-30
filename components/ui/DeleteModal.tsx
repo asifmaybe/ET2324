@@ -10,9 +10,10 @@ interface Props {
   onCancel: () => void;
   confirmLabel?: string;
   cancelLabel?: string;
+  confirmVariant?: 'primary' | 'secondary' | 'danger' | 'success';
 }
 
-export function DeleteModal({ visible, message, onConfirm, onCancel, confirmLabel = 'Delete', cancelLabel = 'Cancel' }: Props) {
+export function DeleteModal({ visible, message, onConfirm, onCancel, confirmLabel = 'Delete', cancelLabel = 'Cancel', confirmVariant = 'danger' }: Props) {
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
@@ -20,7 +21,7 @@ export function DeleteModal({ visible, message, onConfirm, onCancel, confirmLabe
           <Text style={styles.msg}>{message}</Text>
           <View style={styles.row}>
             <ActionButton label={cancelLabel} onPress={onCancel} variant="secondary" style={styles.btn} />
-            <ActionButton label={confirmLabel} onPress={onConfirm} variant="danger" style={styles.btn} />
+            <ActionButton label={confirmLabel} onPress={onConfirm} variant={confirmVariant} style={styles.btn} />
           </View>
         </View>
       </View>
