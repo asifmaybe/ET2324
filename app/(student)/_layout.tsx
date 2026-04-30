@@ -46,6 +46,7 @@ export default function StudentLayout() {
       <Tabs.Screen name="index" options={{
         title: lang === 'bn' ? 'হোম' : 'Home',
         tabBarIcon: ({ color, size }) => <MaterialIcons name="grid-view" size={size} color={color} />,
+        tabBarItemStyle: { paddingLeft: 16 },
       }} />
       <Tabs.Screen name="assignments" options={{
         title: tr('navAssignments'),
@@ -67,6 +68,7 @@ export default function StudentLayout() {
       <Tabs.Screen name="routine" options={{
         title: tr('navRoutine'),
         tabBarIcon: ({ color, size }) => <MaterialIcons name="calendar-today" size={size} color={color} />,
+        tabBarItemStyle: { paddingRight: 16 },
       }} />
     </Tabs>
   );

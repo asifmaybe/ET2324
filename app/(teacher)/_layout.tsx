@@ -46,6 +46,7 @@ export default function TeacherLayout() {
       <Tabs.Screen name="index" options={{
         title: lang === 'bn' ? 'ড্যাশবোর্ড' : 'Dashboard',
         tabBarIcon: ({ color, size }) => <MaterialIcons name="grid-view" size={size} color={color} />,
+        tabBarItemStyle: { paddingLeft: 16 },
       }} />
       <Tabs.Screen name="assignments" options={{
         title: lang === 'bn' ? 'কাজ' : 'Assign',
@@ -67,6 +68,7 @@ export default function TeacherLayout() {
       <Tabs.Screen name="notices" options={{
         title: lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notices',
         tabBarIcon: ({ color, size }) => <MaterialIcons name="campaign" size={size} color={color} />,
+        tabBarItemStyle: { paddingRight: 16 },
       }} />
     </Tabs>
   );
