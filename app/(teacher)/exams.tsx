@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, Modal,
-  ScrollView, TextInput, KeyboardAvoidingView, Platform,
+  ScrollView, TextInput, KeyboardAvoidingView, Platform, Pressable,
 } from 'react-native';
+import { Calendar } from 'react-native-calendars';
 import { useAuth } from '../../hooks/useAuth';
 import { useData } from '../../hooks/useData';
 import { useLang } from '../../hooks/useLang';
@@ -24,7 +25,7 @@ const EXAM_TYPES_BN: Record<string, string> = {
   'Mid-Term': 'মধ্যবর্তী পরীক্ষা',
   'Final': 'চূড়ান্ত পরীক্ষা',
 };
-const EMPTY: Partial<Exam> = { subject: SUBJECTS[0], type: 'Class Test', date: '', marks: 20, instructions: '', upcoming: true };
+const EMPTY: Partial<Exam> = { subject: '', type: 'Class Test', date: '', marks: 0, instructions: '', upcoming: true };
 
 export default function TeacherExams() {
   const { user } = useAuth();
@@ -36,6 +37,7 @@ export default function TeacherExams() {
   const [editItem, setEditItem] = useState<Partial<Exam> | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [subjectOpen, setSubjectOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
 
   const filtered = exams.filter(e => e.upcoming === (tab === 'upcoming'));
@@ -46,10 +48,12 @@ export default function TeacherExams() {
   const handleSave = () => {
     if (!editItem?.subject?.trim()) return;
     const now = new Date().toISOString();
+    const today = now.slice(0, 10);
+    const autoUpcoming = !editItem.date || editItem.date >= today;
     if (editItem.id) {
-      updateExam({ ...editItem, updated_by: user?.name ?? '', updated_at: now } as Exam);
+      updateExam({ ...editItem, upcoming: autoUpcoming, updated_by: user?.name ?? '', updated_at: now } as Exam);
     } else {
-      addExam({ ...editItem, created_by: user?.name ?? '', updated_by: user?.name ?? '', created_at: now, updated_at: now } as Exam);
+      addExam({ ...editItem, upcoming: autoUpcoming, created_by: user?.name ?? '', updated_by: user?.name ?? '', created_at: now, updated_at: now } as Exam);
     }
     setModalVisible(false);
   };
@@ -90,6 +94,14 @@ export default function TeacherExams() {
                   <Text style={[styles.metaText, { fontFamily: Fonts.en.regular }]}>{item.date}</Text>
                 </View>
                 {item.instructions ? <Text style={[styles.instr, { fontFamily: FF.regular }]} numberOfLines={2}>{item.instructions}</Text> : null}
+                {item.updated_at && item.created_at && item.updated_at !== item.created_at ? (
+                  <View style={styles.editedPill}>
+                    <MaterialIcons name="edit" size={11} color={Colors.textMuted} />
+                    <Text style={[styles.editedPillText, { fontFamily: FF.regular }]}>
+                      {lang === 'bn' ? 'শেষ সম্পাদনা:' : 'Last edited by'} {item.updated_by} • {new Date(item.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </Text>
+                  </View>
+                ) : null}
               </View>
               <View style={styles.btnCol}>
                 <TouchableOpacity style={styles.iconBtn} onPress={() => openEdit(item)}>
@@ -112,7 +124,7 @@ export default function TeacherExams() {
         </Text>
       </TouchableOpacity>
 
-      <Modal visible={modalVisible} transparent animationType="slide">
+      <Modal visible={modalVisible} transparent animationType="fade">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalBox}>
@@ -120,25 +132,40 @@ export default function TeacherExams() {
                 <Text style={[styles.modalTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>
                   {editItem?.id ? tr('editAssignment') : tr('addExam')}
                 </Text>
-                <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <TouchableOpacity onPress={() => { setModalVisible(false); setEditItem({ ...EMPTY }); }}>
                   <MaterialIcons name="close" size={22} color={Colors.textSecondary} />
                 </TouchableOpacity>
               </View>
               <ScrollView showsVerticalScrollIndicator={false}>
                 <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{tr('subject')}</Text>
-                <TouchableOpacity style={styles.input} onPress={() => setSubjectOpen(!subjectOpen)}>
-                  <Text style={[styles.dropText, { fontFamily: FF.regular }]} numberOfLines={1}>{editItem?.subject}</Text>
-                  <MaterialIcons name={subjectOpen ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} size={18} color={Colors.textSecondary} />
+                <TouchableOpacity style={styles.input} onPress={() => setSubjectOpen(true)}>
+                  <Text style={[styles.dropText, { fontFamily: FF.regular }, !editItem?.subject && { color: Colors.textMuted }]} numberOfLines={1}>
+                    {editItem?.subject || (lang === 'bn' ? 'বিষয় নির্বাচন করুন' : 'Select Subject')}
+                  </Text>
+                  <MaterialIcons name="keyboard-arrow-down" size={18} color={Colors.textSecondary} />
                 </TouchableOpacity>
-                {subjectOpen ? (
-                  <View style={styles.dropdown}>
-                    {SUBJECTS.map(s => (
-                      <TouchableOpacity key={s} style={[styles.dropItem, editItem?.subject === s && styles.dropItemActive]} onPress={() => { setEditItem(p => ({ ...p, subject: s })); setSubjectOpen(false); }}>
-                        <Text style={[styles.dropItemText, { fontFamily: FF.regular }, editItem?.subject === s && { color: Colors.accent }]} numberOfLines={1}>{s}</Text>
+
+                {/* Subject Picker Modal */}
+                <Modal visible={subjectOpen} transparent animationType="fade" onRequestClose={() => setSubjectOpen(false)}>
+                  <Pressable style={styles.dropdownOverlay} onPress={() => setSubjectOpen(false)}>
+                    <View style={styles.dropdownModal}>
+                      {/* Default "Select Subject" option */}
+                      <TouchableOpacity style={styles.dropItem}
+                        onPress={() => { setEditItem(p => ({ ...p, subject: '' })); setSubjectOpen(false); }}>
+                        <Text style={[styles.dropItemText, { fontFamily: FF.regular, color: Colors.textMuted }]}>
+                          {lang === 'bn' ? 'বিষয় নির্বাচন করুন' : 'Select Subject'}
+                        </Text>
                       </TouchableOpacity>
-                    ))}
-                  </View>
-                ) : null}
+                      {SUBJECTS.map(s => (
+                        <TouchableOpacity key={s} style={[styles.dropItem, editItem?.subject === s && styles.dropItemActive]}
+                          onPress={() => { setEditItem(p => ({ ...p, subject: s })); setSubjectOpen(false); }}>
+                          <Text style={[styles.dropItemText, { fontFamily: FF.regular }, editItem?.subject === s && { color: Colors.accent }]} numberOfLines={1}>{s}</Text>
+                          {editItem?.subject === s && <MaterialIcons name="check" size={18} color={Colors.accent} />}
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </Pressable>
+                </Modal>
                 <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{tr('examType')}</Text>
                 <View style={styles.typeRow}>
                   {EXAM_TYPES_EN.map(t => (
@@ -149,24 +176,33 @@ export default function TeacherExams() {
                     </TouchableOpacity>
                   ))}
                 </View>
-                <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{tr('date')} (YYYY-MM-DD)</Text>
-                <TextInput style={[styles.input, { fontFamily: Fonts.en.regular }]} value={editItem?.date ?? ''} onChangeText={v => setEditItem(p => ({ ...p, date: v }))} placeholder="2026-05-05" placeholderTextColor={Colors.textMuted} />
+                <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{tr('date')}</Text>
+                <TouchableOpacity style={styles.input} onPress={() => setCalendarOpen(true)}>
+                  <Text style={[{ fontFamily: Fonts.en.regular, fontSize: FontSize.sm, flex: 1 }, !editItem?.date && { color: Colors.textMuted }]}>
+                    {editItem?.date || (lang === 'bn' ? 'তারিখ নির্বাচন করুন' : 'Select date')}
+                  </Text>
+                  <MaterialIcons name="calendar-today" size={18} color={Colors.textSecondary} />
+                </TouchableOpacity>
+
+                {/* Calendar Picker Modal */}
+                <Modal visible={calendarOpen} transparent animationType="fade" onRequestClose={() => setCalendarOpen(false)}>
+                  <Pressable style={styles.dropdownOverlay} onPress={() => setCalendarOpen(false)}>
+                    <View style={[styles.dropdownModal, { paddingVertical: 0, paddingHorizontal: 0, overflow: 'hidden' }]}>
+                      <Calendar
+                        current={editItem?.date || new Date().toISOString().slice(0, 10)}
+                        onDayPress={(day: { dateString: string }) => { setEditItem(p => ({ ...p, date: day.dateString })); setCalendarOpen(false); }}
+                        markedDates={editItem?.date ? { [editItem.date]: { selected: true, selectedColor: Colors.accent } } : {}}
+                        theme={{ todayTextColor: Colors.accent, selectedDayBackgroundColor: Colors.accent, arrowColor: Colors.accent }}
+                      />
+                    </View>
+                  </Pressable>
+                </Modal>
                 <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{tr('marks')}</Text>
-                <TextInput style={[styles.input, { fontFamily: Fonts.en.regular }]} value={String(editItem?.marks ?? 20)} onChangeText={v => setEditItem(p => ({ ...p, marks: parseInt(v) || 0 }))} keyboardType="numeric" placeholderTextColor={Colors.textMuted} />
+                <TextInput style={[styles.input, { fontFamily: Fonts.en.regular }]} value={editItem?.marks ? String(editItem.marks) : ''} onChangeText={v => setEditItem(p => ({ ...p, marks: parseInt(v) || 0 }))} keyboardType="numeric" placeholder={lang === 'bn' ? 'নম্বর লিখুন' : 'Input marks'} placeholderTextColor={Colors.textMuted} />
                 <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{tr('instructions')}</Text>
                 <TextInput style={[styles.input, styles.multiInput, { fontFamily: FF.regular }]} value={editItem?.instructions ?? ''} onChangeText={v => setEditItem(p => ({ ...p, instructions: v }))} placeholder={lang === 'bn' ? 'নির্দেশনা লিখুন' : 'Enter instructions'} placeholderTextColor={Colors.textMuted} multiline numberOfLines={3} textAlignVertical="top" />
-                <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{lang === 'bn' ? 'অবস্থা' : 'Status'}</Text>
-                <View style={styles.typeRow}>
-                  {[true, false].map(v => (
-                    <TouchableOpacity key={String(v)} style={[styles.typeChip, editItem?.upcoming === v && styles.typeChipActive]} onPress={() => setEditItem(p => ({ ...p, upcoming: v }))}>
-                      <Text style={[styles.typeChipText, { fontFamily: FF.medium }, editItem?.upcoming === v && { color: Colors.accent }]}>
-                        {v ? tr('upcoming') : tr('past')}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
                 <View style={styles.modalBtns}>
-                  <ActionButton label={tr('cancel')} onPress={() => setModalVisible(false)} variant="secondary" style={{ flex: 1 }} />
+                  <ActionButton label={tr('cancel')} onPress={() => { setModalVisible(false); setEditItem({ ...EMPTY }); }} variant="secondary" style={{ flex: 1 }} />
                   <ActionButton label={tr('save')} onPress={handleSave} style={{ flex: 1 }} />
                 </View>
               </ScrollView>
@@ -189,7 +225,7 @@ export default function TeacherExams() {
 
 const styles = StyleSheet.create({
   fab: {
-    position: 'absolute', bottom: 28, right: 32,
+    position: 'absolute', bottom: 28, right: 20,
     flexDirection: 'row', alignItems: 'center', gap: 6,
     backgroundColor: Colors.accent, borderRadius: Radius.xl,
     paddingVertical: 13, paddingHorizontal: 14,
@@ -214,6 +250,8 @@ const styles = StyleSheet.create({
   },
   marksText: { fontSize: 10, color: Colors.textSecondary },
   instr: { fontSize: FontSize.xs, color: Colors.textSecondary, lineHeight: 17, marginTop: 4 },
+  editedPill: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: Colors.bgSecondary, borderRadius: Radius.full, paddingHorizontal: 8, paddingVertical: 3, marginTop: 10, borderWidth: 1, borderColor: Colors.borderColor },
+  editedPillText: { fontSize: 10, color: Colors.textMuted },
   btnCol: { gap: 8 },
   iconBtn: { width: 32, height: 32, borderRadius: 8, backgroundColor: Colors.bgSecondary, borderWidth: 1, borderColor: Colors.borderColor, justifyContent: 'center', alignItems: 'center' },
   deleteBtn: { backgroundColor: Colors.dangerBg },
@@ -227,8 +265,9 @@ const styles = StyleSheet.create({
   input: { backgroundColor: Colors.bg, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.borderColor, color: Colors.textPrimary, fontSize: FontSize.sm, paddingHorizontal: 12, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   multiInput: { minHeight: 80, textAlignVertical: 'top', paddingTop: 10 },
   dropText: { flex: 1, color: Colors.textPrimary, fontSize: FontSize.sm },
-  dropdown: { backgroundColor: Colors.white, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.borderColor, overflow: 'hidden', marginTop: -6, marginBottom: 4 },
-  dropItem: { paddingHorizontal: 12, paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: Colors.borderColor },
+  dropdownOverlay: { flex: 1, backgroundColor: Colors.overlay, justifyContent: 'center', alignItems: 'center', padding: 24 },
+  dropdownModal: { backgroundColor: Colors.white, borderRadius: Radius.xl, width: '100%', paddingVertical: 16, paddingHorizontal: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 10 },
+  dropItem: { paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: Colors.borderColor, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   dropItemActive: { backgroundColor: Colors.accentLight },
   dropItemText: { fontSize: FontSize.sm, color: Colors.textPrimary },
   typeRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 4 },

@@ -18,6 +18,8 @@ export interface Notice {
   author: string;
   important: boolean;
   created_at: string;
+  updated_by?: string;
+  updated_at?: string;
 }
 
 export interface Assignment {

@@ -120,10 +120,20 @@ export default function TeacherDashboard() {
 
               <Card padding={16}>
                 <View style={styles.noticeCardTop}>
-                  <View style={styles.noticeBadge}>
-                    <Text style={[styles.noticeBadgeText, { fontFamily: FF.medium }]}>
-                      {lang === 'bn' ? 'একাডেমিক' : 'Academic'}
-                    </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, paddingRight: 8 }}>
+                    <View style={styles.noticeBadge}>
+                      <Text style={[styles.noticeBadgeText, { fontFamily: FF.medium }]}>
+                        {lang === 'bn' ? 'একাডেমিক' : 'Academic'}
+                      </Text>
+                    </View>
+                    {currentNotice.updated_by ? (
+                      <View style={[styles.editedPill, { marginBottom: 0, flexShrink: 1 }]}>
+                        <MaterialIcons name="edit" size={11} color={Colors.textMuted} />
+                        <Text style={[styles.editedPillText, { fontFamily: FF.regular }]} numberOfLines={1}>
+                          {lang === 'bn' ? 'শেষ সম্পাদনা:' : 'Last edited by'} {currentNotice.updated_by} • {currentNotice.updated_at ? new Date(currentNotice.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}
+                        </Text>
+                      </View>
+                    ) : null}
                   </View>
                   <TouchableOpacity style={styles.detailsBtn} onPress={() => setSelectedNotice(currentNotice)}>
                     <MaterialIcons name="visibility" size={16} color={Colors.textSecondary} />
@@ -213,7 +223,7 @@ export default function TeacherDashboard() {
             { labelBn: 'আসন্ন পরীক্ষা', labelEn: 'Upcoming Exams', count: upcomingExams, icon: 'school', colorBg: '#EFF6FF', color: Colors.info, route: '/(teacher)/exams' },
             { labelBn: 'ফলাফল আপলোড', labelEn: 'Results Uploaded', count: totalResults, icon: 'bar-chart', colorBg: '#FEF3C7', color: Colors.warning, route: '/(teacher)/results' },
           ].map((item, index) => (
-            <TouchableOpacity key={item.labelEn} onPress={() => router.push(item.route as any)} activeOpacity={0.8} style={{ marginBottom: index === 2 ? 0 : 12 }}>
+            <TouchableOpacity key={item.labelEn} onPress={() => router.push(item.route as any)} activeOpacity={0.8} style={{ marginBottom: index === 2 ? 0 : 0 }}>
               <Card padding={16}>
                 <View style={styles.overviewRow}>
                   <View style={[styles.overviewIcon, { backgroundColor: item.colorBg }]}>
@@ -320,6 +330,8 @@ const styles = StyleSheet.create({
   noticeBottomRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   noticeAuthor: { fontSize: FontSize.sm, color: Colors.textPrimary, marginBottom: 2 },
   noticeDateTime: { fontSize: FontSize.xs, color: Colors.textMuted },
+  editedPill: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: Colors.bgSecondary, borderRadius: Radius.full, paddingHorizontal: 8, paddingVertical: 3, marginBottom: 8, borderWidth: 1, borderColor: Colors.borderColor },
+  editedPillText: { fontSize: 10, color: Colors.textMuted },
   
   noticePagination: { flexDirection: 'row', gap: 8 },
   pageBtn: { 

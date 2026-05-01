@@ -63,6 +63,15 @@ export default function StudentAssignments() {
           <Text style={[styles.title, { fontFamily: FF.semiBold, marginBottom: 4 }]}>{item.title}</Text>
           <Text style={[styles.desc, { fontFamily: FF.regular }]} numberOfLines={2}>{item.description}</Text>
 
+          {item.updated_at && item.created_at && item.updated_at !== item.created_at ? (
+            <View style={styles.editedPill}>
+              <MaterialIcons name="edit" size={11} color={Colors.textMuted} />
+              <Text style={[styles.editedPillText, { fontFamily: FF.regular }]}>
+                {lang === 'bn' ? 'শেষ সম্পাদনা:' : 'Last edited by'} {item.updated_by} • {new Date(item.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              </Text>
+            </View>
+          ) : null}
+
           <View style={styles.divider} />
           <View style={styles.bottomRow}>
             <View style={styles.datesContainer}>
@@ -180,6 +189,8 @@ const styles = StyleSheet.create({
   meta: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   metaText: { fontSize: FontSize.xs, color: Colors.textMuted },
   divider: { height: 1, backgroundColor: Colors.borderColor, marginBottom: 10, marginTop: 4 },
+  editedPill: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: Colors.bgSecondary, borderRadius: Radius.full, paddingHorizontal: 8, paddingVertical: 3, marginTop: 6, marginBottom: 10, borderWidth: 1, borderColor: Colors.borderColor },
+  editedPillText: { fontSize: 10, color: Colors.textMuted },
   submitToggle: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     paddingVertical: 6, paddingHorizontal: 10,

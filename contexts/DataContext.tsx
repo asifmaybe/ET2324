@@ -19,6 +19,7 @@ interface DataContextType {
   updateExam: (e: Exam) => void;
   deleteExam: (id: string) => void;
   addNotice: (n: Notice) => void;
+  updateNotice: (n: Notice) => void;
   deleteNotice: (id: string) => void;
   addResult: (r: Result) => void;
   addAttendanceSession: (s: AttendanceSession) => void;
@@ -81,6 +82,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setNotices(prev => [newN, ...prev]);
     addAudit('Notice Posted', n.author, '-', `"${n.title}" published`);
   };
+  const updateNotice = (n: Notice) => {
+    setNotices(prev => prev.map(x => x.id === n.id ? n : x));
+    addAudit('Notice Updated', n.author, '-', `"${n.title}" updated`);
+  };
   const deleteNotice = (id: string) => {
     const n = notices.find(x => x.id === id);
     setNotices(prev => prev.filter(x => x.id !== id));
@@ -106,7 +111,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       assignments, exams, notices, results, attendanceSessions, auditLog,
       addAssignment, updateAssignment, deleteAssignment,
       addExam, updateExam, deleteExam,
-      addNotice, deleteNotice,
+      addNotice, updateNotice, deleteNotice,
       addResult,
       addAttendanceSession,
       onlineAttendanceActive, setOnlineAttendanceActive,

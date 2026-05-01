@@ -172,10 +172,20 @@ export default function StudentDashboard() {
 
               <Card padding={16}>
                 <View style={styles.noticeCardTop}>
-                  <View style={styles.noticeBadge}>
-                    <Text style={[styles.noticeBadgeText, { fontFamily: FF.medium }]}>
-                      {lang === 'bn' ? 'একাডেমিক' : 'Academic'}
-                    </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, paddingRight: 8 }}>
+                    <View style={styles.noticeBadge}>
+                      <Text style={[styles.noticeBadgeText, { fontFamily: FF.medium }]}>
+                        {lang === 'bn' ? 'একাডেমিক' : 'Academic'}
+                      </Text>
+                    </View>
+                    {currentNotice.updated_by ? (
+                      <View style={[styles.editedPill, { marginBottom: 0, flexShrink: 1 }]}>
+                        <MaterialIcons name="edit" size={11} color={Colors.textMuted} />
+                        <Text style={[styles.editedPillText, { fontFamily: FF.regular }]} numberOfLines={1}>
+                          {lang === 'bn' ? 'শেষ সম্পাদনা:' : 'Last edited by'} {currentNotice.updated_by} • {currentNotice.updated_at ? new Date(currentNotice.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}
+                        </Text>
+                      </View>
+                    ) : null}
                   </View>
                   <TouchableOpacity style={styles.detailsBtn} onPress={() => setSelectedNotice(currentNotice)}>
                     <MaterialIcons name="visibility" size={16} color={Colors.textSecondary} />
@@ -240,7 +250,7 @@ export default function StudentDashboard() {
           </Text>
 
           {/* Pending Assignments */}
-          <TouchableOpacity onPress={() => router.push('/(student)/assignments')} activeOpacity={0.8} style={{ marginBottom: 12 }}>
+          <TouchableOpacity onPress={() => router.push('/(student)/assignments')} activeOpacity={0.8} style={{ marginBottom: 0 }}>
             <Card padding={16}>
               <View style={styles.statRow}>
                 <View style={[styles.statIcon, { backgroundColor: Colors.accentLight }]}>
@@ -264,7 +274,7 @@ export default function StudentDashboard() {
           </TouchableOpacity>
 
           {/* Upcoming Exams */}
-          <TouchableOpacity onPress={() => router.push('/(student)/exams')} activeOpacity={0.8} style={{ marginBottom: 12 }}>
+          <TouchableOpacity onPress={() => router.push('/(student)/exams')} activeOpacity={0.8} style={{ marginBottom: 0 }}>
             <Card padding={16}>
               <View style={styles.statRow}>
                 <View style={[styles.statIcon, { backgroundColor: Colors.accentLight }]}>
@@ -288,7 +298,7 @@ export default function StudentDashboard() {
           </TouchableOpacity>
 
           {/* Monthly Attendance */}
-          <TouchableOpacity onPress={() => router.push('/(student)/attendance')} activeOpacity={0.8} style={{ marginBottom: 24 }}>
+          <TouchableOpacity onPress={() => router.push('/(student)/attendance')} activeOpacity={0.8} style={{ marginBottom: 12 }}>
             <Card padding={16}>
               <View style={styles.statRow}>
                 <View style={[styles.statIcon, { backgroundColor: Colors.accentLight }]}>
@@ -470,6 +480,8 @@ const styles = StyleSheet.create({
   noticeBottomRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   noticeAuthor: { fontSize: FontSize.sm, color: Colors.textPrimary, marginBottom: 2 },
   noticeDateTime: { fontSize: FontSize.xs, color: Colors.textMuted },
+  editedPill: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: Colors.bgSecondary, borderRadius: Radius.full, paddingHorizontal: 8, paddingVertical: 3, marginBottom: 8, borderWidth: 1, borderColor: Colors.borderColor },
+  editedPillText: { fontSize: 10, color: Colors.textMuted },
   
   noticePagination: { flexDirection: 'row', gap: 8 },
   pageBtn: { 

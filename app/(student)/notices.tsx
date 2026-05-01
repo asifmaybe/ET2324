@@ -53,6 +53,15 @@ export default function StudentNotices() {
 
             <View style={styles.noticeDivider} />
 
+            {item.updated_by ? (
+              <View style={styles.editedPill}>
+                <MaterialIcons name="edit" size={11} color={Colors.textMuted} />
+                <Text style={[styles.editedPillText, { fontFamily: FF.regular }]}>
+                  {lang === 'bn' ? 'শেষ সম্পাদনা:' : 'Last edited by'} {item.updated_by} • {item.updated_at ? new Date(item.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}
+                </Text>
+              </View>
+            ) : null}
+
             <View style={styles.noticeBottomRow}>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.noticeAuthor, { fontFamily: Fonts.en.medium }]}>
@@ -93,6 +102,8 @@ const styles = StyleSheet.create({
   noticeBottomRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   noticeAuthor: { fontSize: FontSize.sm, color: Colors.textPrimary, marginBottom: 2 },
   noticeDateTime: { fontSize: FontSize.xs, color: Colors.textMuted },
+  editedPill: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: Colors.bgSecondary, borderRadius: Radius.full, paddingHorizontal: 8, paddingVertical: 3, marginBottom: 8, borderWidth: 1, borderColor: Colors.borderColor },
+  editedPillText: { fontSize: 10, color: Colors.textMuted },
   empty: { alignItems: 'center', marginTop: 60 },
   emptyText: { fontSize: FontSize.md, color: Colors.textMuted },
 });

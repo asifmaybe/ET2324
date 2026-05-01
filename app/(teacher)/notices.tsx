@@ -18,31 +18,57 @@ import { Notice } from '../../types';
 
 export default function TeacherNotices() {
   const { user } = useAuth();
-  const { notices, addNotice, deleteNotice } = useData();
+  const { notices, addNotice, updateNotice, deleteNotice } = useData();
   const { lang, tr } = useLang();
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState({ title: '', description: '', important: false });
   const [selectedNotice, setSelectedNotice] = useState<Notice | null>(null);
+
+  const openEdit = (item: Notice) => {
+    setForm({ title: item.title, description: item.description, important: item.important });
+    setEditingId(item.id);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setEditingId(null);
+    setForm({ title: '', description: '', important: false });
+  };
 
   const handleSave = () => {
     if (!form.title.trim()) return;
     const now = new Date();
     const bst = new Date(now.getTime() + 6 * 60 * 60 * 1000);
-    addNotice({
-      id: '',
-      title: form.title.trim(),
-      description: form.description.trim(),
-      date: bst.toISOString().slice(0, 10),
-      time: bst.toLocaleTimeString('en-BD', { hour: '2-digit', minute: '2-digit' }),
-      author: user?.name ?? '',
-      important: form.important,
-      created_at: now.toISOString(),
-    } as Notice);
-    setModalVisible(false);
-    setForm({ title: '', description: '', important: false });
+    if (editingId) {
+      const existing = notices.find(n => n.id === editingId);
+      if (existing) {
+        updateNotice({
+          ...existing,
+          title: form.title.trim(),
+          description: form.description.trim(),
+          important: form.important,
+          updated_by: user?.name ?? 'Admin',
+          updated_at: new Date().toISOString(),
+        });
+      }
+    } else {
+      addNotice({
+        id: '',
+        title: form.title.trim(),
+        description: form.description.trim(),
+        date: bst.toISOString().slice(0, 10),
+        time: bst.toLocaleTimeString('en-BD', { hour: '2-digit', minute: '2-digit' }),
+        author: user?.name ?? '',
+        important: form.important,
+        created_at: now.toISOString(),
+      } as Notice);
+    }
+    closeModal();
   };
 
   return (
@@ -81,6 +107,15 @@ export default function TeacherNotices() {
 
             <View style={styles.noticeDivider} />
 
+            {item.updated_by ? (
+              <View style={styles.editedPill}>
+                <MaterialIcons name="edit" size={11} color={Colors.textMuted} />
+                <Text style={[styles.editedPillText, { fontFamily: FF.regular }]}>
+                  {lang === 'bn' ? 'শেষ সম্পাদনা:' : 'Last edited by'} {item.updated_by} • {item.updated_at ? new Date(item.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}
+                </Text>
+              </View>
+            ) : null}
+
             <View style={styles.noticeBottomRow}>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.noticeAuthor, { fontFamily: Fonts.en.medium }]}>
@@ -90,17 +125,21 @@ export default function TeacherNotices() {
                   {item.date} • {item.time}
                 </Text>
               </View>
-              
-              <TouchableOpacity style={styles.deleteBtn} onPress={() => setDeleteId(item.id)}>
-                <MaterialIcons name="delete-outline" size={20} color={Colors.danger} />
-              </TouchableOpacity>
+              <View style={styles.cardActions}>
+                <TouchableOpacity style={styles.editBtn} onPress={() => openEdit(item)}>
+                  <MaterialIcons name="edit" size={18} color={Colors.info} />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.deleteBtn} onPress={() => setDeleteId(item.id)}>
+                  <MaterialIcons name="delete-outline" size={18} color={Colors.danger} />
+                </TouchableOpacity>
+              </View>
             </View>
           </Card>
         )}
       />
 
       {/* FAB */}
-      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)} activeOpacity={0.85}>
+      <TouchableOpacity style={styles.fab} onPress={() => { setEditingId(null); setForm({ title: '', description: '', important: false }); setModalVisible(true); }} activeOpacity={0.85}>
         <MaterialIcons name="add" size={22} color="#fff" />
         <Text style={[styles.fabText, { fontFamily: FF.semiBold }]}>
           {lang === 'bn' ? 'নতুন বিজ্ঞপ্তি' : 'New Notice'}
@@ -113,9 +152,11 @@ export default function TeacherNotices() {
             <View style={styles.modalBox}>
               <View style={styles.modalHeader}>
                 <Text style={[styles.modalTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>
-                  {lang === 'bn' ? 'নতুন বিজ্ঞপ্তি' : 'New Notice'}
+                  {editingId
+                    ? (lang === 'bn' ? 'বিজ্ঞপ্তি সম্পাদনা' : 'Edit Notice')
+                    : (lang === 'bn' ? 'নতুন বিজ্ঞপ্তি' : 'New Notice')}
                 </Text>
-                <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <TouchableOpacity onPress={closeModal}>
                   <MaterialIcons name="close" size={22} color={Colors.textSecondary} />
                 </TouchableOpacity>
               </View>
@@ -154,7 +195,7 @@ export default function TeacherNotices() {
                   />
                 </View>
                 <View style={styles.modalBtns}>
-                  <ActionButton label={tr('cancel')} onPress={() => setModalVisible(false)} variant="secondary" style={{ flex: 1 }} />
+                  <ActionButton label={tr('cancel')} onPress={closeModal} variant="secondary" style={{ flex: 1 }} />
                   <ActionButton label={tr('save')} onPress={handleSave} style={{ flex: 1 }} />
                 </View>
               </ScrollView>
@@ -207,7 +248,11 @@ const styles = StyleSheet.create({
   noticeBottomRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   noticeAuthor: { fontSize: FontSize.sm, color: Colors.textPrimary, marginBottom: 2 },
   noticeDateTime: { fontSize: FontSize.xs, color: Colors.textMuted },
+  cardActions: { flexDirection: 'row', gap: 8, alignItems: 'center' },
+  editBtn: { padding: 8, backgroundColor: Colors.bgSecondary, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.borderColor },
   deleteBtn: { padding: 8, backgroundColor: Colors.dangerLight, borderRadius: Radius.md },
+  editedPill: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: Colors.bgSecondary, borderRadius: Radius.full, paddingHorizontal: 8, paddingVertical: 3, marginBottom: 8, borderWidth: 1, borderColor: Colors.borderColor },
+  editedPillText: { fontSize: 10, color: Colors.textMuted },
   empty: { alignItems: 'center', marginTop: 60 },
   emptyText: { fontSize: FontSize.md, color: Colors.textMuted },
   modalOverlay: { flex: 1, backgroundColor: Colors.overlay, justifyContent: 'flex-end' },

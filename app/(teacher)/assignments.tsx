@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, Modal,
-  ScrollView, TextInput, KeyboardAvoidingView, Platform,
+  ScrollView, TextInput, KeyboardAvoidingView, Platform, Pressable,
 } from 'react-native';
+import { Calendar } from 'react-native-calendars';
 import { useAuth } from '../../hooks/useAuth';
 import { useData } from '../../hooks/useData';
 import { useLang } from '../../hooks/useLang';
@@ -17,10 +18,14 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Assignment } from '../../types';
 import { SUBJECTS } from '../../constants/mockData';
 
-const STATUS_OPTIONS_EN = ['active', 'pending', 'completed'];
-const STATUS_OPTIONS_LABEL: Record<string, string> = { active: 'Ongoing', pending: 'Pending', completed: 'Completed' };
-const STATUS_BN: Record<string, string> = { active: 'চলমান', pending: 'মুলতুবি', completed: 'সম্পন্ন' };
-const EMPTY: Partial<Assignment> = { title: '', subject: SUBJECTS[0], description: '', assigned_date: '', due_date: '', status: 'active' };
+const EMPTY: Partial<Assignment> = { title: '', subject: '', description: '', assigned_date: '', due_date: '', status: 'active' };
+
+function computeStatus(assigned_date: string, due_date: string): Assignment['status'] {
+  const today = new Date().toISOString().slice(0, 10);
+  if (due_date && today > due_date) return 'overdue' as any;
+  if (assigned_date && today >= assigned_date) return 'active';
+  return 'pending';
+}
 
 export default function TeacherAssignments() {
   const { user } = useAuth();
@@ -32,6 +37,7 @@ export default function TeacherAssignments() {
   const [editItem, setEditItem] = useState<Partial<Assignment> | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [subjectOpen, setSubjectOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   const openAdd = () => { setEditItem({ ...EMPTY }); setModalVisible(true); };
   const openEdit = (a: Assignment) => { setEditItem({ ...a }); setModalVisible(true); };
@@ -40,10 +46,12 @@ export default function TeacherAssignments() {
     if (!editItem?.title?.trim()) return;
     const now = new Date().toISOString();
     const today = now.slice(0, 10);
+    const assignedDate = editItem.id ? (editItem.assigned_date ?? today) : today;
+    const autoStatus = computeStatus(assignedDate, editItem.due_date ?? '');
     if (editItem.id) {
-      updateAssignment({ ...editItem, updated_by: user?.name ?? '', updated_at: now } as Assignment);
+      updateAssignment({ ...editItem, status: autoStatus, updated_by: user?.name ?? '', updated_at: now } as Assignment);
     } else {
-      addAssignment({ ...editItem, assigned_date: today, created_by: user?.name ?? '', updated_by: user?.name ?? '', created_at: now, updated_at: now } as Assignment);
+      addAssignment({ ...editItem, status: autoStatus, assigned_date: today, created_by: user?.name ?? '', updated_by: user?.name ?? '', created_at: now, updated_at: now } as Assignment);
     }
     setModalVisible(false);
   };
@@ -75,6 +83,14 @@ export default function TeacherAssignments() {
                     </Text>
                   </View>
                 </View>
+                  {item.updated_at && item.created_at && item.updated_at !== item.created_at ? (
+                    <View style={styles.editedPill}>
+                      <MaterialIcons name="edit" size={11} color={Colors.textMuted} />
+                      <Text style={[styles.editedPillText, { fontFamily: FF.regular }]}>
+                        {lang === 'bn' ? 'শেষ সম্পাদনা:' : 'Last edited by'} {item.updated_by} • {new Date(item.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </Text>
+                    </View>
+                  ) : null}
               </View>
               <View style={styles.actions}>
                 <StatusBadge type={item.status as any} />
@@ -102,7 +118,7 @@ export default function TeacherAssignments() {
         </Text>
       </TouchableOpacity>
 
-      <Modal visible={modalVisible} transparent animationType="slide">
+      <Modal visible={modalVisible} transparent animationType="fade">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalBox}>
@@ -112,7 +128,7 @@ export default function TeacherAssignments() {
                     ? (lang === 'bn' ? 'সম্পাদনা করুন' : 'Edit Assignment')
                     : (lang === 'bn' ? 'নতুন অ্যাসাইনমেন্ট' : 'New Assignment')}
                 </Text>
-                <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <TouchableOpacity onPress={() => { setModalVisible(false); setEditItem({ ...EMPTY }); }}>
                   <MaterialIcons name="close" size={22} color={Colors.textSecondary} />
                 </TouchableOpacity>
               </View>
@@ -126,19 +142,34 @@ export default function TeacherAssignments() {
                   placeholderTextColor={Colors.textMuted}
                 />
                 <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{lang === 'bn' ? 'বিষয়' : 'Subject'}</Text>
-                <TouchableOpacity style={styles.input} onPress={() => setSubjectOpen(!subjectOpen)}>
-                  <Text style={[styles.dropdownText, { fontFamily: FF.regular }]} numberOfLines={1}>{editItem?.subject ?? SUBJECTS[0]}</Text>
-                  <MaterialIcons name={subjectOpen ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} size={18} color={Colors.textSecondary} />
+                <TouchableOpacity style={styles.input} onPress={() => setSubjectOpen(true)}>
+                  <Text style={[styles.dropdownText, { fontFamily: FF.regular }, !editItem?.subject && { color: Colors.textMuted }]} numberOfLines={1}>
+                    {editItem?.subject || (lang === 'bn' ? 'বিষয় নির্বাচন করুন' : 'Select Subject')}
+                  </Text>
+                  <MaterialIcons name="keyboard-arrow-down" size={18} color={Colors.textSecondary} />
                 </TouchableOpacity>
-                {subjectOpen ? (
-                  <View style={styles.dropdown}>
-                    {SUBJECTS.map(s => (
-                      <TouchableOpacity key={s} style={[styles.dropItem, editItem?.subject === s && styles.dropItemActive]} onPress={() => { setEditItem(p => ({ ...p, subject: s })); setSubjectOpen(false); }}>
-                        <Text style={[styles.dropItemText, { fontFamily: FF.regular }, editItem?.subject === s && { color: Colors.accent }]} numberOfLines={1}>{s}</Text>
+
+                {/* Subject Picker Modal */}
+                <Modal visible={subjectOpen} transparent animationType="fade" onRequestClose={() => setSubjectOpen(false)}>
+                  <Pressable style={styles.dropdownOverlay} onPress={() => setSubjectOpen(false)}>
+                    <View style={styles.dropdownModal}>
+                      {/* Default "Select Subject" option */}
+                      <TouchableOpacity style={styles.dropItem}
+                        onPress={() => { setEditItem(p => ({ ...p, subject: '' })); setSubjectOpen(false); }}>
+                        <Text style={[styles.dropItemText, { fontFamily: FF.regular, color: Colors.textMuted }]}>
+                          {lang === 'bn' ? 'বিষয় নির্বাচন করুন' : 'Select Subject'}
+                        </Text>
                       </TouchableOpacity>
-                    ))}
-                  </View>
-                ) : null}
+                      {SUBJECTS.map(s => (
+                        <TouchableOpacity key={s} style={[styles.dropItem, editItem?.subject === s && styles.dropItemActive]}
+                          onPress={() => { setEditItem(p => ({ ...p, subject: s })); setSubjectOpen(false); }}>
+                          <Text style={[styles.dropItemText, { fontFamily: FF.regular }, editItem?.subject === s && { color: Colors.accent }]} numberOfLines={1}>{s}</Text>
+                          {editItem?.subject === s && <MaterialIcons name="check" size={18} color={Colors.accent} />}
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </Pressable>
+                </Modal>
                 <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{lang === 'bn' ? 'বিবরণ' : 'Description'}</Text>
                 <TextInput
                   style={[styles.input, styles.multiInput, { fontFamily: FF.regular }]}
@@ -148,26 +179,30 @@ export default function TeacherAssignments() {
                   placeholderTextColor={Colors.textMuted}
                   multiline numberOfLines={3} textAlignVertical="top"
                 />
-                <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{lang === 'bn' ? 'জমার তারিখ' : 'Due Date'} (YYYY-MM-DD)</Text>
-                <TextInput
-                  style={[styles.input, { fontFamily: Fonts.en.regular }]}
-                  value={editItem?.due_date ?? ''}
-                  onChangeText={v => setEditItem(p => ({ ...p, due_date: v }))}
-                  placeholder="2026-05-15"
-                  placeholderTextColor={Colors.textMuted}
-                />
-                <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{lang === 'bn' ? 'অবস্থা' : 'Status'}</Text>
-                <View style={styles.statusRow}>
-                  {STATUS_OPTIONS_EN.map(s => (
-                    <TouchableOpacity key={s} style={[styles.statusChip, editItem?.status === s && styles.statusChipActive]} onPress={() => setEditItem(p => ({ ...p, status: s as any }))}>
-                      <Text style={[styles.statusChipText, { fontFamily: FF.medium }, editItem?.status === s && { color: Colors.accent }]}>
-                        {lang === 'bn' ? (STATUS_BN[s] ?? s) : (STATUS_OPTIONS_LABEL[s] ?? s)}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
+                <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{lang === 'bn' ? 'জমার তারিখ' : 'Due Date'}</Text>
+                <TouchableOpacity style={styles.input} onPress={() => setCalendarOpen(true)}>
+                  <Text style={[{ fontFamily: Fonts.en.regular, fontSize: FontSize.sm, flex: 1 }, !editItem?.due_date && { color: Colors.textMuted }]}>
+                    {editItem?.due_date || (lang === 'bn' ? 'তারিখ নির্বাচন করুন' : 'Select date')}
+                  </Text>
+                  <MaterialIcons name="calendar-today" size={18} color={Colors.textSecondary} />
+                </TouchableOpacity>
+
+                {/* Calendar Picker Modal */}
+                <Modal visible={calendarOpen} transparent animationType="fade" onRequestClose={() => setCalendarOpen(false)}>
+                  <Pressable style={styles.dropdownOverlay} onPress={() => setCalendarOpen(false)}>
+                    <View style={[styles.dropdownModal, { paddingVertical: 0, paddingHorizontal: 0, overflow: 'hidden' }]}>
+                      <Calendar
+                        current={editItem?.due_date || new Date().toISOString().slice(0, 10)}
+                        minDate={new Date().toISOString().slice(0, 10)}
+                        onDayPress={(day: { dateString: string }) => { setEditItem(p => ({ ...p, due_date: day.dateString })); setCalendarOpen(false); }}
+                        markedDates={editItem?.due_date ? { [editItem.due_date]: { selected: true, selectedColor: Colors.accent } } : {}}
+                        theme={{ todayTextColor: Colors.accent, selectedDayBackgroundColor: Colors.accent, arrowColor: Colors.accent }}
+                      />
+                    </View>
+                  </Pressable>
+                </Modal>
                 <View style={styles.modalBtns}>
-                  <ActionButton label={lang === 'bn' ? 'বাতিল' : 'Cancel'} onPress={() => setModalVisible(false)} variant="secondary" style={{ flex: 1 }} />
+                  <ActionButton label={lang === 'bn' ? 'বাতিল' : 'Cancel'} onPress={() => { setModalVisible(false); setEditItem({ ...EMPTY }); }} variant="secondary" style={{ flex: 1 }} />
                   <ActionButton label={lang === 'bn' ? 'সংরক্ষণ করুন' : 'Save'} onPress={handleSave} style={{ flex: 1 }} />
                 </View>
               </ScrollView>
@@ -190,7 +225,7 @@ export default function TeacherAssignments() {
 
 const styles = StyleSheet.create({
   fab: {
-    position: 'absolute', bottom: 28, right: 32,
+    position: 'absolute', bottom: 28, right: 20,
     flexDirection: 'row', alignItems: 'center', gap: 6,
     backgroundColor: Colors.accent, borderRadius: Radius.xl,
     paddingVertical: 13, paddingHorizontal: 14,
@@ -204,7 +239,9 @@ const styles = StyleSheet.create({
   desc: { fontSize: FontSize.sm, color: Colors.textSecondary, lineHeight: 19, marginBottom: 6 },
   metaRow: { flexDirection: 'row', gap: 12, marginTop: 2 },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  metaText: { fontSize: FontSize.xs, color: Colors.textMuted },
+  metaText: { fontSize: FontSize.xs, color: Colors.textMuted, marginLeft: 4 },
+  editedPill: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: Colors.bgSecondary, borderRadius: Radius.full, paddingHorizontal: 8, paddingVertical: 3, marginTop: 10, borderWidth: 1, borderColor: Colors.borderColor },
+  editedPillText: { fontSize: 10, color: Colors.textMuted },
   actions: { alignItems: 'flex-end', justifyContent: 'space-between', gap: 8 },
   btnRow: { flexDirection: 'row', gap: 6 },
   iconBtn: { width: 32, height: 32, borderRadius: 8, backgroundColor: Colors.bgSecondary, borderWidth: 1, borderColor: Colors.borderColor, justifyContent: 'center', alignItems: 'center' },
@@ -219,13 +256,10 @@ const styles = StyleSheet.create({
   input: { backgroundColor: Colors.bg, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.borderColor, color: Colors.textPrimary, fontSize: FontSize.sm, paddingHorizontal: 12, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   multiInput: { minHeight: 80, textAlignVertical: 'top', paddingTop: 10 },
   dropdownText: { flex: 1, color: Colors.textPrimary, fontSize: FontSize.sm },
-  dropdown: { backgroundColor: Colors.white, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.borderColor, overflow: 'hidden', marginTop: -6, marginBottom: 4 },
-  dropItem: { paddingHorizontal: 12, paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: Colors.borderColor },
+  dropdownOverlay: { flex: 1, backgroundColor: Colors.overlay, justifyContent: 'center', alignItems: 'center', padding: 24 },
+  dropdownModal: { backgroundColor: Colors.white, borderRadius: Radius.xl, width: '100%', paddingVertical: 16, paddingHorizontal: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 10 },
+  dropItem: { paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: Colors.borderColor, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   dropItemActive: { backgroundColor: Colors.accentLight },
   dropItemText: { fontSize: FontSize.sm, color: Colors.textPrimary },
-  statusRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 4 },
-  statusChip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: Radius.full, backgroundColor: Colors.bgSecondary, borderWidth: 1, borderColor: Colors.borderColor },
-  statusChipActive: { borderColor: Colors.accent, backgroundColor: Colors.accentLight },
-  statusChipText: { fontSize: FontSize.sm, color: Colors.textSecondary },
   modalBtns: { flexDirection: 'row', gap: 12, marginTop: 16, marginBottom: 8 },
 });

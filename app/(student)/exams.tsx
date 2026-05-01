@@ -69,6 +69,14 @@ export default function StudentExams() {
                 {item.instructions ? (
                   <Text style={[styles.instr, { fontFamily: FF.regular }]} numberOfLines={2}>{item.instructions}</Text>
                 ) : null}
+                {item.updated_at && item.created_at && item.updated_at !== item.created_at ? (
+                  <View style={styles.editedPill}>
+                    <MaterialIcons name="edit" size={11} color={Colors.textMuted} />
+                    <Text style={[styles.editedPillText, { fontFamily: FF.regular }]}>
+                      {lang === 'bn' ? 'শেষ সম্পাদনা:' : 'Last edited by'} {item.updated_by} • {new Date(item.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </Text>
+                  </View>
+                ) : null}
               </View>
               <View style={styles.dateBox}>
                 <Text style={[styles.dateText, { fontFamily: Fonts.en.bold }]}>{item.date.split('-')[2]}</Text>
@@ -110,6 +118,8 @@ const styles = StyleSheet.create({
     borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.borderColor,
   },
   marksText: { fontSize: 11, color: Colors.textSecondary },
+  editedPill: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: Colors.bgSecondary, borderRadius: Radius.full, paddingHorizontal: 8, paddingVertical: 3, marginTop: 4, borderWidth: 1, borderColor: Colors.borderColor },
+  editedPillText: { fontSize: 10, color: Colors.textMuted },
   empty: { alignItems: 'center', marginTop: 60, gap: 12 },
   emptyText: { fontSize: FontSize.md, color: Colors.textMuted },
 });
