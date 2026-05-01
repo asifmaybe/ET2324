@@ -14,7 +14,6 @@ import { ActionButton } from '../../components/ui/ActionButton';
 import { DeleteModal } from '../../components/ui/DeleteModal';
 import { Colors, FontSize, Radius, Fonts } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { Assignment } from '../../types';
 import { SUBJECTS } from '../../constants/mockData';
 
@@ -33,7 +32,6 @@ export default function TeacherAssignments() {
   const [editItem, setEditItem] = useState<Partial<Assignment> | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [subjectOpen, setSubjectOpen] = useState(false);
-  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const openAdd = () => { setEditItem({ ...EMPTY }); setModalVisible(true); };
   const openEdit = (a: Assignment) => { setEditItem({ ...a }); setModalVisible(true); };
@@ -150,49 +148,14 @@ export default function TeacherAssignments() {
                   placeholderTextColor={Colors.textMuted}
                   multiline numberOfLines={3} textAlignVertical="top"
                 />
-                <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{lang === 'bn' ? 'জমার তারিখ' : 'Due Date'}</Text>
-                {Platform.OS === 'web' ? (
-                  <View style={[styles.input, { paddingVertical: 0 }]}>
-                    <TextInput
-                      style={[{ flex: 1, paddingVertical: 12, fontFamily: Fonts.en.regular, color: editItem?.due_date ? Colors.textPrimary : Colors.textMuted }, Platform.OS === 'web' && { outlineStyle: 'none' } as any]}
-                      value={editItem?.due_date ?? ''}
-                      onChangeText={v => setEditItem(p => ({ ...p, due_date: v }))}
-                      {...{ type: 'date' } as any}
-                    />
-                  </View>
-                ) : (
-                  <>
-                    <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker(true)}>
-                      <Text style={[{ fontFamily: Fonts.en.regular, color: editItem?.due_date ? Colors.textPrimary : Colors.textMuted }]}>
-                        {editItem?.due_date || 'YYYY-MM-DD'}
-                      </Text>
-                      <MaterialIcons name="calendar-today" size={18} color={Colors.textSecondary} />
-                    </TouchableOpacity>
-
-                    {showDatePicker && (
-                      <DateTimePicker
-                        value={editItem?.due_date ? new Date(editItem.due_date) : new Date()}
-                        mode="date"
-                        display="default"
-                        onChange={(event, selectedDate) => {
-                          if (Platform.OS === 'android') setShowDatePicker(false);
-                          if (event.type === 'set' && selectedDate) {
-                            const offset = selectedDate.getTimezoneOffset();
-                            const dateStr = new Date(selectedDate.getTime() - (offset * 60 * 1000)).toISOString().split('T')[0];
-                            setEditItem(p => ({ ...p, due_date: dateStr }));
-                          } else if (event.type === 'dismissed') {
-                            setShowDatePicker(false);
-                          }
-                          if (Platform.OS === 'ios' && selectedDate) {
-                            const offset = selectedDate.getTimezoneOffset();
-                            const dateStr = new Date(selectedDate.getTime() - (offset * 60 * 1000)).toISOString().split('T')[0];
-                            setEditItem(p => ({ ...p, due_date: dateStr }));
-                          }
-                        }}
-                      />
-                    )}
-                  </>
-                )}
+                <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{lang === 'bn' ? 'জমার তারিখ' : 'Due Date'} (YYYY-MM-DD)</Text>
+                <TextInput
+                  style={[styles.input, { fontFamily: Fonts.en.regular }]}
+                  value={editItem?.due_date ?? ''}
+                  onChangeText={v => setEditItem(p => ({ ...p, due_date: v }))}
+                  placeholder="2026-05-15"
+                  placeholderTextColor={Colors.textMuted}
+                />
                 <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{lang === 'bn' ? 'অবস্থা' : 'Status'}</Text>
                 <View style={styles.statusRow}>
                   {STATUS_OPTIONS_EN.map(s => (
