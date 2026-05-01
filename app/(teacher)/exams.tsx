@@ -14,6 +14,7 @@ import { ActionButton } from '../../components/ui/ActionButton';
 import { DeleteModal } from '../../components/ui/DeleteModal';
 import { Colors, FontSize, Radius, Fonts } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Exam } from '../../types';
 import { SUBJECTS } from '../../constants/mockData';
 
@@ -36,6 +37,7 @@ export default function TeacherExams() {
   const [editItem, setEditItem] = useState<Partial<Exam> | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [subjectOpen, setSubjectOpen] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
 
   const filtered = exams.filter(e => e.upcoming === (tab === 'upcoming'));
@@ -112,7 +114,7 @@ export default function TeacherExams() {
         </Text>
       </TouchableOpacity>
 
-      <Modal visible={modalVisible} transparent animationType="fade">
+      <Modal visible={modalVisible} transparent animationType="slide">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalBox}>
@@ -149,8 +151,47 @@ export default function TeacherExams() {
                     </TouchableOpacity>
                   ))}
                 </View>
-                <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{tr('date')} (YYYY-MM-DD)</Text>
-                <TextInput style={[styles.input, { fontFamily: Fonts.en.regular }]} value={editItem?.date ?? ''} onChangeText={v => setEditItem(p => ({ ...p, date: v }))} placeholder="2026-05-05" placeholderTextColor={Colors.textMuted} />
+                <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{tr('date')}</Text>
+                {Platform.OS === 'web' ? (
+                  <View style={[styles.input, { paddingVertical: 0 }]}>
+                    <TextInput
+                      style={[{ flex: 1, paddingVertical: 12, fontFamily: Fonts.en.regular, color: editItem?.date ? Colors.textPrimary : Colors.textMuted }, Platform.OS === 'web' && { outlineStyle: 'none' } as any]}
+                      value={editItem?.date ?? ''}
+                      onChangeText={v => setEditItem(p => ({ ...p, date: v }))}
+                      {...{ type: 'date' } as any}
+                    />
+                  </View>
+                ) : (
+                  <>
+                    <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker(true)}>
+                      <Text style={[styles.dropText, { fontFamily: Fonts.en.regular, color: editItem?.date ? Colors.textPrimary : Colors.textMuted }]}>{editItem?.date || 'YYYY-MM-DD'}</Text>
+                      <MaterialIcons name="calendar-today" size={16} color={Colors.textSecondary} />
+                    </TouchableOpacity>
+
+                    {showDatePicker && (
+                      <DateTimePicker
+                        value={editItem?.date ? new Date(editItem.date) : new Date()}
+                        mode="date"
+                        display="default"
+                        onChange={(event, selectedDate) => {
+                          if (Platform.OS === 'android') setShowDatePicker(false);
+                          if (event.type === 'set' && selectedDate) {
+                            const offset = selectedDate.getTimezoneOffset();
+                            const dateStr = new Date(selectedDate.getTime() - (offset * 60 * 1000)).toISOString().split('T')[0];
+                            setEditItem(p => ({ ...p, date: dateStr }));
+                          } else if (event.type === 'dismissed') {
+                            setShowDatePicker(false);
+                          }
+                          if (Platform.OS === 'ios' && selectedDate) {
+                            const offset = selectedDate.getTimezoneOffset();
+                            const dateStr = new Date(selectedDate.getTime() - (offset * 60 * 1000)).toISOString().split('T')[0];
+                            setEditItem(p => ({ ...p, date: dateStr }));
+                          }
+                        }}
+                      />
+                    )}
+                  </>
+                )}
                 <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{tr('marks')}</Text>
                 <TextInput style={[styles.input, { fontFamily: Fonts.en.regular }]} value={String(editItem?.marks ?? 20)} onChangeText={v => setEditItem(p => ({ ...p, marks: parseInt(v) || 0 }))} keyboardType="numeric" placeholderTextColor={Colors.textMuted} />
                 <Text style={[styles.inputLabel, { fontFamily: FF.medium }]}>{tr('instructions')}</Text>

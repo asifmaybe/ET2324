@@ -104,7 +104,7 @@ export default function TeacherAttendance() {
               </View>
               <ModernSwitch
                 value={onlineAttendanceActive}
-                onValueChange={setOnlineAttendanceActive}
+                onValueChange={(v) => { setOnlineAttendanceActive(v); if (!v) setSelectedSubject(''); }}
               />
             </View>
           </Card>
@@ -123,10 +123,13 @@ export default function TeacherAttendance() {
               <Modal visible={subjectOpen} transparent animationType="fade" onRequestClose={() => setSubjectOpen(false)}>
                 <Pressable style={styles.dropdownOverlay} onPress={() => setSubjectOpen(false)}>
                   <View style={styles.dropdownModal}>
-                    <Text style={[styles.dropdownTitle, { fontFamily: FF.semiBold }]}>
-                      {lang === 'bn' ? 'বিষয় নির্বাচন করুন' : 'Select Subject'}
-                    </Text>
-                    <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 320 }}>
+                      {/* Default "Select Subject" option */}
+                      <TouchableOpacity style={styles.dropItem}
+                        onPress={() => { setSelectedSubject(''); setSubjectOpen(false); }}>
+                        <Text style={[styles.dropText, { fontFamily: FF.regular, color: Colors.textMuted }]}>
+                          {lang === 'bn' ? 'বিষয় নির্বাচন করুন' : 'Select Subject'}
+                        </Text>
+                      </TouchableOpacity>
                       {SUBJECTS.map(s => (
                         <TouchableOpacity key={s} style={[styles.dropItem, selectedSubject === s && styles.dropItemActive]}
                           onPress={() => { setSelectedSubject(s); setSubjectOpen(false); }}>
@@ -134,7 +137,6 @@ export default function TeacherAttendance() {
                           {selectedSubject === s && <MaterialIcons name="check" size={18} color={Colors.accent} />}
                         </TouchableOpacity>
                       ))}
-                    </ScrollView>
                   </View>
                 </Pressable>
               </Modal>

@@ -183,7 +183,7 @@ export default function TeacherNotices() {
 
 const styles = StyleSheet.create({
   fab: {
-    position: 'absolute', bottom: 28, right: 32,
+    position: 'absolute', bottom: 28, right: 20,
     flexDirection: 'row', alignItems: 'center', gap: 6,
     backgroundColor: Colors.accent, borderRadius: Radius.xl,
     paddingVertical: 13, paddingHorizontal: 14,

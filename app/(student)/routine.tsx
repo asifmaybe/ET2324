@@ -26,8 +26,10 @@ export default function Routine() {
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
 
   const bstNow = new Date(Date.now() + 6 * 60 * 60 * 1000);
-  const todayDay = DAYS_EN[bstNow.getDay()] ?? 'Sunday';
-  const [selectedDay, setSelectedDay] = useState(DAYS_EN.includes(todayDay) ? todayDay : 'Sunday');
+  const jsDay = bstNow.getDay(); // 0=Sun,1=Mon,2=Tue,3=Wed,4=Thu,5=Fri,6=Sat
+  const todayDay = DAYS_EN[jsDay] ?? null; // null for Fri/Sat
+  const defaultDay = DAYS_EN.includes(DAYS_EN[jsDay]) && jsDay <= 4 ? DAYS_EN[jsDay] : 'Sunday';
+  const [selectedDay, setSelectedDay] = useState(defaultDay);
 
   const dayClasses = MOCK_ROUTINE.filter(r => r.day === selectedDay).sort((a, b) => a.sort_order - b.sort_order);
 
@@ -42,7 +44,6 @@ export default function Routine() {
               style={[styles.dayBtn, selectedDay === day && styles.dayBtnActive]}
               onPress={() => setSelectedDay(day)}
             >
-              {day === todayDay ? <View style={styles.todayDot} /> : null}
               <Text style={[styles.dayText, { fontFamily: FF.medium }, selectedDay === day && styles.dayTextActive]}>
                 {lang === 'bn' ? DAYS_BN[day] : day}
               </Text>

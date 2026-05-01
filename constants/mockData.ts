@@ -4,25 +4,25 @@ export const SUBJECTS = [
   'Generation of Electrical Power',
   'Principle of Marketing',
   'Industrial Management',
-  'Electronic Measurement',
+  'Electrical & Electronic Measurement-I',
   'Testing & Maintenance of Electrical Equipment',
   'Electrical Engineering Project-II',
   'Microprocessor & Microcontroller',
 ];
 
 export const SUBJECT_SHORT: Record<string, string> = {
-  'Generation of Electrical Power': 'GEP',
-  'Principle of Marketing': 'PM',
-  'Industrial Management': 'IM',
-  'Electronic Measurement': 'EM',
-  'Testing & Maintenance of Electrical Equipment': 'TME',
-  'Electrical Engineering Project-II': 'EEP',
-  'Microprocessor & Microcontroller': 'MM',
+  'Generation of Electrical Power': 'MH',
+  'Principle of Marketing': 'E.Hq',
+  'Industrial Management': 'E.Hq',
+  'Electrical & Electronic Measurement-I': 'EH',
+  'Testing & Maintenance of Electrical Equipment': 'RK',
+  'Electrical Engineering Project-II': 'RI',
+  'Microprocessor & Microcontroller': 'RK',
 };
 
 export const MOCK_USERS: Profile[] = [
-  { id: '1', name: 'AMIR HAMZA', role: 'teacher', student_id: '', roll_number: 'T001', subject: 'Generation of Electrical Power', attendance_percent: 0, password: '123456' },
-  { id: '2', name: 'RAFIQUL ISLAM', role: 'teacher', student_id: '', roll_number: 'T002', subject: 'Electronic Measurement', attendance_percent: 0, password: '123456' },
+  { id: '1', name: 'Md. Mosharrof Hosen', role: 'teacher', student_id: '', roll_number: 'T001', subject: 'Generation of Electrical Power', attendance_percent: 0, password: '123456' },
+  { id: '2', name: 'Md. Emarat Hossain', role: 'teacher', student_id: '', roll_number: 'T002', subject: 'Electrical & Electronic Measurement-I', attendance_percent: 0, password: '123456' },
   { id: '3', name: 'SUMON AHMED', role: 'cr', student_id: 'S001', roll_number: '842943', subject: '', attendance_percent: 88, password: '123456' },
   { id: '4', name: 'TANVIR HOSSAIN', role: 'student', student_id: 'S002', roll_number: '842944', subject: '', attendance_percent: 92, password: '123456' },
   { id: '5', name: 'RAKIBUL HASAN', role: 'student', student_id: 'S003', roll_number: '842945', subject: '', attendance_percent: 75, password: '123456' },
@@ -81,27 +81,30 @@ export const MOCK_RESULTS: Result[] = [
 
 export const MOCK_ROUTINE: RoutineEntry[] = [
   // Sunday
-  { id: '1', day: 'Sunday', time_slot: '8:00 - 9:00', subject: 'Generation of Electrical Power', teacher: 'AMIR HAMZA', hall: 'Room 301', sort_order: 1 },
-  { id: '2', day: 'Sunday', time_slot: '9:00 - 10:00', subject: 'Principle of Marketing', teacher: 'AMIR HAMZA', hall: 'Room 301', sort_order: 2 },
-  { id: '3', day: 'Sunday', time_slot: '10:00 - 11:00', subject: 'Electronic Measurement', teacher: 'RAFIQUL ISLAM', hall: 'Lab 201', sort_order: 3 },
-  { id: '4', day: 'Sunday', time_slot: '11:00 - 12:00', subject: 'Microprocessor & Microcontroller', teacher: 'RAFIQUL ISLAM', hall: 'Lab 201', sort_order: 4 },
+  { id: 's1', day: 'Sunday', time_slot: '8:00 - 8:45', subject: 'Generation of Electrical Power', teacher: 'Md. Mosharrof Hosen', hall: 'COM 405', sort_order: 1 },
+  { id: 's2', day: 'Sunday', time_slot: '8:45 - 9:30', subject: 'Principle of Marketing', teacher: 'Emdadul Hoque', hall: 'COM 405', sort_order: 2 },
+  { id: 's3', day: 'Sunday', time_slot: '9:30 - 10:15', subject: 'Industrial Management', teacher: 'Emdadul Hoque', hall: 'COM 405', sort_order: 3 },
+  { id: 's4', day: 'Sunday', time_slot: '11:00 - 11:45', subject: 'Electrical & Electronic Measurement-I', teacher: 'Md. Emarat Hossain', hall: 'EMS', sort_order: 4 },
+  { id: 's5', day: 'Sunday', time_slot: '12:30 - 1:15', subject: 'Testing & Maintenance of Electrical Equipment', teacher: 'Razaul Karim', hall: 'EMS', sort_order: 5 },
   // Monday
-  { id: '5', day: 'Monday', time_slot: '8:00 - 9:00', subject: 'Industrial Management', teacher: 'AMIR HAMZA', hall: 'Room 302', sort_order: 1 },
-  { id: '6', day: 'Monday', time_slot: '9:00 - 10:00', subject: 'Electrical Engineering Project-II', teacher: 'AMIR HAMZA', hall: 'Room 302', sort_order: 2 },
-  { id: '7', day: 'Monday', time_slot: '10:00 - 12:00', subject: 'Testing & Maintenance of Electrical Equipment', teacher: 'RAFIQUL ISLAM', hall: 'Lab 202', sort_order: 3 },
+  { id: 'm1', day: 'Monday', time_slot: '8:45 - 9:30', subject: 'Electrical Engineering Project-II', teacher: 'Rakibul Islam', hall: 'EMS', sort_order: 1 },
+  { id: 'm2', day: 'Monday', time_slot: '10:15 - 11:00', subject: 'Generation of Electrical Power', teacher: 'Md. Mosharrof Hosen', hall: 'EMS', sort_order: 2 },
+  { id: 'm3', day: 'Monday', time_slot: '11:45 - 12:30', subject: 'Generation of Electrical Power', teacher: 'Md. Mosharrof Hosen', hall: 'EPS', sort_order: 3 },
   // Tuesday
-  { id: '8', day: 'Tuesday', time_slot: '8:00 - 9:00', subject: 'Generation of Electrical Power', teacher: 'AMIR HAMZA', hall: 'Room 301', sort_order: 1 },
-  { id: '9', day: 'Tuesday', time_slot: '9:00 - 10:00', subject: 'Electronic Measurement', teacher: 'RAFIQUL ISLAM', hall: 'Lab 201', sort_order: 2 },
-  { id: '10', day: 'Tuesday', time_slot: '10:00 - 12:00', subject: 'Microprocessor & Microcontroller', teacher: 'RAFIQUL ISLAM', hall: 'Lab 202', sort_order: 3 },
+  { id: 't1', day: 'Tuesday', time_slot: '8:00 - 8:45', subject: 'Testing & Maintenance of Electrical Equipment', teacher: 'Razaul Karim', hall: 'EPS', sort_order: 1 },
+  { id: 't2', day: 'Tuesday', time_slot: '9:30 - 10:15', subject: 'Microprocessor & Microcontroller', teacher: 'Razaul Karim', hall: 'EPS', sort_order: 2 },
+  { id: 't3', day: 'Tuesday', time_slot: '11:00 - 11:45', subject: 'Principle of Marketing', teacher: 'Emdadul Hoque', hall: 'COM 405', sort_order: 3 },
+  { id: 't4', day: 'Tuesday', time_slot: '11:45 - 12:30', subject: 'Microprocessor & Microcontroller', teacher: 'Razaul Karim', hall: 'COM 405', sort_order: 4 },
+  { id: 't5', day: 'Tuesday', time_slot: '12:30 - 1:15', subject: 'Electrical & Electronic Measurement-I', teacher: 'Md. Emarat Hossain', hall: 'COM 405', sort_order: 5 },
   // Wednesday
-  { id: '11', day: 'Wednesday', time_slot: '8:00 - 9:00', subject: 'Principle of Marketing', teacher: 'AMIR HAMZA', hall: 'Room 303', sort_order: 1 },
-  { id: '12', day: 'Wednesday', time_slot: '9:00 - 10:00', subject: 'Industrial Management', teacher: 'AMIR HAMZA', hall: 'Room 303', sort_order: 2 },
-  { id: '13', day: 'Wednesday', time_slot: '10:00 - 11:00', subject: 'Electrical Engineering Project-II', teacher: 'AMIR HAMZA', hall: 'Room 303', sort_order: 3 },
-  { id: '14', day: 'Wednesday', time_slot: '11:00 - 12:00', subject: 'Testing & Maintenance of Electrical Equipment', teacher: 'RAFIQUL ISLAM', hall: 'Lab 202', sort_order: 4 },
+  { id: 'w1', day: 'Wednesday', time_slot: '8:45 - 9:30', subject: 'Industrial Management', teacher: 'Emdadul Hoque', hall: 'COM 401', sort_order: 1 },
+  { id: 'w2', day: 'Wednesday', time_slot: '9:30 - 10:15', subject: 'Generation of Electrical Power', teacher: 'Md. Mosharrof Hosen', hall: 'COM 401', sort_order: 2 },
+  { id: 'w3', day: 'Wednesday', time_slot: '11:00 - 11:45', subject: 'Electrical Engineering Project-II', teacher: 'Rakibul Islam', hall: 'EMS', sort_order: 3 },
+  { id: 'w4', day: 'Wednesday', time_slot: '12:30 - 1:15', subject: 'Microprocessor & Microcontroller', teacher: 'Razaul Karim', hall: 'EMS', sort_order: 4 },
   // Thursday
-  { id: '15', day: 'Thursday', time_slot: '8:00 - 9:00', subject: 'Electronic Measurement', teacher: 'RAFIQUL ISLAM', hall: 'Lab 201', sort_order: 1 },
-  { id: '16', day: 'Thursday', time_slot: '9:00 - 10:00', subject: 'Generation of Electrical Power', teacher: 'AMIR HAMZA', hall: 'Room 301', sort_order: 2 },
-  { id: '17', day: 'Thursday', time_slot: '10:00 - 12:00', subject: 'Microprocessor & Microcontroller', teacher: 'RAFIQUL ISLAM', hall: 'Lab 202', sort_order: 3 },
+  { id: 'th1', day: 'Thursday', time_slot: '9:30 - 10:15', subject: 'Electrical & Electronic Measurement-I', teacher: 'Md. Emarat Hossain', hall: 'EPS', sort_order: 1 },
+  { id: 'th2', day: 'Thursday', time_slot: '11:00 - 11:45', subject: 'Testing & Maintenance of Electrical Equipment', teacher: 'Razaul Karim', hall: 'EMS', sort_order: 2 },
+  { id: 'th3', day: 'Thursday', time_slot: '12:30 - 1:15', subject: 'Microprocessor & Microcontroller', teacher: 'Razaul Karim', hall: 'EMS', sort_order: 3 },
 ];
 
 export const MOCK_AUDIT_LOG: AuditLog[] = [
