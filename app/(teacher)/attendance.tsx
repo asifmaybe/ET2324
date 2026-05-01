@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput,
-  FlatList, KeyboardAvoidingView, Platform,
+  FlatList, KeyboardAvoidingView, Platform, Modal, Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../hooks/useAuth';
@@ -112,22 +112,32 @@ export default function TeacherAttendance() {
           {onlineAttendanceActive && (
             <>
               {/* Subject Selector */}
-              <TouchableOpacity style={styles.subjectBtn} onPress={() => setSubjectOpen(!subjectOpen)}>
+              <TouchableOpacity style={styles.subjectBtn} onPress={() => setSubjectOpen(true)}>
                 <Text style={[styles.subjectText, { fontFamily: FF.regular }, !selectedSubject && { color: Colors.textMuted }]}>
                   {selectedSubject || (lang === 'bn' ? 'বিষয় নির্বাচন করুন' : 'Select Subject')}
                 </Text>
-                <MaterialIcons name={subjectOpen ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} size={20} color={Colors.textSecondary} />
+                <MaterialIcons name="keyboard-arrow-down" size={20} color={Colors.textSecondary} />
               </TouchableOpacity>
-              {subjectOpen ? (
-                <View style={styles.dropdown}>
-                  {SUBJECTS.map(s => (
-                    <TouchableOpacity key={s} style={[styles.dropItem, selectedSubject === s && styles.dropItemActive]}
-                      onPress={() => { setSelectedSubject(s); setSubjectOpen(false); }}>
-                      <Text style={[styles.dropText, { fontFamily: FF.regular }, selectedSubject === s && { color: Colors.accent }]}>{s}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              ) : null}
+
+              {/* Floating Subject Picker Modal */}
+              <Modal visible={subjectOpen} transparent animationType="fade" onRequestClose={() => setSubjectOpen(false)}>
+                <Pressable style={styles.dropdownOverlay} onPress={() => setSubjectOpen(false)}>
+                  <View style={styles.dropdownModal}>
+                    <Text style={[styles.dropdownTitle, { fontFamily: FF.semiBold }]}>
+                      {lang === 'bn' ? 'বিষয় নির্বাচন করুন' : 'Select Subject'}
+                    </Text>
+                    <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 320 }}>
+                      {SUBJECTS.map(s => (
+                        <TouchableOpacity key={s} style={[styles.dropItem, selectedSubject === s && styles.dropItemActive]}
+                          onPress={() => { setSelectedSubject(s); setSubjectOpen(false); }}>
+                          <Text style={[styles.dropText, { fontFamily: FF.regular }, selectedSubject === s && { color: Colors.accent }]}>{s}</Text>
+                          {selectedSubject === s && <MaterialIcons name="check" size={18} color={Colors.accent} />}
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+                </Pressable>
+              </Modal>
 
               {/* Roll Number Paste Area */}
               <View style={styles.rollNote}>
@@ -274,8 +284,14 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 3, elevation: 1,
   },
   subjectText: { fontSize: FontSize.md, color: Colors.textPrimary, flex: 1 },
-  dropdown: { backgroundColor: Colors.white, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.borderColor, overflow: 'hidden', marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 3 },
-  dropItem: { paddingHorizontal: 14, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: Colors.borderColor },
+  dropdownOverlay: { flex: 1, backgroundColor: Colors.overlay, justifyContent: 'center', alignItems: 'center', padding: 24 },
+  dropdownModal: {
+    backgroundColor: Colors.white, borderRadius: Radius.xl, width: '100%',
+    paddingVertical: 16, paddingHorizontal: 4,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 10,
+  },
+  dropdownTitle: { fontSize: FontSize.md, color: Colors.textPrimary, paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: Colors.borderColor },
+  dropItem: { paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: Colors.borderColor, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   dropItemActive: { backgroundColor: Colors.accentLight },
   dropText: { fontSize: FontSize.sm, color: Colors.textPrimary },
   rollNote: { flexDirection: 'row', gap: 6, alignItems: 'flex-start', marginTop: 12, marginBottom: 8 },

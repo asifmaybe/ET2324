@@ -81,11 +81,19 @@ export default function TeacherDashboard() {
           <View style={styles.headerRight}>
             {user?.role === 'cr' ? (
               <TouchableOpacity
-                style={styles.iconBtnActive}
+                style={{
+                  flexDirection: 'row', alignItems: 'center', gap: 4,
+                  paddingHorizontal: 12, height: 38, justifyContent: 'center',
+                  borderRadius: Radius.full, borderWidth: 1, 
+                  borderColor: Colors.info, backgroundColor: Colors.infoBg
+                }}
                 onPress={() => { setPanelMode('student'); router.replace('/(student)'); }}
                 activeOpacity={0.75}
               >
-                <MaterialIcons name="grid-view" size={20} color={Colors.accent} />
+                <MaterialIcons name="swap-horiz" size={18} color={Colors.info} />
+                <Text style={{ fontSize: FontSize.sm, fontFamily: FF.medium, color: Colors.info }}>
+                  {lang === 'bn' ? 'স্টুডেন্ট প্যানেল' : 'Switch to Student'}
+                </Text>
               </TouchableOpacity>
             ) : null}
             <TouchableOpacity style={styles.iconBtn}>
@@ -98,7 +106,7 @@ export default function TeacherDashboard() {
         <View style={styles.pad}>
           {/* Latest Notice */}
           {currentNotice ? (
-            <View style={{ marginBottom: 24 }}>
+            <View style={{ marginBottom: 12 }}>
               <View style={styles.noticeSectionHeader}>
                 <Text style={[styles.noticeMainTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>
                   {lang === 'bn' ? 'বিশেষ বিজ্ঞপ্তি' : 'Special Notice'}
@@ -259,10 +267,11 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.bg },
   headerArea: {
     flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between',
-    paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16,
+    paddingHorizontal: 16, paddingTop: 14, paddingBottom: 14,
+    minHeight: 88,
   },
   headerLeft: { flex: 1 },
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 4 },
   panelLabel: { fontSize: FontSize.sm, color: Colors.textMuted },
   userName: { fontSize: FontSize.xl + 2, color: Colors.textPrimary, marginTop: 2 },
   roleLabel: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 2 },
@@ -324,14 +333,14 @@ const styles = StyleSheet.create({
   },
   pageBtnText: { fontSize: FontSize.sm, color: Colors.textPrimary },
   
-  dotRowCenter: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 16, marginBottom: 4 },
+  dotRowCenter: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 8, marginBottom: 2 },
   dotCircle: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.borderColor },
   dotCircleActive: { backgroundColor: Colors.accent, width: 8, height: 8 },
-  sectionTitle: { fontSize: FontSize.lg, color: Colors.textPrimary, marginBottom: 12, marginTop: 4 },
-  sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, marginTop: 4 },
+  sectionTitle: { fontSize: FontSize.lg, color: Colors.textPrimary, marginBottom: 8, marginTop: 0 },
+  sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, marginTop: 0 },
   actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 4 },
   actionCard: {
-    width: '47%', backgroundColor: Colors.card,
+    flex: 1, minWidth: '45%', backgroundColor: Colors.card,
     borderRadius: Radius.lg, borderWidth: 1, borderColor: Colors.borderColor,
     padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12,
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,

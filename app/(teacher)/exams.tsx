@@ -57,12 +57,6 @@ export default function TeacherExams() {
   return (
     <ScreenWrapper scrollable={false} noPadding>
       <ScreenHeader title={lang === 'bn' ? 'পরীক্ষা' : 'Exams'} />
-      <TouchableOpacity style={styles.addBtn} onPress={openAdd}>
-        <MaterialIcons name="add" size={18} color="#fff" />
-        <Text style={[styles.addBtnText, { fontFamily: FF.semiBold }]}>
-          {lang === 'bn' ? 'নতুন পরীক্ষা' : 'New Exam'}
-        </Text>
-      </TouchableOpacity>
       <View style={styles.tabs}>
         <TouchableOpacity style={[styles.tabBtn, tab === 'upcoming' && styles.tabActive]} onPress={() => setTab('upcoming')}>
           <Text style={[styles.tabText, { fontFamily: FF.medium }, tab === 'upcoming' && styles.tabTextActive]}>{tr('upcoming')}</Text>
@@ -74,7 +68,7 @@ export default function TeacherExams() {
       <FlatList
         data={filtered}
         keyExtractor={i => i.id}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96 }}
         ListEmptyComponent={<View style={styles.empty}><Text style={[styles.emptyText, { fontFamily: FF.regular }]}>{tr('noData')}</Text></View>}
         renderItem={({ item }: { item: Exam }) => (
           <Card padding={16}>
@@ -110,7 +104,15 @@ export default function TeacherExams() {
         )}
       />
 
-      <Modal visible={modalVisible} transparent animationType="slide">
+      {/* FAB */}
+      <TouchableOpacity style={styles.fab} onPress={openAdd} activeOpacity={0.85}>
+        <MaterialIcons name="add" size={22} color="#fff" />
+        <Text style={[styles.fabText, { fontFamily: FF.semiBold }]}>
+          {lang === 'bn' ? 'নতুন পরীক্ষা' : 'New Exam'}
+        </Text>
+      </TouchableOpacity>
+
+      <Modal visible={modalVisible} transparent animationType="fade">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalBox}>
@@ -186,8 +188,15 @@ export default function TeacherExams() {
 }
 
 const styles = StyleSheet.create({
-  addBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Colors.accent, borderRadius: Radius.lg, paddingVertical: 11, paddingHorizontal: 16, marginHorizontal: 16, marginBottom: 12, alignSelf: 'flex-start' },
-  addBtnText: { fontSize: FontSize.sm, color: '#fff' },
+  fab: {
+    position: 'absolute', bottom: 28, right: 32,
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: Colors.accent, borderRadius: Radius.xl,
+    paddingVertical: 13, paddingHorizontal: 14,
+    shadowColor: Colors.accent, shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35, shadowRadius: 10, elevation: 8,
+  },
+  fabText: { fontSize: FontSize.md, color: '#fff' },
   tabs: { flexDirection: 'row', marginHorizontal: 16, marginBottom: 12, backgroundColor: Colors.bgSecondary, borderRadius: Radius.lg, padding: 4 },
   tabBtn: { flex: 1, paddingVertical: 9, borderRadius: Radius.md, alignItems: 'center' },
   tabActive: { backgroundColor: Colors.white, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.07, shadowRadius: 3, elevation: 2 },

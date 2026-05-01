@@ -51,12 +51,6 @@ export default function TeacherAssignments() {
   return (
     <ScreenWrapper scrollable={false} noPadding>
       <ScreenHeader title={lang === 'bn' ? 'অ্যাসাইনমেন্ট' : 'Assignments'} />
-      <TouchableOpacity style={styles.addBtn} onPress={openAdd}>
-        <MaterialIcons name="add" size={18} color="#fff" />
-        <Text style={[styles.addBtnText, { fontFamily: FF.semiBold }]}>
-          {lang === 'bn' ? 'নতুন অ্যাসাইনমেন্ট' : 'New Assignment'}
-        </Text>
-      </TouchableOpacity>
       <FlatList
         data={assignments}
         keyExtractor={i => i.id}
@@ -96,11 +90,19 @@ export default function TeacherAssignments() {
             </View>
           </Card>
         )}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96 }}
         ListEmptyComponent={<View style={styles.empty}><Text style={[styles.emptyText, { fontFamily: FF.regular }]}>{tr('noData')}</Text></View>}
       />
 
-      <Modal visible={modalVisible} transparent animationType="slide">
+      {/* FAB */}
+      <TouchableOpacity style={styles.fab} onPress={openAdd} activeOpacity={0.85}>
+        <MaterialIcons name="add" size={22} color="#fff" />
+        <Text style={[styles.fabText, { fontFamily: FF.semiBold }]}>
+          {lang === 'bn' ? 'নতুন অ্যাসাইনমেন্ট' : 'New Assignment'}
+        </Text>
+      </TouchableOpacity>
+
+      <Modal visible={modalVisible} transparent animationType="fade">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalBox}>
@@ -187,8 +189,15 @@ export default function TeacherAssignments() {
 }
 
 const styles = StyleSheet.create({
-  addBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Colors.accent, borderRadius: Radius.lg, paddingVertical: 11, paddingHorizontal: 16, marginHorizontal: 16, marginBottom: 12, alignSelf: 'flex-start' },
-  addBtnText: { fontSize: FontSize.sm, color: '#fff' },
+  fab: {
+    position: 'absolute', bottom: 28, right: 32,
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: Colors.accent, borderRadius: Radius.xl,
+    paddingVertical: 13, paddingHorizontal: 14,
+    shadowColor: Colors.accent, shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35, shadowRadius: 10, elevation: 8,
+  },
+  fabText: { fontSize: FontSize.md, color: '#fff' },
   row: { flexDirection: 'row', gap: 10 },
   title: { fontSize: FontSize.md, color: Colors.textPrimary, marginBottom: 3 },
   subject: { fontSize: FontSize.sm, color: Colors.accent, marginBottom: 4 },

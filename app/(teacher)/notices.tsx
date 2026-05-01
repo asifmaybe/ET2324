@@ -48,17 +48,11 @@ export default function TeacherNotices() {
   return (
     <ScreenWrapper scrollable={false} noPadding>
       <ScreenHeader title={lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notices'} />
-      <TouchableOpacity style={styles.addBtn} onPress={() => setModalVisible(true)}>
-        <MaterialIcons name="add" size={18} color="#fff" />
-        <Text style={[styles.addBtnText, { fontFamily: FF.semiBold }]}>
-          {lang === 'bn' ? 'নতুন বিজ্ঞপ্তি' : 'New Notice'}
-        </Text>
-      </TouchableOpacity>
 
       <FlatList
         data={notices}
         keyExtractor={i => i.id}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96 }}
         ListEmptyComponent={<View style={styles.empty}><Text style={[styles.emptyText, { fontFamily: FF.regular }]}>{tr('noData')}</Text></View>}
         renderItem={({ item }: { item: Notice }) => (
           <Card padding={16} style={{ marginBottom: 16 }}>
@@ -105,7 +99,15 @@ export default function TeacherNotices() {
         )}
       />
 
-      <Modal visible={modalVisible} transparent animationType="slide">
+      {/* FAB */}
+      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)} activeOpacity={0.85}>
+        <MaterialIcons name="add" size={22} color="#fff" />
+        <Text style={[styles.fabText, { fontFamily: FF.semiBold }]}>
+          {lang === 'bn' ? 'নতুন বিজ্ঞপ্তি' : 'New Notice'}
+        </Text>
+      </TouchableOpacity>
+
+      <Modal visible={modalVisible} transparent animationType="fade">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalBox}>
@@ -180,8 +182,15 @@ export default function TeacherNotices() {
 }
 
 const styles = StyleSheet.create({
-  addBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Colors.accent, borderRadius: Radius.lg, paddingVertical: 11, paddingHorizontal: 16, marginHorizontal: 16, marginBottom: 12, alignSelf: 'flex-start' },
-  addBtnText: { fontSize: FontSize.sm, color: '#fff' },
+  fab: {
+    position: 'absolute', bottom: 28, right: 32,
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: Colors.accent, borderRadius: Radius.xl,
+    paddingVertical: 13, paddingHorizontal: 14,
+    shadowColor: Colors.accent, shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35, shadowRadius: 10, elevation: 8,
+  },
+  fabText: { fontSize: FontSize.md, color: '#fff' },
   noticeCardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
   noticeBadge: { backgroundColor: '#E6F0F9', paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.full },
   noticeBadgeText: { fontSize: FontSize.xs, color: '#1A5A8A' },

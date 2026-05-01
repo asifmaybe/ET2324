@@ -130,11 +130,19 @@ export default function StudentDashboard() {
             {/* CR Panel Toggle */}
             {user?.role === 'cr' ? (
               <TouchableOpacity
-                style={styles.iconBtnActive}
+                style={{
+                  flexDirection: 'row', alignItems: 'center', gap: 4,
+                  paddingHorizontal: 12, height: 38, justifyContent: 'center',
+                  borderRadius: Radius.full, borderWidth: 1, 
+                  borderColor: Colors.accent, backgroundColor: Colors.accentLight
+                }}
                 onPress={() => { setPanelMode('teacher'); router.replace('/(teacher)'); }}
                 activeOpacity={0.75}
               >
-                <MaterialIcons name="grid-view" size={19} color={Colors.accent} />
+                <MaterialIcons name="swap-horiz" size={18} color={Colors.accent} />
+                <Text style={{ fontSize: FontSize.sm, fontFamily: FF.medium, color: Colors.accent }}>
+                  {lang === 'bn' ? 'অ্যাডমিন প্যানেল' : 'Switch to Admin'}
+                </Text>
               </TouchableOpacity>
             ) : null}
             {/* Bell */}
@@ -150,7 +158,7 @@ export default function StudentDashboard() {
 
           {/* ── Notice Section ── */}
           {currentNotice ? (
-            <View style={{ marginBottom: 24 }}>
+            <View style={{ marginBottom: 12 }}>
               <View style={styles.noticeSectionHeader}>
                 <Text style={[styles.noticeMainTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>
                   {lang === 'bn' ? 'বিশেষ বিজ্ঞপ্তি' : 'Special Notice'}
@@ -400,16 +408,17 @@ const styles = StyleSheet.create({
   /* Header */
   headerArea: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingTop: 14,
-    paddingBottom: 12,
+    paddingBottom: 14,
+    minHeight: 88,
   },
   headerLeft: { flex: 1 },
   welcomeSmall: { fontSize: FontSize.sm, color: Colors.textSecondary },
   userName: { fontSize: FontSize.xl + 4, color: Colors.textPrimary, marginTop: 1, letterSpacing: -0.3 },
-  headerBtns: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  headerBtns: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 4 },
   iconBtn: {
     width: 38, height: 38, borderRadius: 19,
     backgroundColor: Colors.white,
@@ -474,14 +483,14 @@ const styles = StyleSheet.create({
   },
   pageBtnText: { fontSize: FontSize.sm, color: Colors.textPrimary },
   
-  dotRowCenter: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 16, marginBottom: 4 },
+  dotRowCenter: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 8, marginBottom: 2 },
   dotCircle: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.borderColor },
   dotCircleActive: { backgroundColor: Colors.accent, width: 8, height: 8 },
 
   /* Section title */
   sectionTitle: {
     fontSize: FontSize.lg + 1, color: Colors.textPrimary,
-    marginTop: 4, marginBottom: 12,
+    marginTop: 0, marginBottom: 8,
   },
 
   /* Stat cards */

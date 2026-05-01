@@ -38,7 +38,6 @@ export function ScreenHeader({ title, subtitle, showLogout = false, showNotifica
         </View>
       </View>
       <View style={styles.actions}>
-
         {showNotification ? (
           <TouchableOpacity style={styles.iconBtn}>
             <MaterialIcons name="notifications-none" size={20} color={Colors.textSecondary} />
