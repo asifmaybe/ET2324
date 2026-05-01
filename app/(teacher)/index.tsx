@@ -120,20 +120,10 @@ export default function TeacherDashboard() {
 
               <Card padding={16}>
                 <View style={styles.noticeCardTop}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, paddingRight: 8 }}>
-                    <View style={styles.noticeBadge}>
-                      <Text style={[styles.noticeBadgeText, { fontFamily: FF.medium }]}>
-                        {lang === 'bn' ? 'একাডেমিক' : 'Academic'}
-                      </Text>
-                    </View>
-                    {currentNotice.updated_by ? (
-                      <View style={[styles.editedPill, { marginBottom: 0, flexShrink: 1 }]}>
-                        <MaterialIcons name="edit" size={11} color={Colors.textMuted} />
-                        <Text style={[styles.editedPillText, { fontFamily: FF.regular }]} numberOfLines={1}>
-                          {lang === 'bn' ? 'শেষ সম্পাদনা:' : 'Last edited by'} {currentNotice.updated_by} • {currentNotice.updated_at ? new Date(currentNotice.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}
-                        </Text>
-                      </View>
-                    ) : null}
+                  <View style={styles.noticeBadge}>
+                    <Text style={[styles.noticeBadgeText, { fontFamily: FF.medium }]}>
+                      {lang === 'bn' ? 'একাডেমিক' : 'Academic'}
+                    </Text>
                   </View>
                   <TouchableOpacity style={styles.detailsBtn} onPress={() => setSelectedNotice(currentNotice)}>
                     <MaterialIcons name="visibility" size={16} color={Colors.textSecondary} />
@@ -157,9 +147,19 @@ export default function TeacherDashboard() {
                     <Text style={[styles.noticeAuthor, { fontFamily: Fonts.en.medium }]}>
                       {currentNotice.author || 'Dr. Ariful Islam'}
                     </Text>
-                    <Text style={[styles.noticeDateTime, { fontFamily: FF.regular }]}>
-                      {currentNotice.date} • {currentNotice.time}
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <Text style={[styles.noticeDateTime, { fontFamily: FF.regular }]}>
+                        {currentNotice.date} • {currentNotice.time}
+                      </Text>
+                      {currentNotice.updated_by ? (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                          <MaterialIcons name="edit" size={10} color={Colors.textMuted} />
+                          <Text style={{ fontSize: 10, color: Colors.textMuted, fontFamily: FF.medium }}>
+                            {lang === 'bn' ? 'সম্পাদিত' : 'Edited'}
+                          </Text>
+                        </View>
+                      ) : null}
+                    </View>
                   </View>
                   
                   <View style={styles.noticePagination}>

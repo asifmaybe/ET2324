@@ -2,20 +2,21 @@ import React from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, FontSize, Radius, Fonts } from '../../constants/theme';
-import { Notice } from '../../types';
+import { Assignment } from '../../types';
 import { useLang } from '../../hooks/useLang';
+import { StatusBadge } from './StatusBadge';
 
-interface NoticeModalProps {
+interface AssignmentModalProps {
   visible: boolean;
   onClose: () => void;
-  notice: Notice | null;
+  assignment: Assignment | null;
 }
 
-export function NoticeModal({ visible, onClose, notice }: NoticeModalProps) {
-  const { lang } = useLang();
+export function AssignmentModal({ visible, onClose, assignment }: AssignmentModalProps) {
+  const { lang, tr } = useLang();
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
 
-  if (!notice) return null;
+  if (!assignment) return null;
 
   return (
     <Modal
@@ -28,12 +29,8 @@ export function NoticeModal({ visible, onClose, notice }: NoticeModalProps) {
         <View style={styles.modalContainer}>
           {/* Header */}
           <View style={styles.header}>
-            <View style={[styles.badge, notice.important && { backgroundColor: Colors.dangerLight }]}>
-              <Text style={[styles.badgeText, { fontFamily: FF.medium }, notice.important && { color: Colors.danger }]}>
-                {notice.important 
-                  ? (lang === 'bn' ? 'গুরুত্বপূর্ণ' : 'Important') 
-                  : (lang === 'bn' ? 'একাডেমিক' : 'Academic')}
-              </Text>
+            <View style={styles.badgeWrapper}>
+              <StatusBadge type={assignment.status as any} />
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
               <MaterialIcons name="close" size={24} color={Colors.textSecondary} />
@@ -42,24 +39,31 @@ export function NoticeModal({ visible, onClose, notice }: NoticeModalProps) {
 
           {/* Content */}
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-            <Text style={[styles.title, { fontFamily: FF.bold }]}>{notice.title}</Text>
+            <Text style={[styles.subject, { fontFamily: FF.semiBold }]}>
+              {assignment.subject}
+            </Text>
+            <Text style={[styles.title, { fontFamily: FF.bold }]}>{assignment.title}</Text>
+            
             <View style={styles.metaRow}>
-              <MaterialIcons name="schedule" size={14} color={Colors.textMuted} />
-              <Text style={[styles.metaText, { fontFamily: FF.regular }]}>
-                {notice.date} • {notice.time}
-              </Text>
-              <Text style={[styles.metaText, { fontFamily: FF.regular, marginHorizontal: 4 }]}>|</Text>
-              <MaterialIcons name="person-outline" size={14} color={Colors.textMuted} />
-              <Text style={[styles.metaText, { fontFamily: FF.medium }]}>
-                {notice.author || 'ADMIN'}
-              </Text>
+              <View style={styles.metaBox}>
+                <MaterialIcons name="event" size={14} color={Colors.textMuted} />
+                <Text style={[styles.metaText, { fontFamily: Fonts.en.regular }]}>
+                  {lang === 'bn' ? 'শুরু:' : 'Start:'} {assignment.assigned_date}
+                </Text>
+              </View>
+              <View style={styles.metaBox}>
+                <MaterialIcons name="event-available" size={14} color={Colors.textMuted} />
+                <Text style={[styles.metaText, { fontFamily: Fonts.en.regular }]}>
+                  {lang === 'bn' ? 'জমা:' : 'Due:'} {assignment.due_date}
+                </Text>
+              </View>
             </View>
 
-            {notice.updated_by ? (
+            {assignment.updated_at && assignment.created_at && assignment.updated_at !== assignment.created_at ? (
               <View style={styles.editedPill}>
                 <MaterialIcons name="edit" size={11} color={Colors.textMuted} />
                 <Text style={[styles.editedPillText, { fontFamily: FF.regular }]}>
-                  {lang === 'bn' ? 'শেষ সম্পাদনা:' : 'Last edited by'} {notice.updated_by} • {notice.updated_at ? new Date(notice.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}
+                  {lang === 'bn' ? 'শেষ সম্পাদনা:' : 'Last edited by'} {assignment.updated_by} • {new Date(assignment.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </Text>
               </View>
             ) : null}
@@ -67,7 +71,7 @@ export function NoticeModal({ visible, onClose, notice }: NoticeModalProps) {
             <View style={styles.divider} />
 
             <Text style={[styles.description, { fontFamily: FF.regular }]}>
-              {notice.description}
+              {assignment.description}
             </Text>
           </ScrollView>
         </View>
@@ -104,15 +108,8 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 10,
   },
-  badge: {
-    backgroundColor: '#E6F0F9',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: Radius.full,
-  },
-  badgeText: {
-    fontSize: FontSize.sm,
-    color: '#1A5A8A',
+  badgeWrapper: {
+    flexDirection: 'row',
   },
   closeBtn: {
     padding: 4,
@@ -121,19 +118,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 24,
   },
+  subject: {
+    fontSize: FontSize.md,
+    color: Colors.accent,
+    marginBottom: 4,
+  },
   title: {
     fontSize: FontSize.xl,
     color: Colors.textPrimary,
     lineHeight: 28,
-    marginTop: 8,
     marginBottom: 12,
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
-    gap: 4,
+    gap: 12,
     marginBottom: 16,
+  },
+  metaBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   metaText: {
     fontSize: FontSize.sm,

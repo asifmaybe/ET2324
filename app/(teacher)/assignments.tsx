@@ -13,6 +13,7 @@ import { Card } from '../../components/ui/Card';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { ActionButton } from '../../components/ui/ActionButton';
 import { DeleteModal } from '../../components/ui/DeleteModal';
+import { AssignmentModal } from '../../components/ui/AssignmentModal';
 import { Colors, FontSize, Radius, Fonts } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Assignment } from '../../types';
@@ -36,6 +37,7 @@ export default function TeacherAssignments() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editItem, setEditItem] = useState<Partial<Assignment> | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [subjectOpen, setSubjectOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
 
@@ -66,41 +68,55 @@ export default function TeacherAssignments() {
           <Card padding={16}>
             <View style={styles.row}>
               <View style={{ flex: 1 }}>
-                <Text style={[styles.subject, { fontFamily: FF.regular, marginBottom: 2 }]}>{item.subject}</Text>
-                <Text style={[styles.title, { fontFamily: FF.semiBold, marginBottom: 4 }]}>{item.title}</Text>
-                <Text style={[styles.desc, { fontFamily: FF.regular }]} numberOfLines={2}>{item.description}</Text>
-                <View style={styles.metaRow}>
-                  <View style={styles.meta}>
-                    <MaterialIcons name="event" size={12} color={Colors.textMuted} />
-                    <Text style={[styles.metaText, { fontFamily: Fonts.en.regular }]}>
-                      {lang === 'bn' ? 'শুরু:' : 'Start:'} {item.assigned_date}
-                    </Text>
-                  </View>
-                  <View style={styles.meta}>
-                    <MaterialIcons name="event-available" size={12} color={Colors.textMuted} />
-                    <Text style={[styles.metaText, { fontFamily: Fonts.en.regular }]}>
-                      {lang === 'bn' ? 'জমা:' : 'Due:'} {item.due_date}
-                    </Text>
+                <View style={styles.headerRow}>
+                  <Text style={[styles.subject, { fontFamily: FF.regular, flex: 1, marginBottom: 0 }]} numberOfLines={1}>{item.subject}</Text>
+                  <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
+                    <StatusBadge type={item.status as any} />
+                    <TouchableOpacity style={styles.detailsBtn} onPress={() => setSelectedAssignment(item)}>
+                      <MaterialIcons name="visibility" size={14} color={Colors.textSecondary} />
+                      <Text style={[styles.detailsText, { fontFamily: FF.regular }]}>
+                        {lang === 'bn' ? 'বিস্তারিত' : 'Details'}
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
-                  {item.updated_at && item.created_at && item.updated_at !== item.created_at ? (
-                    <View style={styles.editedPill}>
-                      <MaterialIcons name="edit" size={11} color={Colors.textMuted} />
-                      <Text style={[styles.editedPillText, { fontFamily: FF.regular }]}>
-                        {lang === 'bn' ? 'শেষ সম্পাদনা:' : 'Last edited by'} {item.updated_by} • {new Date(item.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                <Text style={[styles.title, { fontFamily: FF.semiBold, marginBottom: 4 }]}>{item.title}</Text>
+                <Text style={[styles.desc, { fontFamily: FF.regular }]} numberOfLines={2}>{item.description}</Text>
+                
+                <View style={styles.divider} />
+                
+                <View style={styles.bottomRow}>
+                  <View style={styles.datesContainer}>
+                    <View style={styles.meta}>
+                      <MaterialIcons name="event" size={14} color={Colors.textMuted} />
+                      <Text style={[styles.metaText, { fontFamily: Fonts.en.regular }]}>
+                        {lang === 'bn' ? 'শুরু:' : 'Start:'} {item.assigned_date}
                       </Text>
                     </View>
-                  ) : null}
-              </View>
-              <View style={styles.actions}>
-                <StatusBadge type={item.status as any} />
-                <View style={styles.btnRow}>
-                  <TouchableOpacity style={styles.iconBtn} onPress={() => openEdit(item)}>
-                    <MaterialIcons name="edit" size={16} color={Colors.info} />
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[styles.iconBtn, styles.deleteBtn]} onPress={() => setDeleteId(item.id)}>
-                    <MaterialIcons name="delete-outline" size={16} color={Colors.danger} />
-                  </TouchableOpacity>
+                    <View style={[styles.meta, { flexDirection: 'row', alignItems: 'center' }]}>
+                      <MaterialIcons name="event-available" size={14} color={Colors.textMuted} />
+                      <Text style={[styles.metaText, { fontFamily: Fonts.en.regular }]}>
+                        {lang === 'bn' ? 'জমা:' : 'Due:'} {item.due_date}
+                      </Text>
+                      {item.updated_at && item.created_at && item.updated_at !== item.created_at ? (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, marginLeft: 4 }}>
+                          <MaterialIcons name="edit" size={10} color={Colors.textMuted} />
+                          <Text style={{ fontSize: 10, color: Colors.textMuted, fontFamily: FF.medium }}>
+                            {lang === 'bn' ? 'সম্পাদিত' : 'Edited'}
+                          </Text>
+                        </View>
+                      ) : null}
+                    </View>
+                  </View>
+
+                  <View style={styles.btnRow}>
+                    <TouchableOpacity style={styles.iconBtn} onPress={() => openEdit(item)}>
+                      <MaterialIcons name="edit" size={16} color={Colors.info} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.iconBtn, styles.deleteBtn]} onPress={() => setDeleteId(item.id)}>
+                      <MaterialIcons name="delete-outline" size={16} color={Colors.danger} />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
             </View>
@@ -218,6 +234,13 @@ export default function TeacherAssignments() {
         onCancel={() => setDeleteId(null)}
         confirmLabel={lang === 'bn' ? 'মুছুন' : 'Delete'}
         cancelLabel={lang === 'bn' ? 'বাতিল' : 'Cancel'}
+        confirmVariant="danger"
+      />
+
+      <AssignmentModal
+        visible={!!selectedAssignment}
+        assignment={selectedAssignment}
+        onClose={() => setSelectedAssignment(null)}
       />
     </ScreenWrapper>
   );
@@ -233,12 +256,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.35, shadowRadius: 10, elevation: 8,
   },
   fabText: { fontSize: FontSize.md, color: '#fff' },
-  row: { flexDirection: 'row', gap: 10 },
-  title: { fontSize: FontSize.md, color: Colors.textPrimary, marginBottom: 3 },
-  subject: { fontSize: FontSize.sm, color: Colors.accent, marginBottom: 4 },
-  desc: { fontSize: FontSize.sm, color: Colors.textSecondary, lineHeight: 19, marginBottom: 6 },
-  metaRow: { flexDirection: 'row', gap: 12, marginTop: 2 },
-  meta: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  row: { flexDirection: 'row', gap: 12 },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 2, gap: 8 },
+  subject: { fontSize: FontSize.sm, color: Colors.accent, textTransform: 'uppercase' },
+  title: { fontSize: FontSize.lg, color: Colors.textPrimary },
+  desc: { fontSize: FontSize.md, color: Colors.textSecondary, marginBottom: 12, lineHeight: 20 },
+  divider: { height: 1, backgroundColor: Colors.borderColor, marginBottom: 12 },
+  bottomRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
+  datesContainer: { gap: 4 },
+  meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   metaText: { fontSize: FontSize.xs, color: Colors.textMuted, marginLeft: 4 },
   editedPill: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: Colors.bgSecondary, borderRadius: Radius.full, paddingHorizontal: 8, paddingVertical: 3, marginTop: 10, borderWidth: 1, borderColor: Colors.borderColor },
   editedPillText: { fontSize: 10, color: Colors.textMuted },
@@ -246,6 +272,13 @@ const styles = StyleSheet.create({
   btnRow: { flexDirection: 'row', gap: 6 },
   iconBtn: { width: 32, height: 32, borderRadius: 8, backgroundColor: Colors.bgSecondary, borderWidth: 1, borderColor: Colors.borderColor, justifyContent: 'center', alignItems: 'center' },
   deleteBtn: { backgroundColor: Colors.dangerBg },
+  detailsBtn: { 
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    paddingHorizontal: 8, paddingVertical: 4,
+    borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.borderColor,
+    backgroundColor: Colors.white 
+  },
+  detailsText: { fontSize: FontSize.xs, color: Colors.textSecondary },
   empty: { alignItems: 'center', marginTop: 60 },
   emptyText: { fontSize: FontSize.md, color: Colors.textMuted },
   modalOverlay: { flex: 1, backgroundColor: Colors.overlay, justifyContent: 'flex-end' },

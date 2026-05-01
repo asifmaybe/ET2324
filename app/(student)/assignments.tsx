@@ -10,6 +10,7 @@ import { DeleteModal } from '../../components/ui/DeleteModal';
 import { Colors, FontSize, Radius, Fonts } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Assignment } from '../../types';
+import { AssignmentModal } from '../../components/ui/AssignmentModal';
 
 const FILTERS = ['all', 'active', 'pending', 'overdue', 'submitted', 'completed'];
 
@@ -19,6 +20,7 @@ export default function StudentAssignments() {
   const [filter, setFilter] = useState('all');
   const [actionItem, setActionItem] = useState<{ id: string; type: 'submit' | 'cancel' } | null>(null);
   const [modalType, setModalType] = useState<'submit' | 'cancel'>('submit');
+  const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
 
   const filtered = filter === 'all' ? assignments : assignments.filter(a => a.status === filter);
@@ -58,19 +60,20 @@ export default function StudentAssignments() {
         <View style={{ flex: 1 }}>
           <View style={styles.headerRow}>
             <Text style={[styles.subject, { fontFamily: FF.regular, flex: 1, marginBottom: 0 }]} numberOfLines={1}>{item.subject}</Text>
-            <StatusBadge type={item.status as any} />
+            <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
+              <StatusBadge type={item.status as any} />
+              <TouchableOpacity style={styles.detailsBtn} onPress={() => setSelectedAssignment(item)}>
+                <MaterialIcons name="visibility" size={14} color={Colors.textSecondary} />
+                <Text style={[styles.detailsText, { fontFamily: FF.regular }]}>
+                  {lang === 'bn' ? 'বিস্তারিত' : 'Details'}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
           <Text style={[styles.title, { fontFamily: FF.semiBold, marginBottom: 4 }]}>{item.title}</Text>
           <Text style={[styles.desc, { fontFamily: FF.regular }]} numberOfLines={2}>{item.description}</Text>
 
-          {item.updated_at && item.created_at && item.updated_at !== item.created_at ? (
-            <View style={styles.editedPill}>
-              <MaterialIcons name="edit" size={11} color={Colors.textMuted} />
-              <Text style={[styles.editedPillText, { fontFamily: FF.regular }]}>
-                {lang === 'bn' ? 'শেষ সম্পাদনা:' : 'Last edited by'} {item.updated_by} • {new Date(item.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-              </Text>
-            </View>
-          ) : null}
+
 
           <View style={styles.divider} />
           <View style={styles.bottomRow}>
@@ -81,11 +84,19 @@ export default function StudentAssignments() {
                   {lang === 'bn' ? 'শুরু:' : 'Start:'} {item.assigned_date}
                 </Text>
               </View>
-              <View style={styles.meta}>
+              <View style={[styles.meta, { flexDirection: 'row', alignItems: 'center' }]}>
                 <MaterialIcons name="event-available" size={14} color={Colors.textMuted} />
                 <Text style={[styles.metaText, { fontFamily: Fonts.en.regular }]}>
                   {lang === 'bn' ? 'জমা:' : 'Due:'} {item.due_date}
                 </Text>
+                {item.updated_at && item.created_at && item.updated_at !== item.created_at ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, marginLeft: 4 }}>
+                    <MaterialIcons name="edit" size={10} color={Colors.textMuted} />
+                    <Text style={{ fontSize: 10, color: Colors.textMuted, fontFamily: FF.medium }}>
+                      {lang === 'bn' ? 'সম্পাদিত' : 'Edited'}
+                    </Text>
+                  </View>
+                ) : null}
               </View>
             </View>
 
@@ -163,6 +174,12 @@ export default function StudentAssignments() {
         cancelLabel={lang === 'bn' ? 'না' : 'No'}
         confirmVariant={modalType === 'submit' ? 'primary' : 'danger'}
       />
+
+      <AssignmentModal
+        visible={!!selectedAssignment}
+        assignment={selectedAssignment}
+        onClose={() => setSelectedAssignment(null)}
+      />
     </ScreenWrapper>
   );
 }
@@ -203,6 +220,13 @@ const styles = StyleSheet.create({
     borderColor: Colors.success + '40',
   },
   submitToggleText: { fontSize: FontSize.sm, color: Colors.textSecondary },
+  detailsBtn: { 
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    paddingHorizontal: 8, paddingVertical: 4,
+    borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.borderColor,
+    backgroundColor: Colors.white 
+  },
+  detailsText: { fontSize: FontSize.xs, color: Colors.textSecondary },
   empty: { alignItems: 'center', marginTop: 60, gap: 12 },
   emptyText: { fontSize: FontSize.md, color: Colors.textMuted },
 });
