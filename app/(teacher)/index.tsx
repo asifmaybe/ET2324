@@ -45,7 +45,21 @@ export default function TeacherDashboard() {
   const activeAssignments = assignments.filter(a => a.status === 'active').length;
   const upcomingExams = exams.filter(e => e.upcoming).length;
   const totalResults = results.length;
-  const topNotice = notices[0];
+  const [currentNoticeIndex, setCurrentNoticeIndex] = useState(0);
+  const displayNotices = notices.slice(0, 4);
+  const currentNotice = displayNotices[currentNoticeIndex];
+
+  const handleNextNotice = () => {
+    if (currentNoticeIndex < displayNotices.length - 1) {
+      setCurrentNoticeIndex(prev => prev + 1);
+    }
+  };
+
+  const handlePrevNotice = () => {
+    if (currentNoticeIndex > 0) {
+      setCurrentNoticeIndex(prev => prev - 1);
+    }
+  };
 
   const panelLabel = lang === 'bn' ? 'শিক্ষক প্যানেল' : 'Teacher Panel';
   const roleLabel = user?.role === 'cr'
@@ -83,7 +97,7 @@ export default function TeacherDashboard() {
 
         <View style={styles.pad}>
           {/* Latest Notice */}
-          {topNotice ? (
+          {currentNotice ? (
             <View style={{ marginBottom: 24 }}>
               <View style={styles.noticeSectionHeader}>
                 <Text style={[styles.noticeMainTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>
@@ -103,7 +117,7 @@ export default function TeacherDashboard() {
                       {lang === 'bn' ? 'একাডেমিক' : 'Academic'}
                     </Text>
                   </View>
-                  <TouchableOpacity style={styles.detailsBtn} onPress={() => setSelectedNotice(topNotice)}>
+                  <TouchableOpacity style={styles.detailsBtn} onPress={() => setSelectedNotice(currentNotice)}>
                     <MaterialIcons name="visibility" size={16} color={Colors.textSecondary} />
                     <Text style={[styles.detailsText, { fontFamily: FF.regular }]}>
                       {lang === 'bn' ? 'বিস্তারিত দেখুন' : 'See details'}
@@ -112,10 +126,10 @@ export default function TeacherDashboard() {
                 </View>
 
                 <Text style={[styles.noticeTitleLg, { fontFamily: FF.bold }]} numberOfLines={2}>
-                  {topNotice.title}
+                  {currentNotice.title}
                 </Text>
                 <Text style={[styles.noticeDescLg, { fontFamily: FF.regular }]} numberOfLines={3}>
-                  {topNotice.description}
+                  {currentNotice.description}
                 </Text>
 
                 <View style={styles.noticeDivider} />
@@ -123,18 +137,26 @@ export default function TeacherDashboard() {
                 <View style={styles.noticeBottomRow}>
                   <View style={{ flex: 1 }}>
                     <Text style={[styles.noticeAuthor, { fontFamily: Fonts.en.medium }]}>
-                      {topNotice.author || 'Dr. Ariful Islam'}
+                      {currentNotice.author || 'Dr. Ariful Islam'}
                     </Text>
                     <Text style={[styles.noticeDateTime, { fontFamily: FF.regular }]}>
-                      {topNotice.date} • {topNotice.time}
+                      {currentNotice.date} • {currentNotice.time}
                     </Text>
                   </View>
                   
                   <View style={styles.noticePagination}>
-                    <TouchableOpacity style={styles.pageBtn}>
+                    <TouchableOpacity 
+                      style={[styles.pageBtn, currentNoticeIndex === 0 && { opacity: 0.5 }]} 
+                      onPress={handlePrevNotice}
+                      disabled={currentNoticeIndex === 0}
+                    >
                       <MaterialIcons name="chevron-left" size={20} color={Colors.textPrimary} />
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.pageBtnRight}>
+                    <TouchableOpacity 
+                      style={[styles.pageBtnRight, currentNoticeIndex === displayNotices.length - 1 && { opacity: 0.5 }]} 
+                      onPress={handleNextNotice}
+                      disabled={currentNoticeIndex === displayNotices.length - 1}
+                    >
                       <Text style={[styles.pageBtnText, { fontFamily: FF.medium }]}>
                         {lang === 'bn' ? 'পরবর্তী' : 'Next'}
                       </Text>
@@ -145,8 +167,8 @@ export default function TeacherDashboard() {
               </Card>
 
               <View style={styles.dotRowCenter}>
-                {[0, 1, 2, 3].map(i => (
-                  <View key={i} style={[styles.dotCircle, i === 0 && styles.dotCircleActive]} />
+                {displayNotices.map((_, i) => (
+                  <View key={i} style={[styles.dotCircle, i === currentNoticeIndex && styles.dotCircleActive]} />
                 ))}
               </View>
             </View>
@@ -179,21 +201,23 @@ export default function TeacherDashboard() {
             {lang === 'bn' ? 'সারসংক্ষেপ' : 'Overview'}
           </Text>
           {[
-            { labelBn: 'সক্রিয় অ্যাসাইনমেন্ট', labelEn: 'Active Assignments', count: activeAssignments, icon: 'assignment', colorBg: Colors.accentLight, color: Colors.accent },
-            { labelBn: 'আসন্ন পরীক্ষা', labelEn: 'Upcoming Exams', count: upcomingExams, icon: 'school', colorBg: '#EFF6FF', color: Colors.info },
-            { labelBn: 'ফলাফল আপলোড', labelEn: 'Results Uploaded', count: totalResults, icon: 'bar-chart', colorBg: '#FEF3C7', color: Colors.warning },
-          ].map(item => (
-            <Card key={item.labelEn} padding={16}>
-              <View style={styles.overviewRow}>
-                <View style={[styles.overviewIcon, { backgroundColor: item.colorBg }]}>
-                  <MaterialIcons name={item.icon as any} size={20} color={item.color} />
+            { labelBn: 'সক্রিয় অ্যাসাইনমেন্ট', labelEn: 'Active Assignments', count: activeAssignments, icon: 'assignment', colorBg: Colors.accentLight, color: Colors.accent, route: '/(teacher)/assignments' },
+            { labelBn: 'আসন্ন পরীক্ষা', labelEn: 'Upcoming Exams', count: upcomingExams, icon: 'school', colorBg: '#EFF6FF', color: Colors.info, route: '/(teacher)/exams' },
+            { labelBn: 'ফলাফল আপলোড', labelEn: 'Results Uploaded', count: totalResults, icon: 'bar-chart', colorBg: '#FEF3C7', color: Colors.warning, route: '/(teacher)/results' },
+          ].map((item, index) => (
+            <TouchableOpacity key={item.labelEn} onPress={() => router.push(item.route as any)} activeOpacity={0.8} style={{ marginBottom: index === 2 ? 0 : 12 }}>
+              <Card padding={16}>
+                <View style={styles.overviewRow}>
+                  <View style={[styles.overviewIcon, { backgroundColor: item.colorBg }]}>
+                    <MaterialIcons name={item.icon as any} size={20} color={item.color} />
+                  </View>
+                  <Text style={[styles.overviewLabel, { fontFamily: FF.semiBold }]}>
+                    {lang === 'bn' ? item.labelBn : item.labelEn}
+                  </Text>
+                  <Text style={[styles.overviewCount, { fontFamily: Fonts.en.bold, color: item.color }]}>{item.count}</Text>
                 </View>
-                <Text style={[styles.overviewLabel, { fontFamily: FF.semiBold }]}>
-                  {lang === 'bn' ? item.labelBn : item.labelEn}
-                </Text>
-                <Text style={[styles.overviewCount, { fontFamily: Fonts.en.bold, color: item.color }]}>{item.count}</Text>
-              </View>
-            </Card>
+              </Card>
+            </TouchableOpacity>
           ))}
 
           {/* Audit Log */}
@@ -280,7 +304,7 @@ const styles = StyleSheet.create({
   detailsText: { fontSize: FontSize.sm, color: Colors.textSecondary },
   
   noticeTitleLg: { fontSize: FontSize.md + 1, color: Colors.textPrimary, marginBottom: 8, lineHeight: 24 },
-  noticeDescLg: { fontSize: FontSize.sm, color: Colors.textSecondary, lineHeight: 22, marginBottom: 16 },
+  noticeDescLg: { fontSize: FontSize.sm, color: Colors.textSecondary, lineHeight: 22, minHeight: 66, marginBottom: 16 },
   
   noticeDivider: { height: 1, backgroundColor: Colors.borderColor, marginBottom: 12 },
   

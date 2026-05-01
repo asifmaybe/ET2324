@@ -58,7 +58,6 @@ export default function TeacherLayout() {
       }} />
       <Tabs.Screen name="attendance" options={{
         title: lang === 'bn' ? 'উপস্থিতি' : 'Attend.',
-        href: null,
         tabBarIcon: ({ color, size }) => <MaterialIcons name="people" size={size} color={color} />,
       }} />
       <Tabs.Screen name="results" options={{

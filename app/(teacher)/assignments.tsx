@@ -50,7 +50,7 @@ export default function TeacherAssignments() {
 
   return (
     <ScreenWrapper scrollable={false} noPadding>
-      <ScreenHeader title={lang === 'bn' ? 'অ্যাসাইনমেন্ট' : 'Assignments'} showPanelSwitch />
+      <ScreenHeader title={lang === 'bn' ? 'অ্যাসাইনমেন্ট' : 'Assignments'} />
       <TouchableOpacity style={styles.addBtn} onPress={openAdd}>
         <MaterialIcons name="add" size={18} color="#fff" />
         <Text style={[styles.addBtnText, { fontFamily: FF.semiBold }]}>

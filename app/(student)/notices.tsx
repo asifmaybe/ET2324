@@ -19,7 +19,7 @@ export default function StudentNotices() {
 
   return (
     <ScreenWrapper scrollable={false} noPadding>
-      <ScreenHeader title={lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notices'} showPanelSwitch />
+      <ScreenHeader title={lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notices'} />
 
       <FlatList
         data={notices}

@@ -47,7 +47,7 @@ export default function TeacherNotices() {
 
   return (
     <ScreenWrapper scrollable={false} noPadding>
-      <ScreenHeader title={lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notices'} showPanelSwitch />
+      <ScreenHeader title={lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notices'} />
       <TouchableOpacity style={styles.addBtn} onPress={() => setModalVisible(true)}>
         <MaterialIcons name="add" size={18} color="#fff" />
         <Text style={[styles.addBtnText, { fontFamily: FF.semiBold }]}>

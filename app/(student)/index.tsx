@@ -21,9 +21,12 @@ const DAYS_BN: Record<string, string> = {
   Thursday: 'বৃহস্পতিবার',
 };
 
+function getBstDate() {
+  return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Dhaka' }));
+}
+
 function getNextSession() {
-  const now = new Date();
-  const bstNow = new Date(now.getTime() + 6 * 60 * 60 * 1000);
+  const bstNow = getBstDate();
   const dayName = DAYS[bstNow.getDay()];
   const currentH = bstNow.getHours();
   const currentM = bstNow.getMinutes();
@@ -62,11 +65,37 @@ export default function StudentDashboard() {
 
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
 
+  const bstNow = getBstDate();
+  const currentHour = bstNow.getHours();
+  let greetingEn = 'Good Evening';
+  let greetingBn = 'শুভ সন্ধ্যা';
+  if (currentHour < 12) {
+    greetingEn = 'Good Morning';
+    greetingBn = 'শুভ সকাল';
+  } else if (currentHour < 17) {
+    greetingEn = 'Good Afternoon';
+    greetingBn = 'শুভ অপরাহ্ন';
+  }
+
   const pendingCount = assignments.filter(a => a.status === 'active' || a.status === 'pending').length;
   const upcomingExams = exams.filter(e => e.upcoming).length;
   const attendancePct = user?.attendance_percent ?? 0;
   const nextSess = getNextSession();
-  const topNotice = notices[0];
+  const [currentNoticeIndex, setCurrentNoticeIndex] = useState(0);
+  const displayNotices = notices.slice(0, 4);
+  const currentNotice = displayNotices[currentNoticeIndex];
+
+  const handleNextNotice = () => {
+    if (currentNoticeIndex < displayNotices.length - 1) {
+      setCurrentNoticeIndex(prev => prev + 1);
+    }
+  };
+
+  const handlePrevNotice = () => {
+    if (currentNoticeIndex > 0) {
+      setCurrentNoticeIndex(prev => prev - 1);
+    }
+  };
 
   const statusLabelBn: Record<string, string> = {
     now: 'এখন চলছে',
@@ -91,7 +120,7 @@ export default function StudentDashboard() {
         <View style={styles.headerArea}>
           <View style={styles.headerLeft}>
             <Text style={[styles.welcomeSmall, { fontFamily: FF.regular }]}>
-              {lang === 'bn' ? 'স্বাগতম,' : 'Welcome,'}
+              {lang === 'bn' ? `${greetingBn},` : `${greetingEn},`}
             </Text>
             <Text style={[styles.userName, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>
               {(user?.name ?? 'STUDENT').toUpperCase()}
@@ -120,7 +149,7 @@ export default function StudentDashboard() {
         <View style={styles.pad}>
 
           {/* ── Notice Section ── */}
-          {topNotice ? (
+          {currentNotice ? (
             <View style={{ marginBottom: 24 }}>
               <View style={styles.noticeSectionHeader}>
                 <Text style={[styles.noticeMainTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>
@@ -140,7 +169,7 @@ export default function StudentDashboard() {
                       {lang === 'bn' ? 'একাডেমিক' : 'Academic'}
                     </Text>
                   </View>
-                  <TouchableOpacity style={styles.detailsBtn} onPress={() => setSelectedNotice(topNotice)}>
+                  <TouchableOpacity style={styles.detailsBtn} onPress={() => setSelectedNotice(currentNotice)}>
                     <MaterialIcons name="visibility" size={16} color={Colors.textSecondary} />
                     <Text style={[styles.detailsText, { fontFamily: FF.regular }]}>
                       {lang === 'bn' ? 'বিস্তারিত দেখুন' : 'See details'}
@@ -149,10 +178,10 @@ export default function StudentDashboard() {
                 </View>
 
                 <Text style={[styles.noticeTitleLg, { fontFamily: FF.bold }]} numberOfLines={2}>
-                  {topNotice.title}
+                  {currentNotice.title}
                 </Text>
                 <Text style={[styles.noticeDescLg, { fontFamily: FF.regular }]} numberOfLines={3}>
-                  {topNotice.description}
+                  {currentNotice.description}
                 </Text>
 
                 <View style={styles.noticeDivider} />
@@ -160,18 +189,26 @@ export default function StudentDashboard() {
                 <View style={styles.noticeBottomRow}>
                   <View style={{ flex: 1 }}>
                     <Text style={[styles.noticeAuthor, { fontFamily: Fonts.en.medium }]}>
-                      {topNotice.author || 'Dr. Ariful Islam'}
+                      {currentNotice.author || 'Dr. Ariful Islam'}
                     </Text>
                     <Text style={[styles.noticeDateTime, { fontFamily: FF.regular }]}>
-                      {topNotice.date} • {topNotice.time}
+                      {currentNotice.date} • {currentNotice.time}
                     </Text>
                   </View>
                   
                   <View style={styles.noticePagination}>
-                    <TouchableOpacity style={styles.pageBtn}>
+                    <TouchableOpacity 
+                      style={[styles.pageBtn, currentNoticeIndex === 0 && { opacity: 0.5 }]} 
+                      onPress={handlePrevNotice}
+                      disabled={currentNoticeIndex === 0}
+                    >
                       <MaterialIcons name="chevron-left" size={20} color={Colors.textPrimary} />
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.pageBtnRight}>
+                    <TouchableOpacity 
+                      style={[styles.pageBtnRight, currentNoticeIndex === displayNotices.length - 1 && { opacity: 0.5 }]} 
+                      onPress={handleNextNotice}
+                      disabled={currentNoticeIndex === displayNotices.length - 1}
+                    >
                       <Text style={[styles.pageBtnText, { fontFamily: FF.medium }]}>
                         {lang === 'bn' ? 'পরবর্তী' : 'Next'}
                       </Text>
@@ -182,8 +219,8 @@ export default function StudentDashboard() {
               </Card>
 
               <View style={styles.dotRowCenter}>
-                {[0, 1, 2, 3].map(i => (
-                  <View key={i} style={[styles.dotCircle, i === 0 && styles.dotCircleActive]} />
+                {displayNotices.map((_, i) => (
+                  <View key={i} style={[styles.dotCircle, i === currentNoticeIndex && styles.dotCircleActive]} />
                 ))}
               </View>
             </View>
@@ -195,74 +232,80 @@ export default function StudentDashboard() {
           </Text>
 
           {/* Pending Assignments */}
-          <Card padding={16}>
-            <View style={styles.statRow}>
-              <View style={[styles.statIcon, { backgroundColor: Colors.accentLight }]}>
-                <MaterialIcons name="assignment" size={22} color={Colors.accent} />
-              </View>
-              <View style={styles.statText}>
-                <Text style={[styles.statLabel, { fontFamily: FF.semiBold }]}>
-                  {lang === 'bn' ? 'বাকি অ্যাসাইনমেন্ট' : 'Pending Assignments'}
+          <TouchableOpacity onPress={() => router.push('/(student)/assignments')} activeOpacity={0.8} style={{ marginBottom: 12 }}>
+            <Card padding={16}>
+              <View style={styles.statRow}>
+                <View style={[styles.statIcon, { backgroundColor: Colors.accentLight }]}>
+                  <MaterialIcons name="assignment" size={22} color={Colors.accent} />
+                </View>
+                <View style={styles.statText}>
+                  <Text style={[styles.statLabel, { fontFamily: FF.semiBold }]}>
+                    {lang === 'bn' ? 'বাকি অ্যাসাইনমেন্ট' : 'Pending Assignments'}
+                  </Text>
+                  <Text style={[styles.statSub, { fontFamily: FF.regular }]}>
+                    {pendingCount === 1
+                      ? (lang === 'bn' ? `${pendingCount}টি কাজ জমা দিতে হবে` : `${pendingCount} task to submit`)
+                      : (lang === 'bn' ? `${pendingCount}টি কাজ জমা দিতে হবে` : `${pendingCount} tasks to submit`)}
+                  </Text>
+                </View>
+                <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.accent }]}>
+                  {pendingCount}
                 </Text>
-                <Text style={[styles.statSub, { fontFamily: FF.regular }]}>
-                  {pendingCount === 1
-                    ? (lang === 'bn' ? `${pendingCount}টি কাজ জমা দিতে হবে` : `${pendingCount} task to submit`)
-                    : (lang === 'bn' ? `${pendingCount}টি কাজ জমা দিতে হবে` : `${pendingCount} tasks to submit`)}
-                </Text>
               </View>
-              <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.accent }]}>
-                {pendingCount}
-              </Text>
-            </View>
-          </Card>
+            </Card>
+          </TouchableOpacity>
 
           {/* Upcoming Exams */}
-          <Card padding={16}>
-            <View style={styles.statRow}>
-              <View style={[styles.statIcon, { backgroundColor: Colors.accentLight }]}>
-                <MaterialIcons name="calendar-today" size={22} color={Colors.accent} />
-              </View>
-              <View style={styles.statText}>
-                <Text style={[styles.statLabel, { fontFamily: FF.semiBold }]}>
-                  {lang === 'bn' ? 'আসন্ন পরীক্ষা' : 'Upcoming Exams'}
+          <TouchableOpacity onPress={() => router.push('/(student)/exams')} activeOpacity={0.8} style={{ marginBottom: 12 }}>
+            <Card padding={16}>
+              <View style={styles.statRow}>
+                <View style={[styles.statIcon, { backgroundColor: Colors.accentLight }]}>
+                  <MaterialIcons name="calendar-today" size={22} color={Colors.accent} />
+                </View>
+                <View style={styles.statText}>
+                  <Text style={[styles.statLabel, { fontFamily: FF.semiBold }]}>
+                    {lang === 'bn' ? 'আসন্ন পরীক্ষা' : 'Upcoming Exams'}
+                  </Text>
+                  <Text style={[styles.statSub, { fontFamily: FF.regular }]}>
+                    {lang === 'bn'
+                      ? `${upcomingExams}টি এই মাসে নির্ধারিত`
+                      : `${upcomingExams} scheduled this month`}
+                  </Text>
+                </View>
+                <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.accent }]}>
+                  {upcomingExams}
                 </Text>
-                <Text style={[styles.statSub, { fontFamily: FF.regular }]}>
-                  {lang === 'bn'
-                    ? `${upcomingExams}টি এই মাসে নির্ধারিত`
-                    : `${upcomingExams} scheduled this month`}
-                </Text>
               </View>
-              <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.accent }]}>
-                {upcomingExams}
-              </Text>
-            </View>
-          </Card>
+            </Card>
+          </TouchableOpacity>
 
           {/* Monthly Attendance */}
-          <Card padding={16}>
-            <View style={styles.statRow}>
-              <View style={[styles.statIcon, { backgroundColor: Colors.accentLight }]}>
-                <MaterialIcons name="person-outline" size={22} color={Colors.accent} />
-              </View>
-              <View style={[styles.statText, { flex: 1 }]}>
-                <Text style={[styles.statLabel, { fontFamily: FF.semiBold }]}>
-                  {lang === 'bn' ? 'মাসিক উপস্থিতি' : 'Monthly Attendance'}
-                </Text>
-                <View style={styles.progressBg}>
-                  <View style={[styles.progressFill, {
-                    width: `${Math.max(attendancePct, 0)}%` as any,
-                    backgroundColor: attendancePct >= 75 ? Colors.accent : Colors.danger,
-                  }]} />
+          <TouchableOpacity onPress={() => router.push('/(student)/attendance')} activeOpacity={0.8} style={{ marginBottom: 24 }}>
+            <Card padding={16}>
+              <View style={styles.statRow}>
+                <View style={[styles.statIcon, { backgroundColor: Colors.accentLight }]}>
+                  <MaterialIcons name="person-outline" size={22} color={Colors.accent} />
                 </View>
-                <Text style={[styles.statSub, { fontFamily: FF.regular }]}>
-                  {lang === 'bn' ? '০/০ দিন উপস্থিত' : '0/0 days present'}
+                <View style={[styles.statText, { flex: 1 }]}>
+                  <Text style={[styles.statLabel, { fontFamily: FF.semiBold }]}>
+                    {lang === 'bn' ? 'মাসিক উপস্থিতি' : 'Monthly Attendance'}
+                  </Text>
+                  <View style={styles.progressBg}>
+                    <View style={[styles.progressFill, {
+                      width: `${Math.max(attendancePct, 0)}%` as any,
+                      backgroundColor: attendancePct >= 75 ? Colors.accent : Colors.danger,
+                    }]} />
+                  </View>
+                  <Text style={[styles.statSub, { fontFamily: FF.regular }]}>
+                    {lang === 'bn' ? '০/০ দিন উপস্থিত' : '0/0 days present'}
+                  </Text>
+                </View>
+                <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.accent }]}>
+                  {attendancePct}%
                 </Text>
               </View>
-              <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.accent }]}>
-                {attendancePct}%
-              </Text>
-            </View>
-          </Card>
+            </Card>
+          </TouchableOpacity>
 
           {/* ── Section: পরবতী সেশন ── */}
           <View style={styles.nextSessionHeader}>
@@ -411,7 +454,7 @@ const styles = StyleSheet.create({
   detailsText: { fontSize: FontSize.sm, color: Colors.textSecondary },
   
   noticeTitleLg: { fontSize: FontSize.md + 1, color: Colors.textPrimary, marginBottom: 8, lineHeight: 24 },
-  noticeDescLg: { fontSize: FontSize.sm, color: Colors.textSecondary, lineHeight: 22, marginBottom: 16 },
+  noticeDescLg: { fontSize: FontSize.sm, color: Colors.textSecondary, lineHeight: 22, minHeight: 66, marginBottom: 16 },
   
   noticeDivider: { height: 1, backgroundColor: Colors.borderColor, marginBottom: 12 },
   

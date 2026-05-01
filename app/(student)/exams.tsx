@@ -28,7 +28,7 @@ export default function StudentExams() {
 
   return (
     <ScreenWrapper scrollable={false} noPadding>
-      <ScreenHeader title={lang === 'bn' ? 'পরীক্ষা' : 'Exams'} showPanelSwitch />
+      <ScreenHeader title={lang === 'bn' ? 'পরীক্ষা' : 'Exams'} />
       <View style={styles.tabs}>
         <TouchableOpacity style={[styles.tabBtn, tab === 'upcoming' && styles.tabActive]} onPress={() => setTab('upcoming')}>
           <Text style={[styles.tabText, { fontFamily: FF.medium }, tab === 'upcoming' && styles.tabTextActive]}>
@@ -59,16 +59,16 @@ export default function StudentExams() {
                 <View style={styles.row}>
                   <StatusBadge type={typeMap[item.type] ?? 'classTest'} customLabel={lang === 'bn' ? (EXAM_TYPE_BN[item.type] ?? item.type) : item.type} />
                   <StatusBadge type={item.upcoming ? 'upcoming' : 'past'} />
+                  <View style={styles.marksBadge}>
+                    <MaterialIcons name="assessment" size={12} color={Colors.textSecondary} />
+                    <Text style={[styles.marksText, { fontFamily: FF.medium }]}>
+                      {lang === 'bn' ? 'নম্বর:' : 'Marks:'} {item.marks}
+                    </Text>
+                  </View>
                 </View>
                 {item.instructions ? (
                   <Text style={[styles.instr, { fontFamily: FF.regular }]} numberOfLines={2}>{item.instructions}</Text>
                 ) : null}
-                <View style={styles.metaRow}>
-                  <MaterialIcons name="grade" size={13} color={Colors.textMuted} />
-                  <Text style={[styles.metaText, { fontFamily: FF.regular }]}>
-                    {lang === 'bn' ? 'নম্বর:' : 'Marks:'} {item.marks}
-                  </Text>
-                </View>
               </View>
               <View style={styles.dateBox}>
                 <Text style={[styles.dateText, { fontFamily: Fonts.en.bold }]}>{item.date.split('-')[2]}</Text>
@@ -103,9 +103,13 @@ const styles = StyleSheet.create({
   },
   dateText: { fontSize: FontSize.xl, color: Colors.accent },
   monthText: { fontSize: FontSize.xs, color: Colors.accent },
-  instr: { fontSize: FontSize.xs, color: Colors.textSecondary, lineHeight: 18, marginBottom: 6 },
-  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  metaText: { fontSize: FontSize.xs, color: Colors.textMuted },
+  instr: { fontSize: FontSize.xs, color: Colors.textSecondary, lineHeight: 18, marginBottom: 8 },
+  marksBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: Colors.bgSecondary, paddingHorizontal: 8, paddingVertical: 4,
+    borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.borderColor,
+  },
+  marksText: { fontSize: 11, color: Colors.textSecondary },
   empty: { alignItems: 'center', marginTop: 60, gap: 12 },
   emptyText: { fontSize: FontSize.md, color: Colors.textMuted },
 });

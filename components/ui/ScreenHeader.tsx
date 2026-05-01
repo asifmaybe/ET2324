@@ -11,10 +11,11 @@ interface Props {
   subtitle?: string;
   showLogout?: boolean;
   showNotification?: boolean;
-  showPanelSwitch?: boolean;
+
+  onBack?: () => void;
 }
 
-export function ScreenHeader({ title, subtitle, showLogout = false, showNotification = false, showPanelSwitch = false }: Props) {
+export function ScreenHeader({ title, subtitle, showLogout = false, showNotification = false, onBack }: Props) {
   const { lang } = useLang();
   const { user, panelMode, setPanelMode } = useAuth();
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
@@ -22,20 +23,22 @@ export function ScreenHeader({ title, subtitle, showLogout = false, showNotifica
   return (
     <View style={styles.container}>
       <View style={styles.left}>
-        {subtitle ? (
-          <Text style={[styles.subtitle, { fontFamily: FF.regular }]}>{subtitle}</Text>
-        ) : null}
-        <Text style={[styles.title, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>{title}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          {onBack && (
+            <TouchableOpacity onPress={onBack} style={{ marginRight: 12 }}>
+              <MaterialIcons name="arrow-back" size={24} color={Colors.textPrimary} />
+            </TouchableOpacity>
+          )}
+          <View>
+            {subtitle ? (
+              <Text style={[styles.subtitle, { fontFamily: FF.regular }]}>{subtitle}</Text>
+            ) : null}
+            <Text style={[styles.title, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>{title}</Text>
+          </View>
+        </View>
       </View>
       <View style={styles.actions}>
-        {showPanelSwitch && user?.role === 'cr' ? (
-          <TouchableOpacity
-            style={styles.iconBtn}
-            onPress={() => setPanelMode(panelMode === 'student' ? 'teacher' : 'student')}
-          >
-            <MaterialIcons name="swap-horiz" size={20} color={Colors.accent} />
-          </TouchableOpacity>
-        ) : null}
+
         {showNotification ? (
           <TouchableOpacity style={styles.iconBtn}>
             <MaterialIcons name="notifications-none" size={20} color={Colors.textSecondary} />

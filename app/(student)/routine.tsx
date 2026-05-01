@@ -33,7 +33,7 @@ export default function Routine() {
 
   return (
     <ScreenWrapper scrollable={false} noPadding>
-      <ScreenHeader title={lang === 'bn' ? 'ক্লাস রুটিন' : 'Class Routine'} showPanelSwitch />
+      <ScreenHeader title={lang === 'bn' ? 'ক্লাস রুটিন' : 'Class Routine'} />
       <View style={styles.daySelectorWrap}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.daySelectorList}>
           {DAYS_EN.map(day => (

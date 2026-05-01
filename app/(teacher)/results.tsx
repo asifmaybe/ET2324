@@ -65,7 +65,7 @@ export default function TeacherResults() {
 
   return (
     <ScreenWrapper scrollable={false} noPadding>
-      <ScreenHeader title={lang === 'bn' ? 'ফলাফল' : 'Results'} showPanelSwitch />
+      <ScreenHeader title={lang === 'bn' ? 'ফলাফল' : 'Results'} />
       <TouchableOpacity style={styles.addBtn} onPress={() => setModalVisible(true)}>
         <MaterialIcons name="add" size={18} color="#fff" />
         <Text style={[styles.addBtnText, { fontFamily: FF.semiBold }]}>

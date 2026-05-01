@@ -108,7 +108,7 @@ export default function StudentAssignments() {
 
   return (
     <ScreenWrapper scrollable={false} noPadding>
-      <ScreenHeader title={lang === 'bn' ? 'অ্যাসাইনমেন্ট' : 'Assignments'} showPanelSwitch />
+      <ScreenHeader title={lang === 'bn' ? 'অ্যাসাইনমেন্ট' : 'Assignments'} />
       <View style={styles.filterWrap}>
         <FlatList
           horizontal

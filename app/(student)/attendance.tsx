@@ -23,7 +23,7 @@ export default function StudentAttendance() {
 
   return (
     <ScreenWrapper scrollable={false} noPadding>
-      <ScreenHeader title={lang === 'bn' ? 'আমার উপস্থিতি' : 'My Attendance'} showPanelSwitch />
+      <ScreenHeader title={lang === 'bn' ? 'আমার উপস্থিতি' : 'My Attendance'} />
       <View style={{ paddingHorizontal: 16, flex: 1 }}>
         {/* Summary Card */}
         <Card padding={16}>

@@ -35,7 +35,7 @@ export const MOCK_USERS: Profile[] = [
 
 export const MOCK_NOTICES: Notice[] = [
   { id: '1', title: 'Class Test Notice', description: 'Class test on Generation of Electrical Power on 5th May. Syllabus: Chapter 1-3.', date: '2026-04-30', time: '10:33 PM', author: 'AMIR HAMZA', important: true, created_at: '2026-04-30T16:33:00Z' },
-  { id: '2', title: 'Holiday Notice', description: 'Classes will remain suspended on 1st May due to May Day. Classes will resume on 2nd May.', date: '2026-04-29', time: '9:00 AM', author: 'AMIR HAMZA', important: false, created_at: '2026-04-29T03:00:00Z' },
+  { id: '2', title: 'Holiday Notice', description: 'Classes will remain suspended on 1st May due to May Day. Classes will resume on 2nd May lorem saffrg jsd fdsdsfds dsgdsfgfdg   dsfsd dsf sds  g dsgds gsds f  ds ds fdsfsdf sd ds fdsf  f dsfdsf f  df gd gdgd  s sdfds.', date: '2026-04-29', time: '9:00 AM', author: 'AMIR HAMZA', important: false, created_at: '2026-04-29T03:00:00Z' },
   { id: '3', title: 'Project Submission Reminder', description: 'Electrical Engineering Project-II final report must be submitted by 15th May. Late submission will not be accepted.', date: '2026-04-28', time: '2:15 PM', author: 'RAFIQUL ISLAM', important: true, created_at: '2026-04-28T08:15:00Z' },
   { id: '4', title: 'Lab Schedule Updated', description: 'The Microprocessor lab schedule has been updated. Please check the new routine posted on the notice board.', date: '2026-04-25', time: '11:00 AM', author: 'AMIR HAMZA', important: false, created_at: '2026-04-25T05:00:00Z' },
 ];

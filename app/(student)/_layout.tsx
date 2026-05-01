@@ -66,13 +66,13 @@ export default function StudentLayout() {
         href: null,
         tabBarIcon: ({ color, size }) => <MaterialIcons name="bar-chart" size={size} color={color} />,
       }} />
-      <Tabs.Screen name="notices" options={{
-        title: lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notices',
-        tabBarIcon: ({ color, size }) => <MaterialIcons name="campaign" size={size} color={color} />,
-      }} />
       <Tabs.Screen name="routine" options={{
         title: tr('navRoutine'),
         tabBarIcon: ({ color, size }) => <MaterialIcons name="calendar-today" size={size} color={color} />,
+      }} />
+      <Tabs.Screen name="notices" options={{
+        title: lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notices',
+        tabBarIcon: ({ color, size }) => <MaterialIcons name="campaign" size={size} color={color} />,
         tabBarItemStyle: { paddingRight: 16 },
       }} />
     </Tabs>

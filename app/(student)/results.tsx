@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { useData } from '../../hooks/useData';
 import { useLang } from '../../hooks/useLang';
@@ -22,26 +22,69 @@ export default function StudentResults() {
   const { user } = useAuth();
   const { results } = useData();
   const { lang, tr } = useLang();
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
 
   const myResults = results.filter(r => r.student_id === user?.student_id);
   const typeMap: Record<string, any> = { 'Class Test': 'classTest', 'Quiz': 'quiz', 'Mid-Term': 'midTerm', 'Final': 'final' };
 
+  const categories = [
+    { id: 'Class Tests', titleEn: 'Class Tests', titleBn: 'ক্লাস টেস্ট', icon: 'assignment' },
+    { id: 'Mid-term', titleEn: 'Mid-term', titleBn: 'মধ্যবর্তী পরীক্ষা', icon: 'grading' },
+    { id: 'Board', titleEn: 'Board', titleBn: 'বোর্ড পরীক্ষা', icon: 'school' }
+  ];
+
+  const filteredResults = selectedCategory 
+    ? myResults.filter(r => {
+        if (selectedCategory === 'Class Tests') return r.exam_type === 'Class Test' || r.exam_type === 'Quiz';
+        if (selectedCategory === 'Mid-term') return r.exam_type === 'Mid-Term';
+        if (selectedCategory === 'Board') return r.exam_type === 'Final';
+        return false;
+      })
+    : [];
+
   return (
     <ScreenWrapper scrollable={false} noPadding>
-      <ScreenHeader title={lang === 'bn' ? 'ফলাফল' : 'Results'} showPanelSwitch />
-      <View style={{ paddingHorizontal: 16, flex: 1 }}>
-        <FlatList
-          data={myResults}
-          keyExtractor={i => i.id}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 24 }}
-          ListEmptyComponent={
-            <View style={styles.empty}>
-              <MaterialIcons name="bar-chart" size={44} color={Colors.textMuted} />
-              <Text style={[styles.emptyText, { fontFamily: FF.regular }]}>{tr('noData')}</Text>
-            </View>
-          }
+      <ScreenHeader 
+        title={selectedCategory ? (lang === 'bn' ? categories.find(c => c.id === selectedCategory)?.titleBn! : selectedCategory) : (lang === 'bn' ? 'ফলাফল' : 'Results')} 
+        onBack={selectedCategory ? () => setSelectedCategory(null) : undefined}
+      />
+      {!selectedCategory ? (
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}>
+          <Text style={[styles.progressTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>
+            {lang === 'bn' ? 'আপনার অগ্রগতি' : 'Your Progress'}
+          </Text>
+          <Text style={[styles.progressSub, { fontFamily: FF.regular }]}>
+            {lang === 'bn' ? 'সকল মূল্যায়নে আপনার একাডেমিক পারফরম্যান্স পর্যালোচনা করুন।' : 'Review your academic performance across all assessments.'}
+          </Text>
+
+          <View style={styles.catList}>
+            {categories.map(cat => (
+              <TouchableOpacity key={cat.id} style={styles.catCard} activeOpacity={0.8} onPress={() => setSelectedCategory(cat.id)}>
+                <View style={styles.catIconBox}>
+                  <MaterialIcons name={cat.icon as any} size={22} color={Colors.textPrimary} />
+                </View>
+                <Text style={[styles.catTitle, { fontFamily: FF.semiBold }]}>
+                  {lang === 'bn' ? cat.titleBn : cat.titleEn}
+                </Text>
+                <MaterialIcons name="chevron-right" size={20} color={Colors.textMuted} />
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ScrollView>
+      ) : (
+        <View style={{ paddingHorizontal: 16, flex: 1 }}>
+          <FlatList
+            data={filteredResults}
+            keyExtractor={i => i.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 24 }}
+            ListEmptyComponent={
+              <View style={styles.empty}>
+                <MaterialIcons name="bar-chart" size={44} color={Colors.textMuted} />
+                <Text style={[styles.emptyText, { fontFamily: FF.regular }]}>{tr('noData')}</Text>
+              </View>
+            }
           renderItem={({ item }: { item: Result }) => {
             const pct = Math.round((item.marks / item.total_marks) * 100);
             const isGood = pct >= 60;
@@ -77,8 +120,9 @@ export default function StudentResults() {
               </Card>
             );
           }}
-        />
-      </View>
+          />
+        </View>
+      )}
     </ScreenWrapper>
   );
 }
@@ -100,4 +144,17 @@ const styles = StyleSheet.create({
   metaText: { fontSize: FontSize.xs, color: Colors.textMuted },
   empty: { alignItems: 'center', marginTop: 60, gap: 12 },
   emptyText: { fontSize: FontSize.md, color: Colors.textMuted },
+  progressTitle: { fontSize: FontSize.xl + 2, color: Colors.textPrimary, marginBottom: 4, marginTop: 16 },
+  progressSub: { fontSize: FontSize.sm, color: Colors.textSecondary, marginBottom: 24 },
+  catList: { gap: 12 },
+  catCard: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.white,
+    padding: 16, borderRadius: Radius.lg, borderWidth: 1, borderColor: Colors.borderColor,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
+  },
+  catIconBox: {
+    width: 40, height: 40, borderRadius: Radius.md, backgroundColor: Colors.bgSecondary,
+    justifyContent: 'center', alignItems: 'center', marginRight: 16,
+  },
+  catTitle: { flex: 1, fontSize: FontSize.md, color: Colors.textPrimary },
 });

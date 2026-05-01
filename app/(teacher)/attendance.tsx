@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput,
-  Switch, FlatList, KeyboardAvoidingView, Platform,
+  FlatList, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../hooks/useAuth';
@@ -10,6 +10,7 @@ import { useLang } from '../../hooks/useLang';
 import { ScreenHeader } from '../../components/ui/ScreenHeader';
 import { Card } from '../../components/ui/Card';
 import { ActionButton } from '../../components/ui/ActionButton';
+import { ModernSwitch } from '../../components/ui/ModernSwitch';
 import { Colors, FontSize, Radius, Fonts } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SUBJECTS, ALL_STUDENTS } from '../../constants/mockData';
@@ -85,7 +86,7 @@ export default function TeacherAttendance() {
             {lang === 'bn' ? 'রোল নম্বর পেস্ট করে দ্রুত উপস্থিতি নিন' : 'Paste roll numbers to quickly mark attendance'}
           </Text>
         </View>
-        <ScreenHeader title="" showPanelSwitch />
+        <ScreenHeader title="" />
       </View>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
@@ -101,111 +102,113 @@ export default function TeacherAttendance() {
                     : (lang === 'bn' ? 'নিষ্ক্রিয় — অফলাইনে পরিচালিত' : 'Inactive — handled offline')}
                 </Text>
               </View>
-              <Switch
+              <ModernSwitch
                 value={onlineAttendanceActive}
                 onValueChange={setOnlineAttendanceActive}
-                trackColor={{ false: Colors.bgTertiary, true: Colors.accentDim }}
-                thumbColor={onlineAttendanceActive ? Colors.accent : Colors.white}
               />
             </View>
           </Card>
 
-          {/* Subject Selector */}
-          <TouchableOpacity style={styles.subjectBtn} onPress={() => setSubjectOpen(!subjectOpen)}>
-            <Text style={[styles.subjectText, { fontFamily: FF.regular }, !selectedSubject && { color: Colors.textMuted }]}>
-              {selectedSubject || (lang === 'bn' ? 'বিষয় নির্বাচন করুন' : 'Select Subject')}
-            </Text>
-            <MaterialIcons name={subjectOpen ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} size={20} color={Colors.textSecondary} />
-          </TouchableOpacity>
-          {subjectOpen ? (
-            <View style={styles.dropdown}>
-              {SUBJECTS.map(s => (
-                <TouchableOpacity key={s} style={[styles.dropItem, selectedSubject === s && styles.dropItemActive]}
-                  onPress={() => { setSelectedSubject(s); setSubjectOpen(false); }}>
-                  <Text style={[styles.dropText, { fontFamily: FF.regular }, selectedSubject === s && { color: Colors.accent }]}>{s}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          ) : null}
-
-          {/* Roll Number Paste Area */}
-          <View style={styles.rollNote}>
-            <MaterialIcons name="content-paste" size={13} color={Colors.textMuted} />
-            <Text style={[styles.rollNoteText, { fontFamily: FF.regular }]}>
-              {lang === 'bn' ? 'উপস্থিত শিক্ষার্থীদের রোল নম্বর পেস্ট করুন (প্রতি লাইনে একটি)' : 'Paste present students roll numbers (one per line)'}
-            </Text>
-          </View>
-          <TextInput
-            style={[styles.rollInput, { fontFamily: Fonts.en.regular }]}
-            value={rollInput}
-            onChangeText={setRollInput}
-            placeholder={'842943\n842944\n842946\n...'}
-            placeholderTextColor={Colors.textMuted}
-            multiline
-            numberOfLines={6}
-            textAlignVertical="top"
-          />
-          <Text style={[styles.presentNote, { fontFamily: FF.regular }]}>
-            {lang === 'bn' ? 'যাদের রোল নম্বর দেবেন তারা উপস্থিত, বাকিরা অনুপস্থিত হিসেবে চিহ্নিত হবে' : 'Rolls entered will be marked Present; others Absent'}
-          </Text>
-          <TouchableOpacity
-            style={[styles.processBtn, !selectedSubject && { opacity: 0.5 }]}
-            onPress={handleProcess}
-            disabled={!selectedSubject}
-          >
-            <Text style={[styles.processBtnText, { fontFamily: FF.semiBold }]}>
-              {lang === 'bn' ? 'উপস্থিতি প্রক্রিয়া করুন' : 'Process Attendance'}
-            </Text>
-          </TouchableOpacity>
-
-          {/* Processed Table */}
-          {processedStudents ? (
-            <Card padding={0}>
-              <View style={styles.tableHeader}>
-                <Text style={[styles.tableCell, { flex: 2, fontFamily: Fonts.en.semiBold }]}>
-                  {lang === 'bn' ? 'রোল' : 'Roll'}
+          {onlineAttendanceActive && (
+            <>
+              {/* Subject Selector */}
+              <TouchableOpacity style={styles.subjectBtn} onPress={() => setSubjectOpen(!subjectOpen)}>
+                <Text style={[styles.subjectText, { fontFamily: FF.regular }, !selectedSubject && { color: Colors.textMuted }]}>
+                  {selectedSubject || (lang === 'bn' ? 'বিষয় নির্বাচন করুন' : 'Select Subject')}
                 </Text>
-                <Text style={[styles.tableCell, { flex: 3, fontFamily: FF.semiBold }]}>
-                  {lang === 'bn' ? 'নাম' : 'Name'}
-                </Text>
-                <Text style={[styles.tableCell, { flex: 1, textAlign: 'center', fontFamily: FF.semiBold }]}>
-                  {lang === 'bn' ? 'অবস্থা' : 'Status'}
+                <MaterialIcons name={subjectOpen ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} size={20} color={Colors.textSecondary} />
+              </TouchableOpacity>
+              {subjectOpen ? (
+                <View style={styles.dropdown}>
+                  {SUBJECTS.map(s => (
+                    <TouchableOpacity key={s} style={[styles.dropItem, selectedSubject === s && styles.dropItemActive]}
+                      onPress={() => { setSelectedSubject(s); setSubjectOpen(false); }}>
+                      <Text style={[styles.dropText, { fontFamily: FF.regular }, selectedSubject === s && { color: Colors.accent }]}>{s}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : null}
+
+              {/* Roll Number Paste Area */}
+              <View style={styles.rollNote}>
+                <MaterialIcons name="content-paste" size={13} color={Colors.textMuted} />
+                <Text style={[styles.rollNoteText, { fontFamily: FF.regular }]}>
+                  {lang === 'bn' ? 'উপস্থিত শিক্ষার্থীদের রোল নম্বর পেস্ট করুন (প্রতি লাইনে একটি)' : 'Paste present students roll numbers (one per line)'}
                 </Text>
               </View>
-              {processedStudents.map((s, idx) => (
-                <View key={s.student_id} style={[styles.tableRow, idx % 2 === 0 && styles.tableRowAlt]}>
-                  <Text style={[styles.tableDataCell, { flex: 2, fontFamily: Fonts.en.regular }]}>{s.student_id}</Text>
-                  <Text style={[styles.tableDataCellMuted, { flex: 3, fontFamily: FF.regular }]} numberOfLines={1}>{s.student_name}</Text>
-                  <TouchableOpacity
-                    style={[styles.statusBtn, { backgroundColor: statusColor[s.status as StatusType] + '18', borderColor: statusColor[s.status as StatusType] }]}
-                    onPress={() => toggleStatus(idx)}
-                  >
-                    <Text style={[styles.statusBtnText, { color: statusColor[s.status as StatusType], fontFamily: Fonts.en.bold }]}>
-                      {statusLabel[s.status as StatusType]}
+              <TextInput
+                style={[styles.rollInput, { fontFamily: Fonts.en.regular }]}
+                value={rollInput}
+                onChangeText={setRollInput}
+                placeholder={'842943\n842944\n842946\n...'}
+                placeholderTextColor={Colors.textMuted}
+                multiline
+                numberOfLines={6}
+                textAlignVertical="top"
+              />
+              <Text style={[styles.presentNote, { fontFamily: FF.regular }]}>
+                {lang === 'bn' ? 'যাদের রোল নম্বর দেবেন তারা উপস্থিত, বাকিরা অনুপস্থিত হিসেবে চিহ্নিত হবে' : 'Rolls entered will be marked Present; others Absent'}
+              </Text>
+              <TouchableOpacity
+                style={[styles.processBtn, !selectedSubject && { opacity: 0.5 }]}
+                onPress={handleProcess}
+                disabled={!selectedSubject}
+              >
+                <Text style={[styles.processBtnText, { fontFamily: FF.semiBold }]}>
+                  {lang === 'bn' ? 'উপস্থিতি প্রক্রিয়া করুন' : 'Process Attendance'}
+                </Text>
+              </TouchableOpacity>
+
+              {/* Processed Table */}
+              {processedStudents ? (
+                <Card padding={0}>
+                  <View style={styles.tableHeader}>
+                    <Text style={[styles.tableCell, { flex: 2, fontFamily: Fonts.en.semiBold }]}>
+                      {lang === 'bn' ? 'রোল' : 'Roll'}
                     </Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-              <View style={styles.saveRow}>
-                <View style={styles.summaryBadges}>
-                  <Text style={[styles.summaryBadge, { color: Colors.accent, fontFamily: FF.bold }]}>
-                    ✓ {processedStudents.filter(s => s.status === 'present').length}
-                  </Text>
-                  <Text style={[styles.summaryBadge, { color: Colors.danger, fontFamily: FF.bold }]}>
-                    ✗ {processedStudents.filter(s => s.status === 'absent').length}
-                  </Text>
-                  <Text style={[styles.summaryBadge, { color: Colors.warning, fontFamily: FF.bold }]}>
-                    L {processedStudents.filter(s => s.status === 'late').length}
-                  </Text>
-                </View>
-                <ActionButton
-                  label={lang === 'bn' ? 'উপস্থিতি সংরক্ষণ করুন' : 'Save Attendance'}
-                  onPress={handleSave}
-                  style={{ paddingHorizontal: 12 }}
-                />
-              </View>
-            </Card>
-          ) : null}
+                    <Text style={[styles.tableCell, { flex: 3, fontFamily: FF.semiBold }]}>
+                      {lang === 'bn' ? 'নাম' : 'Name'}
+                    </Text>
+                    <Text style={[styles.tableCell, { flex: 1, textAlign: 'center', fontFamily: FF.semiBold }]}>
+                      {lang === 'bn' ? 'অবস্থা' : 'Status'}
+                    </Text>
+                  </View>
+                  {processedStudents.map((s, idx) => (
+                    <View key={s.student_id} style={[styles.tableRow, idx % 2 === 0 && styles.tableRowAlt]}>
+                      <Text style={[styles.tableDataCell, { flex: 2, fontFamily: Fonts.en.regular }]}>{s.student_id}</Text>
+                      <Text style={[styles.tableDataCellMuted, { flex: 3, fontFamily: FF.regular }]} numberOfLines={1}>{s.student_name}</Text>
+                      <TouchableOpacity
+                        style={[styles.statusBtn, { backgroundColor: statusColor[s.status as StatusType] + '18', borderColor: statusColor[s.status as StatusType] }]}
+                        onPress={() => toggleStatus(idx)}
+                      >
+                        <Text style={[styles.statusBtnText, { color: statusColor[s.status as StatusType], fontFamily: Fonts.en.bold }]}>
+                          {statusLabel[s.status as StatusType]}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                  <View style={styles.saveRow}>
+                    <View style={styles.summaryBadges}>
+                      <Text style={[styles.summaryBadge, { color: Colors.accent, fontFamily: FF.bold }]}>
+                        ✓ {processedStudents.filter(s => s.status === 'present').length}
+                      </Text>
+                      <Text style={[styles.summaryBadge, { color: Colors.danger, fontFamily: FF.bold }]}>
+                        ✗ {processedStudents.filter(s => s.status === 'absent').length}
+                      </Text>
+                      <Text style={[styles.summaryBadge, { color: Colors.warning, fontFamily: FF.bold }]}>
+                        L {processedStudents.filter(s => s.status === 'late').length}
+                      </Text>
+                    </View>
+                    <ActionButton
+                      label={lang === 'bn' ? 'উপস্থিতি সংরক্ষণ করুন' : 'Save Attendance'}
+                      onPress={handleSave}
+                      style={{ paddingHorizontal: 12 }}
+                    />
+                  </View>
+                </Card>
+              ) : null}
+            </>
+          )}
 
           {/* Previous Sessions */}
           {attendanceSessions.length > 0 ? (

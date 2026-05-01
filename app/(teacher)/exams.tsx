@@ -56,7 +56,7 @@ export default function TeacherExams() {
 
   return (
     <ScreenWrapper scrollable={false} noPadding>
-      <ScreenHeader title={lang === 'bn' ? 'পরীক্ষা' : 'Exams'} showPanelSwitch />
+      <ScreenHeader title={lang === 'bn' ? 'পরীক্ষা' : 'Exams'} />
       <TouchableOpacity style={styles.addBtn} onPress={openAdd}>
         <MaterialIcons name="add" size={18} color="#fff" />
         <Text style={[styles.addBtnText, { fontFamily: FF.semiBold }]}>
@@ -84,12 +84,16 @@ export default function TeacherExams() {
                 <View style={styles.badgeRow}>
                   <StatusBadge type={typeMap[item.type] ?? 'classTest'} customLabel={lang === 'bn' ? (EXAM_TYPES_BN[item.type] ?? item.type) : item.type} />
                   <StatusBadge type={item.upcoming ? 'upcoming' : 'past'} />
+                  <View style={styles.marksBadge}>
+                    <MaterialIcons name="assessment" size={11} color={Colors.textSecondary} />
+                    <Text style={[styles.marksText, { fontFamily: FF.medium }]}>
+                      {item.marks} {lang === 'bn' ? 'নম্বর' : 'marks'}
+                    </Text>
+                  </View>
                 </View>
                 <View style={styles.metaRow}>
                   <MaterialIcons name="event" size={12} color={Colors.textMuted} />
                   <Text style={[styles.metaText, { fontFamily: Fonts.en.regular }]}>{item.date}</Text>
-                  <MaterialIcons name="grade" size={12} color={Colors.textMuted} style={{ marginLeft: 8 }} />
-                  <Text style={[styles.metaText, { fontFamily: Fonts.en.regular }]}>{item.marks} {lang === 'bn' ? 'নম্বর' : 'marks'}</Text>
                 </View>
                 {item.instructions ? <Text style={[styles.instr, { fontFamily: FF.regular }]} numberOfLines={2}>{item.instructions}</Text> : null}
               </View>
@@ -192,9 +196,15 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
   subject: { fontSize: FontSize.md, color: Colors.textPrimary, marginBottom: 4 },
   badgeRow: { flexDirection: 'row', gap: 6, marginBottom: 6, flexWrap: 'wrap' },
-  metaRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
-  metaText: { fontSize: FontSize.xs, color: Colors.textMuted, marginLeft: 3 },
-  instr: { fontSize: FontSize.xs, color: Colors.textSecondary, lineHeight: 17 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
+  metaText: { fontSize: FontSize.xs, color: Colors.textMuted, marginLeft: 4 },
+  marksBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: Colors.bgSecondary, paddingHorizontal: 7, paddingVertical: 3,
+    borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.borderColor,
+  },
+  marksText: { fontSize: 10, color: Colors.textSecondary },
+  instr: { fontSize: FontSize.xs, color: Colors.textSecondary, lineHeight: 17, marginTop: 4 },
   btnCol: { gap: 8 },
   iconBtn: { width: 32, height: 32, borderRadius: 8, backgroundColor: Colors.bgSecondary, borderWidth: 1, borderColor: Colors.borderColor, justifyContent: 'center', alignItems: 'center' },
   deleteBtn: { backgroundColor: Colors.dangerBg },

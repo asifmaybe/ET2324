@@ -10,7 +10,7 @@ interface Props {
   onCancel: () => void;
   confirmLabel?: string;
   cancelLabel?: string;
-  confirmVariant?: 'primary' | 'secondary' | 'danger' | 'success';
+  confirmVariant?: 'primary' | 'secondary' | 'danger' | 'ghost';
 }
 
 export function DeleteModal({ visible, message, onConfirm, onCancel, confirmLabel = 'Delete', cancelLabel = 'Cancel', confirmVariant = 'danger' }: Props) {
