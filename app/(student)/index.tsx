@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -233,7 +233,7 @@ export default function StudentDashboard() {
           </Text>
 
           {/* Pending Assignments */}
-          <TouchableOpacity onPress={() => router.push('/(student)/assignments')} activeOpacity={0.8} style={{ marginBottom: 0 }}>
+          <Pressable onPress={() => router.push('/(student)/assignments')} android_ripple={null} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, marginBottom: 0 })}>
             <Card padding={16}>
               <View style={styles.statRow}>
                 <View style={[styles.statIcon, { backgroundColor: Colors.accentLight }]}>
@@ -254,10 +254,10 @@ export default function StudentDashboard() {
                 </Text>
               </View>
             </Card>
-          </TouchableOpacity>
+          </Pressable>
 
           {/* Upcoming Exams */}
-          <TouchableOpacity onPress={() => router.push('/(student)/exams')} activeOpacity={0.8} style={{ marginBottom: 0 }}>
+          <Pressable onPress={() => router.push('/(student)/exams')} android_ripple={null} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, marginBottom: 0 })}>
             <Card padding={16}>
               <View style={styles.statRow}>
                 <View style={[styles.statIcon, { backgroundColor: Colors.accentLight }]}>
@@ -278,11 +278,11 @@ export default function StudentDashboard() {
                 </Text>
               </View>
             </Card>
-          </TouchableOpacity>
+          </Pressable>
 
           {/* CGPA Tracker / Failed Subjects */}
           {failedSubjects > 0 ? (
-            <TouchableOpacity onPress={() => router.push({ pathname: '/(student)/results', params: { category: 'Board' } })} activeOpacity={0.8} style={{ marginBottom: 12 }}>
+            <Pressable onPress={() => router.push({ pathname: '/(student)/results', params: { category: 'Board' } })} android_ripple={null} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, marginBottom: 12 })}>
               <Card padding={16}>
                 <View style={styles.statRow}>
                   <View style={[styles.statIcon, { backgroundColor: Colors.dangerBg }]}>
@@ -305,9 +305,9 @@ export default function StudentDashboard() {
                   </View>
                 </View>
               </Card>
-            </TouchableOpacity>
+            </Pressable>
           ) : (
-            <TouchableOpacity onPress={() => router.push({ pathname: '/(student)/results', params: { category: 'Board' } })} activeOpacity={0.8} style={{ marginBottom: 12 }}>
+            <Pressable onPress={() => router.push({ pathname: '/(student)/results', params: { category: 'Board' } })} android_ripple={null} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, marginBottom: 12 })}>
               <Card padding={16}>
                 <View style={styles.statRow}>
                   <View style={[styles.statIcon, { backgroundColor: Colors.infoBg }]}>
@@ -337,7 +337,7 @@ export default function StudentDashboard() {
                   </View>
                 </View>
               </Card>
-            </TouchableOpacity>
+            </Pressable>
           )}
 
           {/* ── Section: পরবতী সেশন ── */}
