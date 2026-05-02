@@ -41,7 +41,7 @@ export default function StudentLayout() {
         backgroundColor: focused ? Colors.accentLight : 'transparent',
         borderRadius: 10,
         paddingHorizontal: 8,
-        height: 54,
+        height: 48,
         alignItems: 'center',
         justifyContent: 'center',
         minWidth: 50,
