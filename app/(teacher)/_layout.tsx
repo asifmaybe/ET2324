@@ -41,7 +41,7 @@ export default function TeacherLayout() {
         backgroundColor: focused ? Colors.accentLight : 'transparent',
         borderRadius: 10,
         paddingHorizontal: 6,
-        paddingVertical: 8,
+        height: 54,
         alignItems: 'center',
         justifyContent: 'center',
         minWidth: 50,
