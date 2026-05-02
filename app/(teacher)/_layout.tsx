@@ -25,9 +25,9 @@ export default function TeacherLayout() {
     backgroundColor: Colors.tabBg,
     borderTopColor: Colors.tabBorder,
     borderTopWidth: 1,
-    height: Platform.select({ ios: insets.bottom + 72, android: insets.bottom + 72, default: 76 }),
-    paddingTop: 6,
-    paddingBottom: Platform.select({ ios: insets.bottom + 8, android: insets.bottom + 8, default: 8 }),
+    height: Platform.select({ ios: insets.bottom + 60, android: insets.bottom + 60, default: 68 }),
+    paddingTop: 4,
+    paddingBottom: Platform.select({ ios: insets.bottom + 6, android: insets.bottom + 6, default: 6 }),
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.06,
@@ -39,16 +39,15 @@ export default function TeacherLayout() {
     <View style={{ alignItems: 'center', justifyContent: 'center' }}>
       <View style={{
         backgroundColor: focused ? Colors.accentLight : 'transparent',
-        borderRadius: 12,
-        paddingHorizontal: 8,
-        paddingTop: 4,
-        paddingBottom: 4,
+        borderRadius: 10,
+        paddingHorizontal: 6,
+        paddingVertical: 3,
         alignItems: 'center',
         justifyContent: 'center',
-        minWidth: 52,
+        minWidth: 44,
       }}>
-        <MaterialIcons name={icon} size={30} color={color} />
-        <Text style={{ color, fontSize: 9.5, fontFamily: FF.medium, marginTop: -2 }}>{label}</Text>
+        <MaterialIcons name={icon} size={22} color={color} />
+        <Text style={{ color, fontSize: 9, fontFamily: FF.medium, marginTop: 1 }} numberOfLines={1}>{label}</Text>
       </View>
     </View>
   );
