@@ -40,9 +40,9 @@ export default function TeacherLayout() {
       <View style={{
         backgroundColor: focused ? Colors.accentLight : 'transparent',
         borderRadius: 12,
-        paddingHorizontal: 10,
-        paddingTop: 4,
-        paddingBottom: 4,
+        paddingHorizontal: 15,
+        paddingTop: 2,
+        paddingBottom: 2,
         alignItems: 'center',
         justifyContent: 'center',
         minWidth: 52,
