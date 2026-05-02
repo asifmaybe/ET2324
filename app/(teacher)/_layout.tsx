@@ -47,8 +47,8 @@ export default function TeacherLayout() {
         justifyContent: 'center',
         minWidth: 52,
       }}>
-        <MaterialIcons name={icon} size={24} color={color} />
-        <Text style={{ color, fontSize: 9.5, fontFamily: FF.medium, marginTop: 2 }}>{label}</Text>
+        <MaterialIcons name={icon} size={30} color={color} />
+        <Text style={{ color, fontSize: 9.5, fontFamily: FF.medium, marginTop: -2 }}>{label}</Text>
       </View>
     </View>
   );
