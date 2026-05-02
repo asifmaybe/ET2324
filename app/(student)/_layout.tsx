@@ -25,8 +25,8 @@ export default function StudentLayout() {
     backgroundColor: Colors.tabBg,
     borderTopColor: Colors.tabBorder,
     borderTopWidth: 1,
-    height: Platform.select({ ios: insets.bottom + 62, android: insets.bottom + 62, default: 72 }),
-    paddingTop: 8,
+    height: Platform.select({ ios: insets.bottom + 72, android: insets.bottom + 72, default: 76 }),
+    paddingTop: 6,
     paddingBottom: Platform.select({ ios: insets.bottom + 8, android: insets.bottom + 8, default: 8 }),
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
@@ -40,15 +40,15 @@ export default function StudentLayout() {
       <View style={{
         backgroundColor: focused ? Colors.accentLight : 'transparent',
         borderRadius: 12,
-        paddingHorizontal: 10,
+        paddingHorizontal: 8,
         paddingTop: 4,
         paddingBottom: 4,
         alignItems: 'center',
         justifyContent: 'center',
         minWidth: 52,
       }}>
-        <MaterialIcons name={icon} size={20} color={color} />
-        <Text style={{ color, fontSize: 9.5, fontFamily: FF.medium, marginTop: 2 }}>{label}</Text>
+        <MaterialIcons name={icon} size={30} color={color} />
+        <Text style={{ color, fontSize: 9.5, fontFamily: FF.medium, marginTop: -2 }}>{label}</Text>
       </View>
     </View>
   );

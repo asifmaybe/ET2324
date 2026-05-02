@@ -25,8 +25,8 @@ export default function TeacherLayout() {
     backgroundColor: Colors.tabBg,
     borderTopColor: Colors.tabBorder,
     borderTopWidth: 1,
-    height: Platform.select({ ios: insets.bottom + 62, android: insets.bottom + 62, default: 72 }),
-    paddingTop: 8,
+    height: Platform.select({ ios: insets.bottom + 72, android: insets.bottom + 72, default: 76 }),
+    paddingTop: 6,
     paddingBottom: Platform.select({ ios: insets.bottom + 8, android: insets.bottom + 8, default: 8 }),
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
@@ -40,14 +40,14 @@ export default function TeacherLayout() {
       <View style={{
         backgroundColor: focused ? Colors.accentLight : 'transparent',
         borderRadius: 12,
-        paddingHorizontal: 6,
-        paddingTop: 2,
-        paddingBottom: 2,
+        paddingHorizontal: 8,
+        paddingTop: 4,
+        paddingBottom: 4,
         alignItems: 'center',
         justifyContent: 'center',
         minWidth: 52,
       }}>
-        <MaterialIcons name={icon} size={26} color={color} />
+        <MaterialIcons name={icon} size={30} color={color} />
         <Text style={{ color, fontSize: 9.5, fontFamily: FF.medium, marginTop: -2 }}>{label}</Text>
       </View>
     </View>
@@ -62,8 +62,8 @@ export default function TeacherLayout() {
       tabBarShowLabel: false,
     }}>
       <Tabs.Screen name="index" options={{
-        title: lang === 'bn' ? 'ড্যাশবোর্ড' : 'Dashboard',
-        tabBarIcon: ({ color, focused }) => pill('home', lang === 'bn' ? 'ড্যাশবোর্ড' : 'Dashboard', focused, color),
+        title: lang === 'bn' ? 'হোম' : 'Home',
+        tabBarIcon: ({ color, focused }) => pill('home', lang === 'bn' ? 'হোম' : 'Home', focused, color),
         tabBarItemStyle: { marginLeft: 8 },
       }} />
       <Tabs.Screen name="assignments" options={{
