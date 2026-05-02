@@ -233,7 +233,7 @@ export default function StudentDashboard() {
           </Text>
 
           {/* Pending Assignments */}
-          <Pressable onPress={() => router.push('/(student)/assignments')} android_ripple={null} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, marginBottom: 0 })}>
+          <Pressable onPress={() => router.push('/(student)/assignments')} android_ripple={{ color: 'transparent' }} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, marginBottom: 0, borderRadius: 12, overflow: 'hidden' })}>
             <Card padding={16}>
               <View style={styles.statRow}>
                 <View style={[styles.statIcon, { backgroundColor: Colors.accentLight }]}>
@@ -257,7 +257,7 @@ export default function StudentDashboard() {
           </Pressable>
 
           {/* Upcoming Exams */}
-          <Pressable onPress={() => router.push('/(student)/exams')} android_ripple={null} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, marginBottom: 0 })}>
+          <Pressable onPress={() => router.push('/(student)/exams')} android_ripple={{ color: 'transparent' }} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, marginBottom: 0, borderRadius: 12, overflow: 'hidden' })}>
             <Card padding={16}>
               <View style={styles.statRow}>
                 <View style={[styles.statIcon, { backgroundColor: Colors.accentLight }]}>
@@ -282,7 +282,7 @@ export default function StudentDashboard() {
 
           {/* CGPA Tracker / Failed Subjects */}
           {failedSubjects > 0 ? (
-            <Pressable onPress={() => router.push({ pathname: '/(student)/results', params: { category: 'Board' } })} android_ripple={null} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, marginBottom: 12 })}>
+            <Pressable onPress={() => router.push({ pathname: '/(student)/results', params: { category: 'Board' } })} android_ripple={{ color: 'transparent' }} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, marginBottom: 12, borderRadius: 12, overflow: 'hidden' })}>
               <Card padding={16}>
                 <View style={styles.statRow}>
                   <View style={[styles.statIcon, { backgroundColor: Colors.dangerBg }]}>
@@ -307,7 +307,7 @@ export default function StudentDashboard() {
               </Card>
             </Pressable>
           ) : (
-            <Pressable onPress={() => router.push({ pathname: '/(student)/results', params: { category: 'Board' } })} android_ripple={null} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, marginBottom: 12 })}>
+            <Pressable onPress={() => router.push({ pathname: '/(student)/results', params: { category: 'Board' } })} android_ripple={{ color: 'transparent' }} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1, marginBottom: 12, borderRadius: 12, overflow: 'hidden' })}>
               <Card padding={16}>
                 <View style={styles.statRow}>
                   <View style={[styles.statIcon, { backgroundColor: Colors.infoBg }]}>
