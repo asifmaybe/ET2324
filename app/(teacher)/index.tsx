@@ -79,23 +79,6 @@ export default function TeacherDashboard() {
             <Text style={[styles.roleLabel, { fontFamily: FF.regular }]}>{roleLabel}</Text>
           </View>
           <View style={styles.headerRight}>
-            {user?.role === 'cr' ? (
-              <TouchableOpacity
-                style={{
-                  flexDirection: 'row', alignItems: 'center', gap: 4,
-                  paddingHorizontal: 12, height: 38, justifyContent: 'center',
-                  borderRadius: Radius.full, borderWidth: 1, 
-                  borderColor: Colors.info, backgroundColor: Colors.infoBg
-                }}
-                onPress={() => { setPanelMode('student'); router.replace('/(student)'); }}
-                activeOpacity={0.75}
-              >
-                <MaterialIcons name="swap-horiz" size={18} color={Colors.info} />
-                <Text style={{ fontSize: FontSize.sm, fontFamily: FF.medium, color: Colors.info }}>
-                  {lang === 'bn' ? 'স্টুডেন্ট প্যানেল' : 'Switch to Student'}
-                </Text>
-              </TouchableOpacity>
-            ) : null}
             <TouchableOpacity style={styles.iconBtn}>
               <MaterialIcons name="notifications-off" size={20} color={Colors.textSecondary} />
             </TouchableOpacity>

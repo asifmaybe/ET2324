@@ -16,8 +16,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { SUBJECTS, ALL_STUDENTS } from '../../constants/mockData';
 import { AttendanceSession, AttendanceSessionRecord } from '../../types';
 
-type StatusType = 'present' | 'absent' | 'late';
-const statusColor: Record<StatusType, string> = { present: Colors.accent, absent: Colors.danger, late: Colors.warning };
+type StatusType = 'present' | 'absent';
+const statusColor: Record<StatusType, string> = { present: Colors.accent, absent: Colors.danger };
 
 export default function TeacherAttendance() {
   const { user } = useAuth();
@@ -31,9 +31,7 @@ export default function TeacherAttendance() {
   const [processedStudents, setProcessedStudents] = useState<AttendanceSessionRecord[] | null>(null);
   const [expandedSession, setExpandedSession] = useState<string | null>(null);
 
-  const statusLabelBn: Record<StatusType, string> = { present: '✓', absent: '✗', late: 'L' };
-  const statusLabelEn: Record<StatusType, string> = { present: '✓', absent: '✗', late: 'L' };
-  const statusLabel = lang === 'bn' ? statusLabelBn : statusLabelEn;
+
 
   const handleProcess = () => {
     if (!selectedSubject) return;
@@ -48,9 +46,8 @@ export default function TeacherAttendance() {
 
   const toggleStatus = (idx: number) => {
     if (!processedStudents) return;
-    const order: StatusType[] = ['present', 'absent', 'late'];
     const cur = processedStudents[idx].status as StatusType;
-    const next = order[(order.indexOf(cur) + 1) % 3];
+    const next = cur === 'present' ? 'absent' : 'present';
     const updated = [...processedStudents];
     updated[idx] = { ...updated[idx], status: next };
     setProcessedStudents(updated);
@@ -79,9 +76,9 @@ export default function TeacherAttendance() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.titleArea}>
         <View style={{ flex: 1, marginRight: 12 }}>
-          <Text 
-            style={[styles.pageTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]} 
-            adjustsFontSizeToFit 
+          <Text
+            style={[styles.pageTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}
+            adjustsFontSizeToFit
             numberOfLines={1}
           >
             {lang === 'bn' ? 'উপস্থিতি ব্যবস্থাপনা' : 'Attendance Management'}
@@ -127,20 +124,20 @@ export default function TeacherAttendance() {
               <Modal visible={subjectOpen} transparent animationType="fade" onRequestClose={() => setSubjectOpen(false)}>
                 <Pressable style={styles.dropdownOverlay} onPress={() => setSubjectOpen(false)}>
                   <View style={styles.dropdownModal}>
-                      {/* Default "Select Subject" option */}
-                      <TouchableOpacity style={styles.dropItem}
-                        onPress={() => { setSelectedSubject(''); setSubjectOpen(false); }}>
-                        <Text style={[styles.dropText, { fontFamily: FF.regular, color: Colors.textMuted }]}>
-                          {lang === 'bn' ? 'বিষয় নির্বাচন করুন' : 'Select Subject'}
-                        </Text>
+                    {/* Default "Select Subject" option */}
+                    <TouchableOpacity style={styles.dropItem}
+                      onPress={() => { setSelectedSubject(''); setSubjectOpen(false); }}>
+                      <Text style={[styles.dropText, { fontFamily: FF.regular, color: Colors.textMuted }]}>
+                        {lang === 'bn' ? 'বিষয় নির্বাচন করুন' : 'Select Subject'}
+                      </Text>
+                    </TouchableOpacity>
+                    {SUBJECTS.map(s => (
+                      <TouchableOpacity key={s} style={[styles.dropItem, selectedSubject === s && styles.dropItemActive]}
+                        onPress={() => { setSelectedSubject(s); setSubjectOpen(false); }}>
+                        <Text style={[styles.dropText, { fontFamily: FF.regular }, selectedSubject === s && { color: Colors.accent }]}>{s}</Text>
+                        {selectedSubject === s && <MaterialIcons name="check" size={18} color={Colors.accent} />}
                       </TouchableOpacity>
-                      {SUBJECTS.map(s => (
-                        <TouchableOpacity key={s} style={[styles.dropItem, selectedSubject === s && styles.dropItemActive]}
-                          onPress={() => { setSelectedSubject(s); setSubjectOpen(false); }}>
-                          <Text style={[styles.dropText, { fontFamily: FF.regular }, selectedSubject === s && { color: Colors.accent }]}>{s}</Text>
-                          {selectedSubject === s && <MaterialIcons name="check" size={18} color={Colors.accent} />}
-                        </TouchableOpacity>
-                      ))}
+                    ))}
                   </View>
                 </Pressable>
               </Modal>
@@ -177,32 +174,26 @@ export default function TeacherAttendance() {
 
               {/* Processed Table */}
               {processedStudents ? (
-                <Card padding={0}>
+                <View style={{ marginTop: 16, borderWidth: 1, borderColor: Colors.borderColor, borderRadius: Radius.lg, overflow: 'hidden', backgroundColor: Colors.white }}>
                   <View style={styles.tableHeader}>
-                    <Text style={[styles.tableCell, { flex: 2, fontFamily: Fonts.en.semiBold }]}>
-                      {lang === 'bn' ? 'রোল' : 'Roll'}
-                    </Text>
-                    <Text style={[styles.tableCell, { flex: 3, fontFamily: FF.semiBold }]}>
-                      {lang === 'bn' ? 'নাম' : 'Name'}
-                    </Text>
-                    <Text style={[styles.tableCell, { flex: 1, textAlign: 'center', fontFamily: FF.semiBold }]}>
-                      {lang === 'bn' ? 'অবস্থা' : 'Status'}
-                    </Text>
+                    <Text style={[styles.tableCell, { flex: 3, fontFamily: FF.semiBold }]}>{lang === 'bn' ? 'নাম' : 'Name'}</Text>
+                    <Text style={[styles.tableCell, { flex: 2, fontFamily: Fonts.en.semiBold }]}>{lang === 'bn' ? 'রোল' : 'Roll'}</Text>
+                    <Text style={[styles.tableCell, { flex: 1.5, textAlign: 'center', fontFamily: FF.semiBold }]}>{lang === 'bn' ? 'অবস্থা' : 'Status'}</Text>
                   </View>
-                  {processedStudents.map((s, idx) => (
-                    <View key={s.student_id} style={[styles.tableRow, idx % 2 === 0 && styles.tableRowAlt]}>
-                      <Text style={[styles.tableDataCell, { flex: 2, fontFamily: Fonts.en.regular }]}>{s.student_id}</Text>
-                      <Text style={[styles.tableDataCellMuted, { flex: 3, fontFamily: FF.regular }]} numberOfLines={1}>{s.student_name}</Text>
-                      <TouchableOpacity
-                        style={[styles.statusBtn, { backgroundColor: statusColor[s.status as StatusType] + '18', borderColor: statusColor[s.status as StatusType] }]}
-                        onPress={() => toggleStatus(idx)}
-                      >
-                        <Text style={[styles.statusBtnText, { color: statusColor[s.status as StatusType], fontFamily: Fonts.en.bold }]}>
-                          {statusLabel[s.status as StatusType]}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  ))}
+                  <ScrollView style={{ maxHeight: 250 }} nestedScrollEnabled={true}>
+                    {processedStudents.map((s, idx) => (
+                      <View key={s.student_id} style={[styles.tableRowBordered, s.status === 'absent' && { backgroundColor: Colors.danger + '0D' }]}>
+                        <Text style={[styles.tableDataCell, { flex: 3, fontFamily: FF.regular }]} numberOfLines={1}>{s.student_name}</Text>
+                        <Text style={[styles.tableDataCellMuted, { flex: 2, fontFamily: Fonts.en.regular }]}>{s.student_id}</Text>
+                        <TouchableOpacity
+                          style={[styles.statusBtnClean, { flex: 1.5 }]}
+                          onPress={() => toggleStatus(idx)}
+                        >
+                          <MaterialIcons name={s.status === 'present' ? 'check' : 'close'} size={20} color={statusColor[s.status as StatusType]} />
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                  </ScrollView>
                   <View style={styles.saveRow}>
                     <View style={styles.summaryBadges}>
                       <Text style={[styles.summaryBadge, { color: Colors.accent, fontFamily: FF.bold }]}>
@@ -211,9 +202,6 @@ export default function TeacherAttendance() {
                       <Text style={[styles.summaryBadge, { color: Colors.danger, fontFamily: FF.bold }]}>
                         ✗ {processedStudents.filter(s => s.status === 'absent').length}
                       </Text>
-                      <Text style={[styles.summaryBadge, { color: Colors.warning, fontFamily: FF.bold }]}>
-                        L {processedStudents.filter(s => s.status === 'late').length}
-                      </Text>
                     </View>
                     <ActionButton
                       label={lang === 'bn' ? 'উপস্থিতি সংরক্ষণ করুন' : 'Save Attendance'}
@@ -221,7 +209,7 @@ export default function TeacherAttendance() {
                       style={{ paddingHorizontal: 12 }}
                     />
                   </View>
-                </Card>
+                </View>
               ) : null}
             </>
           )}
@@ -253,16 +241,23 @@ export default function TeacherAttendance() {
                     <MaterialIcons name={expandedSession === session.id ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} size={20} color={Colors.textMuted} />
                   </TouchableOpacity>
                   {expandedSession === session.id ? (
-                    <View style={styles.expandedList}>
-                      {session.records.map((r, idx) => (
-                        <View key={r.student_id} style={[styles.expandedRow, idx % 2 === 0 && { backgroundColor: Colors.bgSecondary }]}>
-                          <Text style={[styles.expandedRoll, { fontFamily: Fonts.en.regular }]}>{r.student_id}</Text>
-                          <Text style={[styles.expandedName, { fontFamily: FF.regular }]} numberOfLines={1}>{r.student_name}</Text>
-                          <View style={[styles.statusBtn, { backgroundColor: statusColor[r.status as StatusType] + '18', borderColor: statusColor[r.status as StatusType] }]}>
-                            <Text style={[styles.statusBtnText, { color: statusColor[r.status as StatusType], fontFamily: Fonts.en.bold }]}>{statusLabel[r.status as StatusType]}</Text>
+                    <View style={{ marginTop: 16, borderWidth: 1, borderColor: Colors.borderColor, borderRadius: Radius.lg, overflow: 'hidden' }}>
+                      <View style={[styles.tableHeader, { backgroundColor: Colors.bgSecondary }]}>
+                        <Text style={[styles.tableCell, { flex: 3, fontFamily: FF.semiBold }]}>{lang === 'bn' ? 'নাম' : 'Name'}</Text>
+                        <Text style={[styles.tableCell, { flex: 2, fontFamily: Fonts.en.semiBold }]}>{lang === 'bn' ? 'রোল' : 'Roll'}</Text>
+                        <Text style={[styles.tableCell, { flex: 1.5, textAlign: 'center', fontFamily: FF.semiBold }]}>{lang === 'bn' ? 'অবস্থা' : 'Status'}</Text>
+                      </View>
+                      <ScrollView style={{ maxHeight: 250 }} nestedScrollEnabled={true}>
+                        {session.records.map((r, idx) => (
+                          <View key={r.student_id} style={[styles.tableRowBordered, r.status === 'absent' && { backgroundColor: Colors.danger + '0D' }]}>
+                            <Text style={[styles.tableDataCell, { flex: 3, fontFamily: FF.regular }]} numberOfLines={1}>{r.student_name}</Text>
+                            <Text style={[styles.tableDataCellMuted, { flex: 2, fontFamily: Fonts.en.regular }]}>{r.student_id}</Text>
+                            <View style={[styles.statusBtnClean, { flex: 1.5 }]}>
+                              <MaterialIcons name={r.status === 'present' ? 'check' : 'close'} size={20} color={statusColor[r.status as StatusType]} />
+                            </View>
                           </View>
-                        </View>
-                      ))}
+                        ))}
+                      </ScrollView>
                     </View>
                   ) : null}
                 </Card>
@@ -316,12 +311,10 @@ const styles = StyleSheet.create({
   processBtnText: { fontSize: FontSize.md, color: '#fff' },
   tableHeader: { flexDirection: 'row', backgroundColor: Colors.bgSecondary, paddingHorizontal: 12, paddingVertical: 10, borderTopLeftRadius: Radius.lg, borderTopRightRadius: Radius.lg },
   tableCell: { fontSize: FontSize.xs, color: Colors.textMuted },
-  tableRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 10 },
-  tableRowAlt: { backgroundColor: 'rgba(240,244,240,0.6)' },
+  tableRowBordered: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: Colors.borderColor },
   tableDataCell: { fontSize: FontSize.xs, color: Colors.textPrimary },
   tableDataCellMuted: { fontSize: FontSize.xs, color: Colors.textSecondary },
-  statusBtn: { flex: 1, alignItems: 'center', paddingVertical: 5, borderRadius: 8, borderWidth: 1, minWidth: 36 },
-  statusBtnText: { fontSize: FontSize.sm },
+  statusBtnClean: { alignItems: 'center', paddingVertical: 4 },
   saveRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12, borderTopWidth: 1, borderTopColor: Colors.borderColor },
   summaryBadges: { flexDirection: 'row', gap: 12 },
   summaryBadge: { fontSize: FontSize.md },

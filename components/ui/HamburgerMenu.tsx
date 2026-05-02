@@ -17,7 +17,7 @@ import { useAuth } from '../../hooks/useAuth';
 export function HamburgerMenu() {
   const [open, setOpen] = useState(false);
   const { lang, toggleLang } = useLang();
-  const { logout, user, panelMode } = useAuth();
+  const { logout, user, panelMode, setPanelMode } = useAuth();
   const router = useRouter();
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
@@ -172,6 +172,40 @@ export function HamburgerMenu() {
 
             {/* Divider */}
             <View style={styles.divider} />
+
+            {/* Panel Switching (CR Only) */}
+            {user?.role === 'cr' ? (
+              <>
+                <TouchableOpacity 
+                  style={styles.menuItem} 
+                  onPress={() => {
+                    handleClose();
+                    const nextMode = panelMode === 'teacher' ? 'student' : 'teacher';
+                    const route = nextMode === 'teacher' ? '/(teacher)' : '/(student)';
+                    setTimeout(() => {
+                      setPanelMode(nextMode);
+                      router.replace(route as any);
+                    }, 150);
+                  }} 
+                  activeOpacity={0.7}
+                >
+                  <View style={[styles.menuIconBg, { backgroundColor: Colors.infoBg }]}>
+                    <MaterialIcons name="swap-horiz" size={18} color={Colors.info} />
+                  </View>
+                  <View style={styles.menuTextCol}>
+                    <Text style={[styles.menuLabel, { fontFamily: FF.semiBold, color: Colors.info }]}>
+                      {panelMode === 'teacher' 
+                        ? (lang === 'bn' ? 'স্টুডেন্ট প্যানেল' : 'Student Panel') 
+                        : (lang === 'bn' ? 'অ্যাডমিন প্যানেল' : 'Admin Panel')}
+                    </Text>
+                  </View>
+                  <MaterialIcons name="chevron-right" size={20} color={Colors.textMuted} />
+                </TouchableOpacity>
+
+                {/* Divider */}
+                <View style={styles.divider} />
+              </>
+            ) : null}
 
             {/* Language Switcher */}
             <TouchableOpacity style={styles.menuItem} onPress={handleToggleLang} activeOpacity={0.7}>

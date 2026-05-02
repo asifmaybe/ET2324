@@ -127,24 +127,6 @@ export default function StudentDashboard() {
             </Text>
           </View>
           <View style={styles.headerBtns}>
-            {/* CR Panel Toggle */}
-            {user?.role === 'cr' ? (
-              <TouchableOpacity
-                style={{
-                  flexDirection: 'row', alignItems: 'center', gap: 4,
-                  paddingHorizontal: 12, height: 38, justifyContent: 'center',
-                  borderRadius: Radius.full, borderWidth: 1, 
-                  borderColor: Colors.accent, backgroundColor: Colors.accentLight
-                }}
-                onPress={() => { setPanelMode('teacher'); router.replace('/(teacher)'); }}
-                activeOpacity={0.75}
-              >
-                <MaterialIcons name="swap-horiz" size={18} color={Colors.accent} />
-                <Text style={{ fontSize: FontSize.sm, fontFamily: FF.medium, color: Colors.accent }}>
-                  {lang === 'bn' ? 'অ্যাডমিন প্যানেল' : 'Switch to Admin'}
-                </Text>
-              </TouchableOpacity>
-            ) : null}
             {/* Bell */}
             <TouchableOpacity style={styles.iconBtn} activeOpacity={0.75}>
               <MaterialIcons name="notifications-off" size={19} color={Colors.textSecondary} />

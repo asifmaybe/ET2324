@@ -67,7 +67,7 @@ export default function TeacherResults() {
   const handleSave = () => {
     if (!processedResults || processedResults.length === 0) return;
     const now = new Date().toISOString();
-    
+
     processedResults.forEach(pr => {
       addResult({
         id: '',
@@ -94,45 +94,45 @@ export default function TeacherResults() {
     { id: 'Board', titleEn: 'Board', titleBn: 'বোর্ড পরীক্ষা', icon: 'school' }
   ];
 
-  const filteredExams = selectedCategory 
+  const filteredExams = selectedCategory
     ? exams.filter(e => {
-        if (selectedCategory === 'Class Tests') return e.type === 'Class Test';
-        if (selectedCategory === 'Mid-term') return e.type === 'Mid-Term';
-        if (selectedCategory === 'Board') return e.type === 'Final';
-        return false;
-      })
+      if (selectedCategory === 'Class Tests') return e.type === 'Class Test';
+      if (selectedCategory === 'Mid-term') return e.type === 'Mid-Term';
+      if (selectedCategory === 'Board') return e.type === 'Final';
+      return false;
+    })
     : [];
 
   return (
     <ScreenWrapper scrollable={false} noPadding>
-      <ScreenHeader 
-        title={selectedCategory ? (lang === 'bn' ? categories.find(c => c.id === selectedCategory)?.titleBn! : selectedCategory) : (lang === 'bn' ? 'ফলাফল' : 'Results')} 
+      <ScreenHeader
+        title={selectedCategory ? (lang === 'bn' ? categories.find(c => c.id === selectedCategory)?.titleBn! : selectedCategory) : (lang === 'bn' ? 'ফলাফল' : 'Results')}
         onBack={selectedCategory ? () => setSelectedCategory(null) : undefined}
       />
-      
+
       {!selectedCategory ? (
         <View style={{ flex: 1 }}>
           <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96, paddingTop: 16 }}>
             <Text style={[styles.progressTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>
-            {lang === 'bn' ? 'পরীক্ষার ধরণ' : 'Exam Categories'}
-          </Text>
-          <Text style={[styles.progressSub, { fontFamily: FF.regular }]}>
-            {lang === 'bn' ? 'ক্যাটাগরি অনুযায়ী ফলাফল দেখুন এবং পরিচালনা করুন।' : 'View and manage results by category.'}
-          </Text>
+              {lang === 'bn' ? 'পরীক্ষার ধরণ' : 'Exam Categories'}
+            </Text>
+            <Text style={[styles.progressSub, { fontFamily: FF.regular }]}>
+              {lang === 'bn' ? 'ক্যাটাগরি অনুযায়ী ফলাফল দেখুন এবং পরিচালনা করুন।' : 'View and manage results by category.'}
+            </Text>
 
-          <View style={styles.catList}>
-            {categories.map(cat => (
-              <TouchableOpacity key={cat.id} style={styles.catCard} activeOpacity={0.8} onPress={() => setSelectedCategory(cat.id)}>
-                <View style={styles.catIconBox}>
-                  <MaterialIcons name={cat.icon as any} size={22} color={Colors.textPrimary} />
-                </View>
-                <Text style={[styles.catTitle, { fontFamily: FF.semiBold }]}>
-                  {lang === 'bn' ? cat.titleBn : cat.titleEn}
-                </Text>
-                <MaterialIcons name="chevron-right" size={20} color={Colors.textMuted} />
-              </TouchableOpacity>
-            ))}
-          </View>
+            <View style={styles.catList}>
+              {categories.map(cat => (
+                <TouchableOpacity key={cat.id} style={styles.catCard} activeOpacity={0.8} onPress={() => setSelectedCategory(cat.id)}>
+                  <View style={styles.catIconBox}>
+                    <MaterialIcons name={cat.icon as any} size={22} color={Colors.textPrimary} />
+                  </View>
+                  <Text style={[styles.catTitle, { fontFamily: FF.semiBold }]}>
+                    {lang === 'bn' ? cat.titleBn : cat.titleEn}
+                  </Text>
+                  <MaterialIcons name="chevron-right" size={20} color={Colors.textMuted} />
+                </TouchableOpacity>
+              ))}
+            </View>
           </ScrollView>
         </View>
       ) : (
@@ -148,14 +148,14 @@ export default function TeacherResults() {
                 <Card padding={16} style={{ marginBottom: 12 }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 8 }}>
                     <Text style={[styles.examSubject, { fontFamily: FF.semiBold, flex: 1, marginBottom: 0 }]}>{item.subject}</Text>
-                    <TouchableOpacity 
-                      style={styles.publishBtnSmall} 
+                    <TouchableOpacity
+                      style={styles.publishBtnSmall}
                       activeOpacity={0.8}
                       onPress={() => {
                         setForm(f => ({
-                          ...f, 
-                          subject: item.subject, 
-                          exam_type: item.type, 
+                          ...f,
+                          subject: item.subject,
+                          exam_type: item.type,
                           total_marks: String(item.marks),
                           date: item.date
                         }));
@@ -167,7 +167,7 @@ export default function TeacherResults() {
                       </Text>
                     </TouchableOpacity>
                   </View>
-                  
+
                   <View style={styles.examBadgeRow}>
                     <StatusBadge
                       type={typeMap[item.type] ?? 'classTest'}
@@ -216,7 +216,7 @@ export default function TeacherResults() {
                 </TouchableOpacity>
               </View>
               <ScrollView showsVerticalScrollIndicator={false}>
-                
+
                 {/* Meta details */}
                 <View style={{ marginBottom: 16, padding: 12, backgroundColor: Colors.bgSecondary, borderRadius: Radius.md }}>
                   <Text style={{ fontFamily: FF.semiBold, color: Colors.textPrimary, fontSize: FontSize.md }}>{form.subject}</Text>
@@ -261,13 +261,15 @@ export default function TeacherResults() {
                       <Text style={[styles.tableCell, { flex: 2, fontFamily: Fonts.en.semiBold }]}>{lang === 'bn' ? 'রোল' : 'Roll'}</Text>
                       <Text style={[styles.tableCell, { flex: 1.5, textAlign: 'center', fontFamily: FF.semiBold }]}>{lang === 'bn' ? 'নম্বর' : 'Marks'}</Text>
                     </View>
-                    {processedResults.map((s, idx) => (
-                      <View key={s.student_id} style={[styles.tableRow, idx % 2 === 0 && styles.tableRowAlt]}>
-                        <Text style={[styles.tableDataCell, { flex: 3, fontFamily: FF.regular }]} numberOfLines={1}>{s.student_name}</Text>
-                        <Text style={[styles.tableDataCellMuted, { flex: 2, fontFamily: Fonts.en.regular }]}>{s.student_id}</Text>
-                        <Text style={[styles.tableDataCell, { flex: 1.5, textAlign: 'center', fontFamily: Fonts.en.bold, color: Colors.accent }]}>{s.marks}</Text>
-                      </View>
-                    ))}
+                    <ScrollView style={{ maxHeight: 250 }} nestedScrollEnabled={true}>
+                      {processedResults.map((s, idx) => (
+                        <View key={s.student_id} style={styles.tableRowBordered}>
+                          <Text style={[styles.tableDataCell, { flex: 3, fontFamily: FF.regular }]} numberOfLines={1}>{s.student_name}</Text>
+                          <Text style={[styles.tableDataCellMuted, { flex: 2, fontFamily: Fonts.en.regular }]}>{s.student_id}</Text>
+                          <Text style={[styles.tableDataCell, { flex: 1.5, textAlign: 'center', fontFamily: Fonts.en.bold, color: Colors.accent }]}>{s.marks}</Text>
+                        </View>
+                      ))}
+                    </ScrollView>
                     <View style={styles.saveRow}>
                       <Text style={{ fontFamily: FF.regular, color: Colors.textSecondary, fontSize: FontSize.sm }}>
                         {processedResults.length} {lang === 'bn' ? 'টি ফলাফল' : 'results'}
@@ -352,8 +354,7 @@ const styles = StyleSheet.create({
   processBtnText: { fontSize: FontSize.md, color: '#fff' },
   tableHeader: { flexDirection: 'row', backgroundColor: Colors.bgSecondary, paddingHorizontal: 12, paddingVertical: 10 },
   tableCell: { fontSize: FontSize.xs, color: Colors.textMuted },
-  tableRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 10 },
-  tableRowAlt: { backgroundColor: 'rgba(240,244,240,0.6)' },
+  tableRowBordered: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: Colors.borderColor },
   tableDataCell: { fontSize: FontSize.xs, color: Colors.textPrimary },
   tableDataCellMuted: { fontSize: FontSize.xs, color: Colors.textSecondary },
   saveRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12, borderTopWidth: 1, borderTopColor: Colors.borderColor },

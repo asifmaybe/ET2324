@@ -107,23 +107,24 @@ export default function TeacherNotices() {
 
             <View style={styles.noticeDivider} />
 
-            {item.updated_by ? (
-              <View style={styles.editedPill}>
-                <MaterialIcons name="edit" size={11} color={Colors.textMuted} />
-                <Text style={[styles.editedPillText, { fontFamily: FF.regular }]}>
-                  {lang === 'bn' ? 'শেষ সম্পাদনা:' : 'Last edited by'} {item.updated_by} • {item.updated_at ? new Date(item.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}
-                </Text>
-              </View>
-            ) : null}
-
             <View style={styles.noticeBottomRow}>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.noticeAuthor, { fontFamily: Fonts.en.medium }]}>
                   {item.author || 'ADMIN'}
                 </Text>
-                <Text style={[styles.noticeDateTime, { fontFamily: FF.regular }]}>
-                  {item.date} • {item.time}
-                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={[styles.noticeDateTime, { fontFamily: FF.regular }]}>
+                    {item.date} • {item.time}
+                  </Text>
+                  {item.updated_by ? (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                      <MaterialIcons name="edit" size={10} color={Colors.textMuted} />
+                      <Text style={{ fontSize: 10, color: Colors.textMuted, fontFamily: FF.medium }}>
+                        {lang === 'bn' ? 'সম্পাদিত' : 'Edited'}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
               </View>
               <View style={styles.cardActions}>
                 <TouchableOpacity style={styles.editBtn} onPress={() => openEdit(item)}>
