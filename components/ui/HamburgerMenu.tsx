@@ -137,6 +137,26 @@ export function HamburgerMenu() {
               </>
             ) : null}
 
+            {/* Activities (Teacher/Admin only) */}
+            {isTeacherPanel ? (
+              <>
+                <TouchableOpacity style={styles.menuItem} onPress={() => { handleClose(); setTimeout(() => router.push('/(teacher)/activities' as any), 150); }} activeOpacity={0.7}>
+                  <View style={[styles.menuIconBg, { backgroundColor: Colors.accentLight }]}>
+                    <MaterialIcons name="history" size={18} color={Colors.accent} />
+                  </View>
+                  <View style={styles.menuTextCol}>
+                    <Text style={[styles.menuLabel, { fontFamily: FF.semiBold }]}>
+                      {lang === 'bn' ? 'কার্যকলাপ' : 'Activities'}
+                    </Text>
+                  </View>
+                  <MaterialIcons name="chevron-right" size={20} color={Colors.textMuted} />
+                </TouchableOpacity>
+
+                {/* Divider */}
+                <View style={styles.divider} />
+              </>
+            ) : null}
+
             {/* Results */}
             <TouchableOpacity style={styles.menuItem} onPress={handleResults} activeOpacity={0.7}>
               <View style={[styles.menuIconBg, { backgroundColor: Colors.accentLight }]}>

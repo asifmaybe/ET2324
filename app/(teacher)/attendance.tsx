@@ -78,8 +78,12 @@ export default function TeacherAttendance() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.titleArea}>
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.pageTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>
+        <View style={{ flex: 1, marginRight: 12 }}>
+          <Text 
+            style={[styles.pageTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]} 
+            adjustsFontSizeToFit 
+            numberOfLines={1}
+          >
             {lang === 'bn' ? 'উপস্থিতি ব্যবস্থাপনা' : 'Attendance Management'}
           </Text>
           <Text style={[styles.pageSubtitle, { fontFamily: FF.regular }]}>

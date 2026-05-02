@@ -65,6 +65,10 @@ export default function TeacherLayout() {
         href: null,
         tabBarIcon: ({ color, size }) => <MaterialIcons name="bar-chart" size={size} color={color} />,
       }} />
+      <Tabs.Screen name="activities" options={{
+        title: lang === 'bn' ? 'কার্যকলাপ' : 'Activities',
+        href: null,
+      }} />
       <Tabs.Screen name="notices" options={{
         title: lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notices',
         tabBarIcon: ({ color, size }) => <MaterialIcons name="campaign" size={size} color={color} />,

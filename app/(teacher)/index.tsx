@@ -239,11 +239,18 @@ export default function TeacherDashboard() {
           ))}
 
           {/* Audit Log */}
-          <View style={styles.sectionRow}>
-            <Text style={[styles.sectionTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>
-              {lang === 'bn' ? 'সাম্প্রতিক কার্যকলাপ' : 'Recent Activity'}
-            </Text>
-            <MaterialIcons name="show-chart" size={16} color={Colors.textMuted} />
+          <View style={[styles.sectionRow, { marginBottom: 12 }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={[styles.sectionTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold, marginBottom: 0 }]}>
+                {lang === 'bn' ? 'সাম্প্রতিক কার্যকলাপ' : 'Recent Activity'}
+              </Text>
+              <MaterialIcons name="show-chart" size={18} color={Colors.textMuted} />
+            </View>
+            <TouchableOpacity onPress={() => router.push('/(teacher)/activities' as any)}>
+              <Text style={[styles.seeAllGreen, { fontFamily: FF.semiBold }]}>
+                {lang === 'bn' ? 'সব দেখুন' : 'See all'}
+              </Text>
+            </TouchableOpacity>
           </View>
           {auditLog.slice(0, 5).map(log => (
             <Card key={log.id} padding={14}>
