@@ -7,6 +7,7 @@ export interface Profile {
   subject: string;
   attendance_percent: number;
   password: string;
+  failed_subjects?: number;
 }
 
 export interface Notice {
@@ -55,7 +56,7 @@ export interface AttendanceRecord {
   session_id: string;
   student_id: string;
   student_name: string;
-  status: 'present' | 'absent' | 'late';
+  status: 'present' | 'absent';
   date: string;
   subject: string;
   remarks: string;
@@ -64,7 +65,7 @@ export interface AttendanceRecord {
 export interface AttendanceSessionRecord {
   student_id: string;
   student_name: string;
-  status: 'present' | 'absent' | 'late';
+  status: 'present' | 'absent';
 }
 
 export interface AttendanceSession {

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Tabs, useRouter } from 'expo-router';
-import { Platform } from 'react-native';
+import { Platform, View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '../../hooks/useAuth';
@@ -35,35 +35,53 @@ export default function TeacherLayout() {
     elevation: 8,
   };
 
+  const pill = (icon: any, label: string, focused: boolean, color: string) => (
+    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{
+        backgroundColor: focused ? Colors.accentLight : 'transparent',
+        borderRadius: 12,
+        paddingHorizontal: 10,
+        paddingTop: 4,
+        paddingBottom: 4,
+        alignItems: 'center',
+        justifyContent: 'center',
+        minWidth: 52,
+      }}>
+        <MaterialIcons name={icon} size={24} color={color} />
+        <Text style={{ color, fontSize: 9.5, fontFamily: FF.medium, marginTop: 2 }}>{label}</Text>
+      </View>
+    </View>
+  );
+
   return (
     <Tabs screenOptions={{
       headerShown: false,
       tabBarStyle,
       tabBarActiveTintColor: Colors.accent,
       tabBarInactiveTintColor: Colors.textMuted,
-      tabBarLabelStyle: { fontSize: 10, fontFamily: FF.medium },
+      tabBarShowLabel: false,
     }}>
       <Tabs.Screen name="index" options={{
         title: lang === 'bn' ? 'ড্যাশবোর্ড' : 'Dashboard',
-        tabBarIcon: ({ color, size }) => <MaterialIcons name="grid-view" size={size} color={color} />,
-        tabBarItemStyle: { paddingLeft: 16 },
+        tabBarIcon: ({ color, focused }) => pill('home', lang === 'bn' ? 'ড্যাশবোর্ড' : 'Dashboard', focused, color),
+        tabBarItemStyle: { marginLeft: 8 },
       }} />
       <Tabs.Screen name="assignments" options={{
         title: lang === 'bn' ? 'কাজ' : 'Assign',
-        tabBarIcon: ({ color, size }) => <MaterialIcons name="assignment" size={size} color={color} />,
+        tabBarIcon: ({ color, focused }) => pill('assignment', lang === 'bn' ? 'কাজ' : 'Assign', focused, color),
       }} />
       <Tabs.Screen name="exams" options={{
         title: lang === 'bn' ? 'পরীক্ষা' : 'Exams',
-        tabBarIcon: ({ color, size }) => <MaterialIcons name="school" size={size} color={color} />,
+        tabBarIcon: ({ color, focused }) => pill('school', lang === 'bn' ? 'পরীক্ষা' : 'Exams', focused, color),
       }} />
       <Tabs.Screen name="attendance" options={{
         title: lang === 'bn' ? 'উপস্থিতি' : 'Attend.',
-        tabBarIcon: ({ color, size }) => <MaterialIcons name="people" size={size} color={color} />,
+        tabBarIcon: ({ color, focused }) => pill('people', lang === 'bn' ? 'উপস্থিতি' : 'Attend.', focused, color),
       }} />
       <Tabs.Screen name="results" options={{
         title: lang === 'bn' ? 'ফলাফল' : 'Results',
         href: null,
-        tabBarIcon: ({ color, size }) => <MaterialIcons name="bar-chart" size={size} color={color} />,
+        tabBarIcon: ({ color, focused }) => pill('bar-chart', lang === 'bn' ? 'ফলাফল' : 'Results', focused, color),
       }} />
       <Tabs.Screen name="activities" options={{
         title: lang === 'bn' ? 'কার্যকলাপ' : 'Activities',
@@ -71,8 +89,8 @@ export default function TeacherLayout() {
       }} />
       <Tabs.Screen name="notices" options={{
         title: lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notices',
-        tabBarIcon: ({ color, size }) => <MaterialIcons name="campaign" size={size} color={color} />,
-        tabBarItemStyle: { paddingRight: 16 },
+        tabBarIcon: ({ color, focused }) => pill('campaign', lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notices', focused, color),
+        tabBarItemStyle: { marginRight: 8 },
       }} />
     </Tabs>
   );

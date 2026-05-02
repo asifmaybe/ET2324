@@ -42,11 +42,8 @@ export default function LoginScreen() {
 
           {/* Top: Lang toggle */}
           <View style={styles.topRow}>
-            <TouchableOpacity style={styles.langToggle} onPress={toggleLang}>
-              <MaterialIcons name="translate" size={14} color={Colors.accent} />
-              <Text style={[styles.langText, { fontFamily: FF.semiBold }]}>
-                {lang === 'bn' ? 'EN' : 'বাং'}
-              </Text>
+            <TouchableOpacity style={styles.langToggle} onPress={toggleLang} activeOpacity={0.75}>
+              <MaterialIcons name="translate" size={20} color={Colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
@@ -152,11 +149,20 @@ const styles = StyleSheet.create({
   scroll: { flexGrow: 1, paddingHorizontal: 24, paddingTop: 12, paddingBottom: 32 },
   topRow: { flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 16 },
   langToggle: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    paddingHorizontal: 12, paddingVertical: 7, borderRadius: Radius.full,
-    backgroundColor: Colors.accentLight, borderWidth: 1, borderColor: Colors.accentMuted,
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: Colors.white,
+    borderWidth: 1,
+    borderColor: Colors.borderColor,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    elevation: 1,
   },
-  langText: { fontSize: FontSize.xs, color: Colors.accent },
   logoArea: { alignItems: 'center', marginBottom: 32, marginTop: 8 },
   logoCircle: {
     width: 88, height: 88, borderRadius: 44,

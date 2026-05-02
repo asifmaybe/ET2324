@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { useData } from '../../hooks/useData';
 import { useLang } from '../../hooks/useLang';
+import { useLocalSearchParams } from 'expo-router';
 import { ScreenWrapper } from '../../components/ui/ScreenWrapper';
 import { ScreenHeader } from '../../components/ui/ScreenHeader';
 import { Card } from '../../components/ui/Card';
@@ -22,8 +23,15 @@ export default function StudentResults() {
   const { user } = useAuth();
   const { results } = useData();
   const { lang, tr } = useLang();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const { category } = useLocalSearchParams<{ category?: string }>();
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(category || null);
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
+
+  useEffect(() => {
+    if (category) {
+      setSelectedCategory(category);
+    }
+  }, [category]);
 
   const myResults = results.filter(r => r.student_id === user?.student_id);
   const typeMap: Record<string, any> = { 'Class Test': 'classTest', 'Quiz': 'quiz', 'Mid-Term': 'midTerm', 'Final': 'final' };
@@ -84,6 +92,109 @@ export default function StudentResults() {
                 <MaterialIcons name="bar-chart" size={44} color={Colors.textMuted} />
                 <Text style={[styles.emptyText, { fontFamily: FF.regular }]}>{tr('noData')}</Text>
               </View>
+            }
+            ListHeaderComponent={
+              selectedCategory === 'Board' ? (
+                <View style={{ marginBottom: 16 }}>
+                  <Card padding={24} style={{ marginBottom: 24 }}>
+                    <View style={{ alignItems: 'center', marginBottom: 16 }}>
+                      <Text style={{ fontSize: 48, color: Colors.accent, fontFamily: Fonts.en.bold }}>
+                        3.70
+                      </Text>
+                      <Text style={{ fontSize: FontSize.md, color: Colors.textSecondary, fontFamily: FF.regular, marginTop: -4 }}>
+                        {lang === 'bn' ? '৪.০ এর মধ্যে' : 'out of 4.0'}
+                      </Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                      <View style={[styles.progressBg, { flex: 1, marginBottom: 0, height: 8, borderRadius: 4 }]}>
+                        <View style={[styles.progressFill, { width: '93%', backgroundColor: Colors.accent, height: 8, borderRadius: 4 }]} />
+                      </View>
+                      <Text style={{ fontSize: FontSize.md, fontFamily: Fonts.en.bold, color: Colors.textPrimary }}>93%</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingTop: 16, borderTopWidth: 1, borderTopColor: Colors.borderColor }}>
+                      <MaterialIcons name="trending-up" size={18} color={Colors.success} />
+                      <Text style={{ fontSize: FontSize.sm, color: Colors.success, fontFamily: FF.medium }}>
+                        {lang === 'bn' ? 'গত সেমিস্টার থেকে ০.২ বেশি' : 'Up 0.2 from last semester'}
+                      </Text>
+                    </View>
+                  </Card>
+
+                  <Text style={[styles.progressTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold, marginTop: 8, marginBottom: 16 }]}>
+                    {lang === 'bn' ? 'সেমিস্টার ব্রেকডাউন' : 'Semester Breakdown'}
+                  </Text>
+
+                  <Card padding={16} style={{ marginBottom: 16 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <View style={[styles.catIconBox, { backgroundColor: '#E8F5E9' }]}>
+                        <MaterialIcons name="auto-graph" size={22} color={Colors.success} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: FontSize.md, fontFamily: FF.semiBold, color: Colors.textPrimary }}>
+                          {lang === 'bn' ? '৪র্থ সেমিস্টার' : '4th Semester'}
+                        </Text>
+                        <Text style={{ fontSize: FontSize.sm, fontFamily: FF.regular, color: Colors.textSecondary, marginTop: 2 }}>
+                          {lang === 'bn' ? '২১ ক্রেডিট' : '21 Credits'}
+                        </Text>
+                      </View>
+                      <View style={{ alignItems: 'flex-end' }}>
+                        <Text style={{ fontSize: FontSize.lg + 2, fontFamily: Fonts.en.bold, color: Colors.success }}>3.80</Text>
+                        <Text style={{ fontSize: 10, fontFamily: Fonts.en.medium, color: Colors.textMuted }}>GPA</Text>
+                      </View>
+                    </View>
+                  </Card>
+
+                  <Card padding={16} style={{ marginBottom: 24 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <View style={[styles.catIconBox, { backgroundColor: '#E8F5E9' }]}>
+                        <MaterialIcons name="auto-graph" size={22} color={Colors.success} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: FontSize.md, fontFamily: FF.semiBold, color: Colors.textPrimary }}>
+                          {lang === 'bn' ? '৩য় সেমিস্টার' : '3rd Semester'}
+                        </Text>
+                        <Text style={{ fontSize: FontSize.sm, fontFamily: FF.regular, color: Colors.textSecondary, marginTop: 2 }}>
+                          {lang === 'bn' ? '১৯ ক্রেডিট' : '19 Credits'}
+                        </Text>
+                      </View>
+                      <View style={{ alignItems: 'flex-end' }}>
+                        <Text style={{ fontSize: FontSize.lg + 2, fontFamily: Fonts.en.bold, color: Colors.success }}>3.60</Text>
+                        <Text style={{ fontSize: 10, fontFamily: Fonts.en.medium, color: Colors.textMuted }}>GPA</Text>
+                      </View>
+                    </View>
+                  </Card>
+
+                  {(user?.failed_subjects ?? 0) > 0 && (
+                    <>
+                      <Text style={[styles.progressTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold, marginTop: 8, marginBottom: 16 }]}>
+                        {lang === 'bn' ? 'উত্তীর্ণ হওয়া বাকি' : 'Subjects to Clear'}
+                      </Text>
+                      <Card padding={16} style={{ marginBottom: 24 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+                          <View style={[styles.catIconBox, { backgroundColor: Colors.dangerBg, marginTop: 2 }]}>
+                            <MaterialIcons name="warning" size={22} color={Colors.danger} />
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <Text style={{ fontSize: FontSize.md, fontFamily: FF.semiBold, color: Colors.textPrimary, marginBottom: 4 }}>
+                              {lang === 'bn' ? 'ইন্ডাস্ট্রিয়াল ম্যানেজমেন্ট' : 'Industrial Management'}
+                            </Text>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                              <MaterialIcons name="history" size={14} color={Colors.danger} />
+                              <Text style={{ fontSize: FontSize.sm, fontFamily: FF.medium, color: Colors.danger }}>
+                                {lang === 'bn' ? '৩য় সেমিস্টার' : '3rd Semester'}
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                      </Card>
+                    </>
+                  )}
+                  {filteredResults.length > 0 && (
+                    <Text style={[styles.progressTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold, marginTop: 8, marginBottom: 16 }]}>
+                      {lang === 'bn' ? 'বোর্ড পরীক্ষার ফলাফল' : 'Board Exam Results'}
+                    </Text>
+                  )}
+                </View>
+              ) : null
             }
           renderItem={({ item }: { item: Result }) => {
             const pct = Math.round((item.marks / item.total_marks) * 100);

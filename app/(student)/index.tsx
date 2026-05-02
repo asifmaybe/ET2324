@@ -80,6 +80,7 @@ export default function StudentDashboard() {
   const pendingCount = assignments.filter(a => a.status === 'active' || a.status === 'pending').length;
   const upcomingExams = exams.filter(e => e.upcoming).length;
   const attendancePct = user?.attendance_percent ?? 0;
+  const failedSubjects = user?.failed_subjects ?? 0;
   const nextSess = getNextSession();
   const [currentNoticeIndex, setCurrentNoticeIndex] = useState(0);
   const displayNotices = notices.slice(0, 4);
@@ -195,17 +196,17 @@ export default function StudentDashboard() {
                       ) : null}
                     </View>
                   </View>
-                  
+
                   <View style={styles.noticePagination}>
-                    <TouchableOpacity 
-                      style={[styles.pageBtn, currentNoticeIndex === 0 && { opacity: 0.5 }]} 
+                    <TouchableOpacity
+                      style={[styles.pageBtn, currentNoticeIndex === 0 && { opacity: 0.5 }]}
                       onPress={handlePrevNotice}
                       disabled={currentNoticeIndex === 0}
                     >
                       <MaterialIcons name="chevron-left" size={20} color={Colors.textPrimary} />
                     </TouchableOpacity>
-                    <TouchableOpacity 
-                      style={[styles.pageBtnRight, currentNoticeIndex === displayNotices.length - 1 && { opacity: 0.5 }]} 
+                    <TouchableOpacity
+                      style={[styles.pageBtnRight, currentNoticeIndex === displayNotices.length - 1 && { opacity: 0.5 }]}
                       onPress={handleNextNotice}
                       disabled={currentNoticeIndex === displayNotices.length - 1}
                     >
@@ -244,8 +245,8 @@ export default function StudentDashboard() {
                   </Text>
                   <Text style={[styles.statSub, { fontFamily: FF.regular }]}>
                     {pendingCount === 1
-                      ? (lang === 'bn' ? `${pendingCount}টি কাজ জমা দিতে হবে` : `${pendingCount} task to submit`)
-                      : (lang === 'bn' ? `${pendingCount}টি কাজ জমা দিতে হবে` : `${pendingCount} tasks to submit`)}
+                      ? (lang === 'bn' ? `${pendingCount} টি কাজ জমা দিতে হবে` : `${pendingCount} task to submit`)
+                      : (lang === 'bn' ? `${pendingCount} টি কাজ জমা দিতে হবে` : `${pendingCount} tasks to submit`)}
                   </Text>
                 </View>
                 <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.accent }]}>
@@ -268,7 +269,7 @@ export default function StudentDashboard() {
                   </Text>
                   <Text style={[styles.statSub, { fontFamily: FF.regular }]}>
                     {lang === 'bn'
-                      ? `${upcomingExams}টি এই মাসে নির্ধারিত`
+                      ? `${upcomingExams} টি এই মাসে নির্ধারিত`
                       : `${upcomingExams} scheduled this month`}
                   </Text>
                 </View>
@@ -279,33 +280,65 @@ export default function StudentDashboard() {
             </Card>
           </TouchableOpacity>
 
-          {/* Monthly Attendance */}
-          <TouchableOpacity onPress={() => router.push('/(student)/attendance')} activeOpacity={0.8} style={{ marginBottom: 12 }}>
-            <Card padding={16}>
-              <View style={styles.statRow}>
-                <View style={[styles.statIcon, { backgroundColor: Colors.accentLight }]}>
-                  <MaterialIcons name="person-outline" size={22} color={Colors.accent} />
-                </View>
-                <View style={[styles.statText, { flex: 1 }]}>
-                  <Text style={[styles.statLabel, { fontFamily: FF.semiBold }]}>
-                    {lang === 'bn' ? 'মাসিক উপস্থিতি' : 'Monthly Attendance'}
-                  </Text>
-                  <View style={styles.progressBg}>
-                    <View style={[styles.progressFill, {
-                      width: `${Math.max(attendancePct, 0)}%` as any,
-                      backgroundColor: attendancePct >= 75 ? Colors.accent : Colors.danger,
-                    }]} />
+          {/* CGPA Tracker / Failed Subjects */}
+          {failedSubjects > 0 ? (
+            <TouchableOpacity onPress={() => router.push({ pathname: '/(student)/results', params: { category: 'Board' } })} activeOpacity={0.8} style={{ marginBottom: 12 }}>
+              <Card padding={16}>
+                <View style={styles.statRow}>
+                  <View style={[styles.statIcon, { backgroundColor: Colors.dangerBg }]}>
+                    <MaterialIcons name="warning" size={22} color={Colors.danger} />
                   </View>
-                  <Text style={[styles.statSub, { fontFamily: FF.regular }]}>
-                    {lang === 'bn' ? '০/০ দিন উপস্থিত' : '0/0 days present'}
-                  </Text>
+                  <View style={[styles.statText, { flex: 1 }]}>
+                    <Text style={[styles.statLabel, { fontFamily: FF.semiBold }]}>
+                      {lang === 'bn' ? 'উত্তীর্ণ হওয়া বাকি' : 'Subjects to Clear'}
+                    </Text>
+                    <Text style={[styles.statSub, { fontFamily: FF.regular, color: Colors.danger, marginTop: 4 }]}>
+                      {lang === 'bn'
+                        ? `${failedSubjects} টি বিষয়ে পাস করতে হবে`
+                        : `${failedSubjects} subject${failedSubjects > 1 ? 's' : ''} yet to pass`}
+                    </Text>
+                  </View>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.danger }]}>
+                      {failedSubjects}
+                    </Text>
+                  </View>
                 </View>
-                <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.accent }]}>
-                  {attendancePct}%
-                </Text>
-              </View>
-            </Card>
-          </TouchableOpacity>
+              </Card>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={() => router.push({ pathname: '/(student)/results', params: { category: 'Board' } })} activeOpacity={0.8} style={{ marginBottom: 12 }}>
+              <Card padding={16}>
+                <View style={styles.statRow}>
+                  <View style={[styles.statIcon, { backgroundColor: Colors.infoBg }]}>
+                    <MaterialIcons name="timeline" size={22} color={Colors.info} />
+                  </View>
+                  <View style={[styles.statText, { flex: 1 }]}>
+                    <Text style={[styles.statLabel, { fontFamily: FF.semiBold }]}>
+                      {lang === 'bn' ? 'বর্তমান সিজিপিএ' : 'Current CGPA'}
+                    </Text>
+                    <View style={styles.progressBg}>
+                      <View style={[styles.progressFill, {
+                        width: '92%',
+                        backgroundColor: Colors.info,
+                      }]} />
+                    </View>
+                    <Text style={[styles.statSub, { fontFamily: FF.regular }]}>
+                      {lang === 'bn' ? 'গত সেমিস্টার থেকে ০.২ বেশি' : 'Up 0.2 from last semester'}
+                    </Text>
+                  </View>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.info, lineHeight: 30 }]}>
+                      3.7<Text style={{ fontSize: FontSize.sm, color: Colors.textMuted }}>/4.0</Text>
+                    </Text>
+                    <Text style={{ fontSize: FontSize.xs, color: Colors.textSecondary, fontFamily: Fonts.en.medium }}>
+                      92%
+                    </Text>
+                  </View>
+                </View>
+              </Card>
+            </TouchableOpacity>
+          )}
 
           {/* ── Section: পরবতী সেশন ── */}
           <View style={styles.nextSessionHeader}>
@@ -384,10 +417,10 @@ export default function StudentDashboard() {
         </View>
       </ScrollView>
 
-      <NoticeModal 
-        visible={!!selectedNotice} 
-        notice={selectedNotice} 
-        onClose={() => setSelectedNotice(null)} 
+      <NoticeModal
+        visible={!!selectedNotice}
+        notice={selectedNotice}
+        onClose={() => setSelectedNotice(null)}
       />
     </SafeAreaView>
   );
@@ -436,7 +469,7 @@ const styles = StyleSheet.create({
   },
   noticeMainTitle: { fontSize: FontSize.lg + 2, color: Colors.textPrimary },
   seeAllGreen: { fontSize: FontSize.sm, color: Colors.accent },
-  
+
   noticeCardTop: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     marginBottom: 14,
@@ -446,29 +479,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.full,
   },
   noticeBadgeText: { fontSize: FontSize.xs, color: '#1A5A8A' },
-  detailsBtn: { 
+  detailsBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     paddingHorizontal: 12, paddingVertical: 6,
     borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.borderColor,
-    backgroundColor: Colors.white 
+    backgroundColor: Colors.white
   },
   detailsText: { fontSize: FontSize.sm, color: Colors.textSecondary },
-  
+
   noticeTitleLg: { fontSize: FontSize.md + 1, color: Colors.textPrimary, marginBottom: 8, lineHeight: 24 },
   noticeDescLg: { fontSize: FontSize.sm, color: Colors.textSecondary, lineHeight: 22, minHeight: 66, marginBottom: 16 },
-  
+
   noticeDivider: { height: 1, backgroundColor: Colors.borderColor, marginBottom: 12 },
-  
+
   noticeBottomRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   noticeAuthor: { fontSize: FontSize.sm, color: Colors.textPrimary, marginBottom: 2 },
   noticeDateTime: { fontSize: FontSize.xs, color: Colors.textMuted },
   editedPill: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: Colors.bgSecondary, borderRadius: Radius.full, paddingHorizontal: 8, paddingVertical: 3, marginBottom: 8, borderWidth: 1, borderColor: Colors.borderColor },
   editedPillText: { fontSize: 10, color: Colors.textMuted },
-  
+
   noticePagination: { flexDirection: 'row', gap: 8 },
-  pageBtn: { 
+  pageBtn: {
     width: 36, height: 36, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.borderColor,
-    justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.white 
+    justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.white
   },
   pageBtnRight: {
     flexDirection: 'row', alignItems: 'center', height: 36, paddingHorizontal: 12,
@@ -476,7 +509,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white, gap: 4,
   },
   pageBtnText: { fontSize: FontSize.sm, color: Colors.textPrimary },
-  
+
   dotRowCenter: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 8, marginBottom: 2 },
   dotCircle: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.borderColor },
   dotCircleActive: { backgroundColor: Colors.accent, width: 8, height: 8 },

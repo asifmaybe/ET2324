@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Colors, FontSize, Fonts } from '../../constants/theme';
 import { useLang } from '../../hooks/useLang';
 
-type BadgeType = 'active' | 'pending' | 'overdue' | 'completed' | 'submitted' | 'upcoming' | 'past' | 'present' | 'absent' | 'late' | 'important' | 'classTest' | 'quiz' | 'midTerm' | 'final';
+type BadgeType = 'active' | 'pending' | 'overdue' | 'completed' | 'submitted' | 'upcoming' | 'past' | 'present' | 'absent' | 'important' | 'classTest' | 'quiz' | 'midTerm' | 'final';
 
 const CONFIG_EN: Record<BadgeType, { bg: string; color: string; label: string }> = {
   active: { bg: Colors.successBg, color: Colors.success, label: 'Ongoing' },
@@ -15,7 +15,6 @@ const CONFIG_EN: Record<BadgeType, { bg: string; color: string; label: string }>
   past: { bg: 'rgba(100,116,139,0.12)', color: '#64748B', label: 'Past' },
   present: { bg: Colors.successBg, color: Colors.success, label: '✓ Present' },
   absent: { bg: Colors.dangerBg, color: Colors.danger, label: '✗ Absent' },
-  late: { bg: Colors.warningBg, color: Colors.warning, label: 'Late' },
   important: { bg: Colors.dangerBg, color: Colors.danger, label: '●' },
   classTest: { bg: Colors.infoBg, color: Colors.info, label: 'Class Test' },
   quiz: { bg: Colors.warningBg, color: Colors.warning, label: 'Quiz' },
@@ -33,7 +32,6 @@ const CONFIG_BN: Record<BadgeType, { bg: string; color: string; label: string }>
   past: { bg: 'rgba(100,116,139,0.12)', color: '#64748B', label: 'অতীত' },
   present: { bg: Colors.successBg, color: Colors.success, label: '✓ উপস্থিত' },
   absent: { bg: Colors.dangerBg, color: Colors.danger, label: '✗ অনুপস্থিত' },
-  late: { bg: Colors.warningBg, color: Colors.warning, label: 'দেরি' },
   important: { bg: Colors.dangerBg, color: Colors.danger, label: '●' },
   classTest: { bg: Colors.infoBg, color: Colors.info, label: 'ক্লাস টেস্ট' },
   quiz: { bg: Colors.warningBg, color: Colors.warning, label: 'কুইজ' },

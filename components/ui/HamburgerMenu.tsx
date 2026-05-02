@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Easing } from 'react-native';
 import {
   View,
   Text,
@@ -26,21 +27,19 @@ export function HamburgerMenu() {
   useEffect(() => {
     if (open) {
       Animated.parallel([
-        Animated.spring(scaleAnim, {
+        Animated.timing(scaleAnim, {
           toValue: 1,
+          duration: 200,
+          easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
-          tension: 200,
-          friction: 18,
         }),
         Animated.timing(opacityAnim, {
           toValue: 1,
-          duration: 150,
+          duration: 180,
+          easing: Easing.out(Easing.quad),
           useNativeDriver: true,
         }),
       ]).start();
-    } else {
-      scaleAnim.setValue(0);
-      opacityAnim.setValue(0);
     }
   }, [open]);
 

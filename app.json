@@ -39,6 +39,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "0603a63f-be26-400b-a2a3-14b7d7632dc3"
+      }
+    },
+    "owner": "devv.asif"
   }
 }

@@ -19,7 +19,6 @@ export default function StudentAttendance() {
   const attendancePct = user?.attendance_percent ?? 0;
   const presentCount = MOCK_ATTENDANCE.filter(a => a.status === 'present').length;
   const absentCount = MOCK_ATTENDANCE.filter(a => a.status === 'absent').length;
-  const lateCount = MOCK_ATTENDANCE.filter(a => a.status === 'late').length;
 
   return (
     <ScreenWrapper scrollable={false} noPadding>
@@ -32,7 +31,6 @@ export default function StudentAttendance() {
               { num: `${attendancePct}%`, label: lang === 'bn' ? 'মোট' : 'Overall', color: attendancePct >= 75 ? Colors.accent : Colors.danger },
               { num: String(presentCount), label: lang === 'bn' ? 'উপস্থিত' : 'Present', color: Colors.accent },
               { num: String(absentCount), label: lang === 'bn' ? 'অনুপস্থিত' : 'Absent', color: Colors.danger },
-              { num: String(lateCount), label: lang === 'bn' ? 'দেরি' : 'Late', color: Colors.warning },
             ].map((item, i) => (
               <View key={i} style={styles.summaryItem}>
                 <Text style={[styles.summaryNum, { fontFamily: Fonts.en.bold, color: item.color }]}>{item.num}</Text>
