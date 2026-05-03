@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "onspace-app",
+    "name": "Electrical 23-24",
     "slug": "onspace-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
-    "scheme": "onspaceapp",
+    "icon": "./assets/images/ET-APP-LOGO.png",
+    "scheme": "et",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -13,11 +13,11 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo.png",
+        "foregroundImage": "./assets/images/ET-APP-LOGO.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.electrical2324.fpi"
+      "package": "com.electrical.fpi"
     },
     "web": {
       "bundler": "metro",
