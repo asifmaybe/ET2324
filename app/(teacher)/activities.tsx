@@ -8,6 +8,8 @@ import { Colors, FontSize, Radius, Fonts } from '../../constants/theme';
 import { ScreenHeader } from '../../components/ui/ScreenHeader';
 import { Card } from '../../components/ui/Card';
 
+import { router } from 'expo-router';
+
 export default function ActivitiesScreen() {
   const { lang } = useLang();
   const { auditLog } = useData();
@@ -17,7 +19,7 @@ export default function ActivitiesScreen() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScreenHeader 
         title={lang === 'bn' ? 'সকল কার্যকলাপ' : 'All Activities'} 
-        showBack={true} 
+        onBack={() => router.back()} 
       />
       <ScrollView 
         showsVerticalScrollIndicator={false} 
