@@ -7,14 +7,13 @@ import { useAuth } from '../../hooks/useAuth';
 import { useLang } from '../../hooks/useLang';
 import { Colors, Fonts } from '../../constants/theme';
 
-const CustomTabBarButton = Platform.OS === 'web' ? undefined : React.forwardRef((props: any, ref: any) => (
+const CustomTabBarButton = Platform.OS === 'web' ? undefined : (props: any) => (
   <Pressable
-    ref={ref}
     {...props}
     android_ripple={null}
     style={({ pressed }) => [props.style, { opacity: pressed ? 0.6 : 1 }]}
   />
-));
+);
 
 export default function StudentLayout() {
   const insets = useSafeAreaInsets();
@@ -69,7 +68,6 @@ export default function StudentLayout() {
       tabBarInactiveTintColor: Colors.textMuted,
       tabBarShowLabel: false,
       tabBarButton: CustomTabBarButton,
-      animation: 'none',
     }}>
       <Tabs.Screen name="index" options={{
         title: lang === 'bn' ? 'হোম' : 'Home',
