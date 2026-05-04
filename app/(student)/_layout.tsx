@@ -7,6 +7,14 @@ import { useAuth } from '../../hooks/useAuth';
 import { useLang } from '../../hooks/useLang';
 import { Colors, Fonts } from '../../constants/theme';
 
+const CustomTabBarButton = Platform.OS === 'web' ? undefined : (props: any) => (
+  <Pressable
+    {...props}
+    android_ripple={null}
+    style={({ pressed }) => [props.style, { opacity: pressed ? 0.6 : 1 }]}
+  />
+);
+
 export default function StudentLayout() {
   const insets = useSafeAreaInsets();
   const { user, panelMode } = useAuth();
@@ -59,13 +67,7 @@ export default function StudentLayout() {
       tabBarActiveTintColor: Colors.accent,
       tabBarInactiveTintColor: Colors.textMuted,
       tabBarShowLabel: false,
-      tabBarButton: Platform.OS === 'web' ? undefined : (props) => (
-        <Pressable
-          {...props}
-          android_ripple={null}
-          style={({ pressed }) => [props.style as any, { opacity: pressed ? 0.6 : 1 }]}
-        />
-      ),
+      tabBarButton: CustomTabBarButton,
     }}>
       <Tabs.Screen name="index" options={{
         title: lang === 'bn' ? 'হোম' : 'Home',
