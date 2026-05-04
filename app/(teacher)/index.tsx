@@ -7,10 +7,10 @@ import { useAuth } from '../../hooks/useAuth';
 import { useLang } from '../../hooks/useLang';
 import { HamburgerMenu } from '../../components/ui/HamburgerMenu';
 import { useData } from '../../hooks/useData';
-import { ScreenHeader } from '../../components/ui/ScreenHeader';
+
 import { Card } from '../../components/ui/Card';
 import { NoticeModal } from '../../components/ui/NoticeModal';
-import { Colors, FontSize, Radius, Spacing, Fonts } from '../../constants/theme';
+import { Colors, FontSize, Radius, Fonts } from '../../constants/theme';
 
 const QUICK_ACTIONS = [
   { key: 'assignments', icon: 'assignment', route: '/(teacher)/assignments', colorBg: Colors.accentLight, color: Colors.accent },
@@ -33,8 +33,8 @@ const actionLabelEn: Record<string, string> = {
 };
 
 export default function TeacherDashboard() {
-  const { user, setPanelMode, panelMode } = useAuth();
-  const { lang, tr } = useLang();
+  const { user } = useAuth();
+  const { lang } = useLang();
   const { assignments, exams, results, auditLog, notices } = useData();
   const router = useRouter();
 

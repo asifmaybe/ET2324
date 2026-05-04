@@ -13,7 +13,7 @@ interface AssignmentModalProps {
 }
 
 export function AssignmentModal({ visible, onClose, assignment }: AssignmentModalProps) {
-  const { lang, tr } = useLang();
+  const { lang } = useLang();
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
 
   if (!assignment) return null;

@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Easing } from 'react-native';
 import {
   View,
   Text,
@@ -8,6 +7,7 @@ import {
   Modal,
   Animated,
   Pressable,
+  Easing,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -41,7 +41,7 @@ export function HamburgerMenu() {
         }),
       ]).start();
     }
-  }, [open]);
+  }, [open, scaleAnim, opacityAnim]);
 
   const handleClose = () => {
     Animated.parallel([

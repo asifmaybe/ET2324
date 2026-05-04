@@ -56,8 +56,8 @@ function getNextSession() {
 }
 
 export default function StudentDashboard() {
-  const { user, setPanelMode } = useAuth();
-  const { lang, tr } = useLang();
+  const { user } = useAuth();
+  const { lang } = useLang();
   const { assignments, exams, notices } = useData();
   const router = useRouter();
 
@@ -79,7 +79,7 @@ export default function StudentDashboard() {
 
   const pendingCount = assignments.filter(a => a.status === 'active' || a.status === 'pending').length;
   const upcomingExams = exams.filter(e => e.upcoming).length;
-  const attendancePct = user?.attendance_percent ?? 0;
+
   const failedSubjects = user?.failed_subjects ?? 0;
   const nextSess = getNextSession();
   const [currentNoticeIndex, setCurrentNoticeIndex] = useState(0);

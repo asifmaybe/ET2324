@@ -17,7 +17,7 @@ export default function StudentLayout() {
     if (!user) { router.replace('/login'); return; }
     if (user.role === 'teacher') { router.replace('/(teacher)'); return; }
     if (user.role === 'cr' && panelMode === 'teacher') { router.replace('/(teacher)'); return; }
-  }, [user, panelMode]);
+  }, [user, panelMode, router]);
 
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
 

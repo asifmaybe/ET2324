@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLang } from '../../hooks/useLang';
 import { useData } from '../../hooks/useData';
-import { Colors, FontSize, Radius, Fonts } from '../../constants/theme';
+import { Colors, FontSize, Fonts } from '../../constants/theme';
 import { ScreenHeader } from '../../components/ui/ScreenHeader';
 import { Card } from '../../components/ui/Card';
 

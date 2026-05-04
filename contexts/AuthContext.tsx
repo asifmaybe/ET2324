@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (parsed.role === 'teacher') setPanelMode('teacher');
         else setPanelMode('student');
       }
-    } catch (e) {
+    } catch {
       // ignore
     } finally {
       setIsLoading(false);

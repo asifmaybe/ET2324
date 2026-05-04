@@ -13,7 +13,7 @@ const MONTHS_BN = ['জান', 'ফেব', 'মার', 'এপ্র', 'ম�
 
 export default function StudentAttendance() {
   const { user } = useAuth();
-  const { lang, tr } = useLang();
+  const { lang } = useLang();
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
 
   const attendancePct = user?.attendance_percent ?? 0;

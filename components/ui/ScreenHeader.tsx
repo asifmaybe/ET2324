@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, FontSize, Fonts } from '../../constants/theme';
 import { useLang } from '../../hooks/useLang';
-import { useAuth } from '../../hooks/useAuth';
+
 import { HamburgerMenu } from './HamburgerMenu';
 
 interface Props {
@@ -17,7 +17,7 @@ interface Props {
 
 export function ScreenHeader({ title, subtitle, showLogout = false, showNotification = false, onBack }: Props) {
   const { lang } = useLang();
-  const { user, panelMode, setPanelMode } = useAuth();
+
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
 
   return (

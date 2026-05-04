@@ -16,7 +16,6 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Result, Exam } from '../../types';
 import { SUBJECTS, ALL_STUDENTS } from '../../constants/mockData';
 
-const EXAM_TYPES_EN = ['Class Test', 'Quiz', 'Mid-Term', 'Final'];
 const EXAM_TYPES_BN: Record<string, string> = {
   'Class Test': 'ক্লাস টেস্ট',
   'Quiz': 'কুইজ',
@@ -27,7 +26,7 @@ const typeMap: Record<string, any> = { 'Class Test': 'classTest', 'Quiz': 'quiz'
 
 export default function TeacherResults() {
   const { user } = useAuth();
-  const { results, exams, addResult } = useData();
+  const { exams, addResult } = useData();
   const { lang, tr } = useLang();
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
 

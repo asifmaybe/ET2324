@@ -10,14 +10,14 @@ import { Colors, Fonts } from '../../constants/theme';
 export default function TeacherLayout() {
   const insets = useSafeAreaInsets();
   const { user, panelMode } = useAuth();
-  const { tr, lang } = useLang();
+  const { lang } = useLang();
   const router = useRouter();
 
   useEffect(() => {
     if (!user) { router.replace('/login'); return; }
     if (user.role === 'student') { router.replace('/(student)'); return; }
     if (user.role === 'cr' && panelMode === 'student') { router.replace('/(student)'); return; }
-  }, [user, panelMode]);
+  }, [user, panelMode, router]);
 
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
 

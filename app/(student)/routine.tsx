@@ -22,12 +22,12 @@ function getSubjectColor(subject: string) {
 }
 
 export default function Routine() {
-  const { lang, tr } = useLang();
+  const { lang } = useLang();
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
 
   const bstNow = new Date(Date.now() + 6 * 60 * 60 * 1000);
   const jsDay = bstNow.getDay(); // 0=Sun,1=Mon,2=Tue,3=Wed,4=Thu,5=Fri,6=Sat
-  const todayDay = DAYS_EN[jsDay] ?? null; // null for Fri/Sat
+  // todayDay would be null for Fri/Sat
   const defaultDay = DAYS_EN.includes(DAYS_EN[jsDay]) && jsDay <= 4 ? DAYS_EN[jsDay] : 'Sunday';
   const [selectedDay, setSelectedDay] = useState(defaultDay);
 
