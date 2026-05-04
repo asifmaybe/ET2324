@@ -61,15 +61,16 @@ export default function TeacherLayout() {
   );
 
   return (
-    <Tabs 
-      sceneContainerStyle={{ backgroundColor: Colors.bg }}
+    <Tabs
       screenOptions={{
-      headerShown: false,
-      tabBarStyle,
-      tabBarActiveTintColor: Colors.accent,
-      tabBarInactiveTintColor: Colors.textMuted,
-      tabBarShowLabel: false,
-      tabBarButton: CustomTabBarButton,
+        sceneStyle: { backgroundColor: Colors.bg },
+        headerShown: false,
+        tabBarStyle,
+        tabBarActiveTintColor: Colors.accent,
+        tabBarInactiveTintColor: Colors.textMuted,
+        tabBarShowLabel: false,
+        tabBarButton: CustomTabBarButton,
+        animation: 'none',
     }}>
       <Tabs.Screen name="index" options={{
         title: lang === 'bn' ? 'হোম' : 'Home',
