@@ -59,6 +59,8 @@ export default function TeacherLayout() {
       tabBarActiveTintColor: Colors.accent,
       tabBarInactiveTintColor: Colors.textMuted,
       tabBarShowLabel: false,
+      tabBarPressColor: 'transparent',
+      tabBarPressOpacity: 0.7,
     }}>
       <Tabs.Screen name="index" options={{
         title: lang === 'bn' ? 'হোম' : 'Home',
