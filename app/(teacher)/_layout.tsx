@@ -59,7 +59,7 @@ export default function TeacherLayout() {
       tabBarActiveTintColor: Colors.accent,
       tabBarInactiveTintColor: Colors.textMuted,
       tabBarShowLabel: false,
-      tabBarButton: (props) => (
+      tabBarButton: Platform.OS === 'web' ? undefined : (props) => (
         <Pressable
           {...props}
           android_ripple={null}
