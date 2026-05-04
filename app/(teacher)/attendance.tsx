@@ -273,8 +273,8 @@ export default function TeacherAttendance() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.bg },
   titleArea: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4 },
-  pageTitle: { fontSize: FontSize.xl + 2, color: Colors.textPrimary },
-  pageSubtitle: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 2 },
+  pageTitle: { fontSize: FontSize.lg, color: Colors.textPrimary },
+  pageSubtitle: { fontSize: FontSize.xs, color: Colors.textSecondary, marginTop: 2 },
   content: { paddingHorizontal: 16, paddingBottom: 24, paddingTop: 8 },
   toggleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   toggleTitle: { fontSize: FontSize.md, color: Colors.textPrimary, marginBottom: 2 },
