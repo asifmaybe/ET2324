@@ -206,18 +206,16 @@ export default function TeacherDashboard() {
             { labelBn: 'আসন্ন পরীক্ষা', labelEn: 'Upcoming Exams', count: upcomingExams, icon: 'school', colorBg: '#EFF6FF', color: Colors.info, route: '/(teacher)/exams' },
             { labelBn: 'ফলাফল আপলোড', labelEn: 'Results Uploaded', count: totalResults, icon: 'bar-chart', colorBg: '#FEF3C7', color: Colors.warning, route: '/(teacher)/results' },
           ].map((item, index) => (
-            <TouchableOpacity key={item.labelEn} onPress={() => router.push(item.route as any)} activeOpacity={0.8} style={{ marginBottom: index === 2 ? 0 : 0 }}>
-              <Card padding={16}>
-                <View style={styles.overviewRow}>
-                  <View style={[styles.overviewIcon, { backgroundColor: item.colorBg }]}>
-                    <MaterialIcons name={item.icon as any} size={20} color={item.color} />
-                  </View>
-                  <Text style={[styles.overviewLabel, { fontFamily: FF.semiBold }]}>
-                    {lang === 'bn' ? item.labelBn : item.labelEn}
-                  </Text>
-                  <Text style={[styles.overviewCount, { fontFamily: Fonts.en.bold, color: item.color }]}>{item.count}</Text>
+            <TouchableOpacity key={item.labelEn} onPress={() => router.push(item.route as any)} activeOpacity={0.8} style={[styles.overviewCard, { marginBottom: index === 2 ? 0 : 8 }]}>
+              <View style={styles.overviewRow}>
+                <View style={[styles.overviewIcon, { backgroundColor: item.colorBg }]}>
+                  <MaterialIcons name={item.icon as any} size={20} color={item.color} />
                 </View>
-              </Card>
+                <Text style={[styles.overviewLabel, { fontFamily: FF.semiBold }]}>
+                  {lang === 'bn' ? item.labelBn : item.labelEn}
+                </Text>
+                <Text style={[styles.overviewCount, { fontFamily: Fonts.en.bold, color: item.color }]}>{item.count}</Text>
+              </View>
             </TouchableOpacity>
           ))}
 
@@ -349,6 +347,18 @@ const styles = StyleSheet.create({
   },
   actionIcon: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center' },
   actionLabel: { fontSize: FontSize.md, color: Colors.textPrimary, flex: 1 },
+  overviewCard: {
+    backgroundColor: Colors.white,
+    padding: 16,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.borderColor,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
   overviewRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   overviewIcon: { width: 42, height: 42, borderRadius: 21, justifyContent: 'center', alignItems: 'center' },
   overviewLabel: { flex: 1, fontSize: FontSize.md, color: Colors.textPrimary },
