@@ -61,7 +61,9 @@ export default function TeacherLayout() {
   );
 
   return (
-    <Tabs screenOptions={{
+    <Tabs 
+      sceneContainerStyle={{ backgroundColor: Colors.bg }}
+      screenOptions={{
       headerShown: false,
       tabBarStyle,
       tabBarActiveTintColor: Colors.accent,
