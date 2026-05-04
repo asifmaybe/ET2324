@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Tabs, useRouter } from 'expo-router';
-import { Platform, View, Text } from 'react-native';
+import { Platform, View, Text, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '../../hooks/useAuth';
@@ -59,8 +59,13 @@ export default function StudentLayout() {
       tabBarActiveTintColor: Colors.accent,
       tabBarInactiveTintColor: Colors.textMuted,
       tabBarShowLabel: false,
-      tabBarPressColor: 'transparent',
-      tabBarPressOpacity: 0.7,
+      tabBarButton: (props) => (
+        <Pressable
+          {...props}
+          android_ripple={null}
+          style={({ pressed }) => [props.style as any, { opacity: pressed ? 0.6 : 1 }]}
+        />
+      ),
     }}>
       <Tabs.Screen name="index" options={{
         title: lang === 'bn' ? 'হোম' : 'Home',
