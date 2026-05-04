@@ -30,10 +30,10 @@ export function ScreenHeader({ title, subtitle, showLogout = false, showNotifica
             </TouchableOpacity>
           )}
           <View>
+            <Text style={[styles.title, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>{title}</Text>
             {subtitle ? (
               <Text style={[styles.subtitle, { fontFamily: FF.regular }]}>{subtitle}</Text>
             ) : null}
-            <Text style={[styles.title, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>{title}</Text>
           </View>
         </View>
       </View>
