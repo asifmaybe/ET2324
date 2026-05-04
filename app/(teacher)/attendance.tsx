@@ -3,7 +3,7 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput,
   KeyboardAvoidingView, Platform, Modal, Pressable,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ScreenWrapper } from '../../components/ui/ScreenWrapper';
 import { useAuth } from '../../hooks/useAuth';
 import { useData } from '../../hooks/useData';
 import { useLang } from '../../hooks/useLang';
@@ -73,23 +73,12 @@ export default function TeacherAttendance() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <View style={styles.titleArea}>
-        <View style={{ flex: 1, marginRight: 12 }}>
-          <Text
-            style={[styles.pageTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}
-            adjustsFontSizeToFit
-            numberOfLines={1}
-          >
-            {lang === 'bn' ? 'উপস্থিতি ব্যবস্থাপনা' : 'Attendance Management'}
-          </Text>
-          <Text style={[styles.pageSubtitle, { fontFamily: FF.regular }]}>
-            {lang === 'bn' ? 'রোল নম্বর পেস্ট করে দ্রুত উপস্থিতি নিন' : 'Paste roll numbers to quickly mark attendance'}
-          </Text>
-        </View>
-        <ScreenHeader title="" />
-      </View>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+    <ScreenWrapper scrollable={false} noPadding>
+      <ScreenHeader
+        title={lang === 'bn' ? 'উপস্থিতি ব্যবস্থাপনা' : 'Attendance Management'}
+        subtitle={lang === 'bn' ? 'রোল নম্বর পেস্ট করে দ্রুত উপস্থিতি নিন' : 'Paste roll numbers to quickly mark attendance'}
+      />
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
 
           {/* Online Attendance Toggle */}
@@ -266,15 +255,11 @@ export default function TeacherAttendance() {
           ) : null}
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Colors.bg },
-  titleArea: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4 },
-  pageTitle: { fontSize: FontSize.lg, color: Colors.textPrimary },
-  pageSubtitle: { fontSize: FontSize.xs, color: Colors.textSecondary, marginTop: 2 },
   content: { paddingHorizontal: 16, paddingBottom: 24, paddingTop: 8 },
   toggleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   toggleTitle: { fontSize: FontSize.md, color: Colors.textPrimary, marginBottom: 2 },
