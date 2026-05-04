@@ -63,6 +63,7 @@ export default function StudentLayout() {
   return (
     <Tabs
       screenOptions={{
+        lazy: false,
         sceneStyle: { backgroundColor: Colors.bg },
         headerShown: false,
         tabBarStyle,
