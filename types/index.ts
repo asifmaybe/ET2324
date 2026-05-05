@@ -17,6 +17,7 @@ export interface Notice {
   date: string;
   time: string;
   author: string;
+  author_id?: string;
   important: boolean;
   created_at: string;
   updated_by?: string;

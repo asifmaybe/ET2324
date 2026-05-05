@@ -77,6 +77,11 @@ export function HamburgerMenu() {
     setTimeout(() => router.push(route as any), 150);
   };
 
+  const handleCGPACalc = () => {
+    handleClose();
+    setTimeout(() => router.push('/(student)/cgpa-calculator' as any), 150);
+  };
+
   const handleLogout = () => {
     handleClose();
     setTimeout(() => logout(), 200);
@@ -172,11 +177,32 @@ export function HamburgerMenu() {
             {/* Divider */}
             <View style={styles.divider} />
 
+            {/* CGPA Calculator (student only) */}
+            {!isTeacherPanel ? (
+              <>
+                <TouchableOpacity style={styles.menuItem} onPress={handleCGPACalc} activeOpacity={0.7}>
+                  <View style={[styles.menuIconBg, { backgroundColor: Colors.accentLight }]}>
+                    <MaterialIcons name="calculate" size={18} color={Colors.accent} />
+                  </View>
+                  <View style={styles.menuTextCol}>
+                    <Text style={[styles.menuLabel, { fontFamily: FF.semiBold }]}>
+                      {lang === 'bn' ? 'সিজিপিএ ক্যালকুলেটর' : 'CGPA Calculator'}
+                    </Text>
+                  </View>
+                  <MaterialIcons name="chevron-right" size={20} color={Colors.textMuted} />
+                </TouchableOpacity>
+
+                {/* Divider */}
+                <View style={styles.divider} />
+              </>
+            ) : null}
+
+
             {/* Panel Switching (CR Only) */}
             {user?.role === 'cr' ? (
               <>
-                <TouchableOpacity 
-                  style={styles.menuItem} 
+                <TouchableOpacity
+                  style={styles.menuItem}
                   onPress={() => {
                     handleClose();
                     const nextMode = panelMode === 'teacher' ? 'student' : 'teacher';
@@ -185,7 +211,7 @@ export function HamburgerMenu() {
                       setPanelMode(nextMode);
                       router.replace(route as any);
                     }, 150);
-                  }} 
+                  }}
                   activeOpacity={0.7}
                 >
                   <View style={[styles.menuIconBg, { backgroundColor: Colors.infoBg }]}>
@@ -193,8 +219,8 @@ export function HamburgerMenu() {
                   </View>
                   <View style={styles.menuTextCol}>
                     <Text style={[styles.menuLabel, { fontFamily: FF.semiBold, color: Colors.info }]}>
-                      {panelMode === 'teacher' 
-                        ? (lang === 'bn' ? 'স্টুডেন্ট প্যানেল' : 'Student Panel') 
+                      {panelMode === 'teacher'
+                        ? (lang === 'bn' ? 'স্টুডেন্ট প্যানেল' : 'Student Panel')
                         : (lang === 'bn' ? 'অ্যাডমিন প্যানেল' : 'Admin Panel')}
                     </Text>
                   </View>

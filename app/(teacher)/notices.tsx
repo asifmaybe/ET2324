@@ -64,6 +64,7 @@ export default function TeacherNotices() {
         date: bst.toISOString().slice(0, 10),
         time: bst.toLocaleTimeString('en-BD', { hour: '2-digit', minute: '2-digit' }),
         author: user?.name ?? '',
+        author_id: user?.id ?? '',
         important: form.important,
         created_at: now.toISOString(),
       } as Notice);

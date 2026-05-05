@@ -12,6 +12,24 @@ import { Colors, FontSize, Radius, Fonts } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Result } from '../../types';
 
+// ── Regulation 2022 weighted CGPA ──────────────────────────────────────────
+const CGPA_WEIGHTS = [0.05, 0.05, 0.10, 0.10, 0.20, 0.20, 0.20, 0.10];
+
+function calcWeightedCGPA(gpas: number[]): number {
+  let cgpa = 0;
+  gpas.forEach((gpa, i) => { cgpa += gpa * CGPA_WEIGHTS[i]; });
+  return parseFloat(cgpa.toFixed(2));
+}
+
+function calcPercentComplete(gpas: number[]): number {
+  let pct = 0;
+  gpas.forEach((gpa, i) => { if (gpa > 0) pct += CGPA_WEIGHTS[i]; });
+  return Math.round(pct * 100);
+}
+// ───────────────────────────────────────────────────────────────────────────
+
+const SEM_LABELS_BN = ['১ম', '২য়', '৩য়', '৪র্থ', '৫ম', '৬ষ্ঠ', '৭ম', '৮ম'];
+
 const EXAM_TYPE_BN: Record<string, string> = {
   'Class Test': 'ক্লাস টেস্ট',
   'Quiz': 'কুইজ',
@@ -26,6 +44,14 @@ export default function StudentResults() {
   const { category } = useLocalSearchParams<{ category?: string }>();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(category || null);
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
+
+  // ── Computed CGPA from weighted formula (index 0=1st sem … 7=8th sem) ───
+  const semesterGPAs = [0, 0, 3.60, 3.80, 0, 0, 0, 0];
+  const computedCGPA = calcWeightedCGPA(semesterGPAs);
+  const cgpaProgressPct = Math.round((computedCGPA / 4.0) * 100);
+  const percentComplete = calcPercentComplete(semesterGPAs);
+
+  // ─────────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     if (category) {
@@ -99,7 +125,7 @@ export default function StudentResults() {
                   <Card padding={24} style={{ marginBottom: 24 }}>
                     <View style={{ alignItems: 'center', marginBottom: 16 }}>
                       <Text style={{ fontSize: 48, color: Colors.accent, fontFamily: Fonts.en.bold }}>
-                        3.70
+                        {computedCGPA.toFixed(2)}
                       </Text>
                       <Text style={{ fontSize: FontSize.md, color: Colors.textSecondary, fontFamily: FF.regular, marginTop: -4 }}>
                         {lang === 'bn' ? '৪.০ এর মধ্যে' : 'out of 4.0'}
@@ -107,9 +133,9 @@ export default function StudentResults() {
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }}>
                       <View style={[styles.progressBg, { flex: 1, marginBottom: 0, height: 8, borderRadius: 4 }]}>
-                        <View style={[styles.progressFill, { width: '93%', backgroundColor: Colors.accent, height: 8, borderRadius: 4 }]} />
+                        <View style={[styles.progressFill, { width: `${cgpaProgressPct}%` as any, backgroundColor: Colors.accent, height: 8, borderRadius: 4 }]} />
                       </View>
-                      <Text style={{ fontSize: FontSize.md, fontFamily: Fonts.en.bold, color: Colors.textPrimary }}>93%</Text>
+                      <Text style={{ fontSize: FontSize.md, fontFamily: Fonts.en.bold, color: Colors.textPrimary }}>{cgpaProgressPct}%</Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingTop: 16, borderTopWidth: 1, borderTopColor: Colors.borderColor }}>
                       <MaterialIcons name="trending-up" size={18} color={Colors.success} />
@@ -143,7 +169,7 @@ export default function StudentResults() {
                     </View>
                   </Card>
 
-                  <Card padding={16} style={{ marginBottom: 24 }}>
+                  <Card padding={16} style={{ marginBottom: 16 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                       <View style={[styles.catIconBox, { backgroundColor: '#E8F5E9' }]}>
                         <MaterialIcons name="auto-graph" size={22} color={Colors.success} />
@@ -162,6 +188,7 @@ export default function StudentResults() {
                       </View>
                     </View>
                   </Card>
+
 
                   {(user?.failed_subjects ?? 0) > 0 && (
                     <>

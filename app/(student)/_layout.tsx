@@ -105,6 +105,9 @@ export default function StudentLayout() {
         tabBarIcon: ({ color, focused }) => pill('campaign', lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notices', focused, color),
         tabBarItemStyle: { marginRight: 8 },
       }} />
+      <Tabs.Screen name="cgpa-calculator" options={{
+        href: null,
+      }} />
     </Tabs>
   );
 }
