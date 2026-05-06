@@ -127,8 +127,8 @@ export default function LoginScreen() {
             <Text style={[styles.demoTitle, { fontFamily: FF.semiBold }]}>
               {lang === 'bn' ? 'ডেমো অ্যাকাউন্ট' : 'Demo Accounts'}
             </Text>
-            <Text style={[styles.demoItem, { fontFamily: Fonts.en.regular }]}>CR: 842943 / 123456</Text>
-            <Text style={[styles.demoItem, { fontFamily: Fonts.en.regular }]}>Student: 842944 / 123456</Text>
+            <Text style={[styles.demoItem, { fontFamily: Fonts.en.regular }]}>CR: 843017 / 5307</Text>
+            <Text style={[styles.demoItem, { fontFamily: Fonts.en.regular }]}>Student: 747259 / 5831</Text>
             <Text style={[styles.demoItem, { fontFamily: Fonts.en.regular }]}>Teacher: T001 / 123456</Text>
           </View>
 

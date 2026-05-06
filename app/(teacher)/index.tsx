@@ -138,23 +138,23 @@ export default function TeacherDashboard() {
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
                           <MaterialIcons name="edit" size={10} color={Colors.textMuted} />
                           <Text style={{ fontSize: 10, color: Colors.textMuted, fontFamily: FF.medium }}>
-                            {lang === 'bn' ? 'সম্পাদিত' : 'Edited'}
+                            {lang === 'bn' ? 'সংশোধিত' : 'Edited'}
                           </Text>
                         </View>
                       ) : null}
                     </View>
                   </View>
-                  
+
                   <View style={styles.noticePagination}>
-                    <TouchableOpacity 
-                      style={[styles.pageBtn, currentNoticeIndex === 0 && { opacity: 0.5 }]} 
+                    <TouchableOpacity
+                      style={[styles.pageBtn, currentNoticeIndex === 0 && { opacity: 0.5 }]}
                       onPress={handlePrevNotice}
                       disabled={currentNoticeIndex === 0}
                     >
                       <MaterialIcons name="chevron-left" size={20} color={Colors.textPrimary} />
                     </TouchableOpacity>
-                    <TouchableOpacity 
-                      style={[styles.pageBtnRight, currentNoticeIndex === displayNotices.length - 1 && { opacity: 0.5 }]} 
+                    <TouchableOpacity
+                      style={[styles.pageBtnRight, currentNoticeIndex === displayNotices.length - 1 && { opacity: 0.5 }]}
                       onPress={handleNextNotice}
                       disabled={currentNoticeIndex === displayNotices.length - 1}
                     >
@@ -206,7 +206,7 @@ export default function TeacherDashboard() {
             { labelBn: 'আসন্ন পরীক্ষা', labelEn: 'Upcoming Exams', count: upcomingExams, icon: 'school', colorBg: '#EFF6FF', color: Colors.info, route: '/(teacher)/exams' },
             { labelBn: 'ফলাফল আপলোড', labelEn: 'Results Uploaded', count: totalResults, icon: 'bar-chart', colorBg: '#FEF3C7', color: Colors.warning, route: '/(teacher)/results' },
           ].map((item, index) => (
-            <TouchableOpacity key={item.labelEn} onPress={() => router.push(item.route as any)} activeOpacity={0.8} style={[styles.overviewCard, { marginBottom: index === 2 ? 0 : 8 }]}>
+            <TouchableOpacity key={item.labelEn} onPress={() => router.push(item.route as any)} activeOpacity={0.8} style={[styles.overviewCard, { marginBottom: index === 2 ? 20 : 8 }]}>
               <View style={styles.overviewRow}>
                 <View style={[styles.overviewIcon, { backgroundColor: item.colorBg }]}>
                   <MaterialIcons name={item.icon as any} size={20} color={item.color} />
@@ -241,9 +241,9 @@ export default function TeacherDashboard() {
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={[styles.logAction, { fontFamily: Fonts.en.semiBold }]}>{log.action}</Text>
-                  <Text style={[styles.logDetails, { fontFamily: FF.regular }]} numberOfLines={1}>{log.details}</Text>
+
                   <Text style={[styles.logMeta, { fontFamily: Fonts.en.regular }]}>
-                    {log.performed_by} · {new Date(log.created_at).toLocaleString()}
+                    {log.performed_by} · {new Date(log.created_at).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
                   </Text>
                 </View>
               </View>
@@ -251,11 +251,11 @@ export default function TeacherDashboard() {
           ))}
         </View>
       </ScrollView>
-      
-      <NoticeModal 
-        visible={!!selectedNotice} 
-        notice={selectedNotice} 
-        onClose={() => setSelectedNotice(null)} 
+
+      <NoticeModal
+        visible={!!selectedNotice}
+        notice={selectedNotice}
+        onClose={() => setSelectedNotice(null)}
       />
     </SafeAreaView>
   );
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
   },
   noticeMainTitle: { fontSize: FontSize.lg + 2, color: Colors.textPrimary },
   seeAllGreen: { fontSize: FontSize.sm, color: Colors.accent },
-  
+
   noticeCardTop: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     marginBottom: 14,
@@ -302,29 +302,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.full,
   },
   noticeBadgeText: { fontSize: FontSize.xs, color: '#1A5A8A' },
-  detailsBtn: { 
+  detailsBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     paddingHorizontal: 12, paddingVertical: 6,
     borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.borderColor,
-    backgroundColor: Colors.white 
+    backgroundColor: Colors.white
   },
   detailsText: { fontSize: FontSize.sm, color: Colors.textSecondary },
-  
+
   noticeTitleLg: { fontSize: FontSize.md + 1, color: Colors.textPrimary, marginBottom: 8, lineHeight: 24 },
   noticeDescLg: { fontSize: FontSize.sm, color: Colors.textSecondary, lineHeight: 22, minHeight: 66, marginBottom: 16 },
-  
+
   noticeDivider: { height: 1, backgroundColor: Colors.borderColor, marginBottom: 12 },
-  
+
   noticeBottomRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   noticeAuthor: { fontSize: FontSize.sm, color: Colors.textPrimary, marginBottom: 2 },
   noticeDateTime: { fontSize: FontSize.xs, color: Colors.textMuted },
   editedPill: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: Colors.bgSecondary, borderRadius: Radius.full, paddingHorizontal: 8, paddingVertical: 3, marginBottom: 8, borderWidth: 1, borderColor: Colors.borderColor },
   editedPillText: { fontSize: 10, color: Colors.textMuted },
-  
+
   noticePagination: { flexDirection: 'row', gap: 8 },
-  pageBtn: { 
+  pageBtn: {
     width: 36, height: 36, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.borderColor,
-    justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.white 
+    justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.white
   },
   pageBtnRight: {
     flexDirection: 'row', alignItems: 'center', height: 36, paddingHorizontal: 12,
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white, gap: 4,
   },
   pageBtnText: { fontSize: FontSize.sm, color: Colors.textPrimary },
-  
+
   dotRowCenter: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 8, marginBottom: 2 },
   dotCircle: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.borderColor },
   dotCircleActive: { backgroundColor: Colors.accent, width: 8, height: 8 },

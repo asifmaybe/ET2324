@@ -59,7 +59,7 @@ export function NoticeModal({ visible, onClose, notice }: NoticeModalProps) {
               <View style={styles.editedPill}>
                 <MaterialIcons name="edit" size={11} color={Colors.textMuted} />
                 <Text style={[styles.editedPillText, { fontFamily: FF.regular }]}>
-                  {lang === 'bn' ? 'শেষ সম্পাদনা:' : 'Last edited by'} {notice.updated_by} • {notice.updated_at ? new Date(notice.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}
+                  {lang === 'bn' ? 'সর্বশেষ সংশোধন:' : 'Last edited by'} {notice.updated_by} • {notice.updated_at ? new Date(notice.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}
                 </Text>
               </View>
             ) : null}

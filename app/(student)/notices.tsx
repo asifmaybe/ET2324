@@ -124,7 +124,7 @@ export default function StudentNotices() {
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
                         <MaterialIcons name="edit" size={10} color={Colors.textMuted} />
                         <Text style={{ fontSize: 10, color: Colors.textMuted, fontFamily: FF.medium }}>
-                          {lang === 'bn' ? 'সম্পাদিত' : 'Edited'}
+                          {lang === 'bn' ? 'সংশোধিত' : 'Edited'}
                         </Text>
                       </View>
                     ) : null}

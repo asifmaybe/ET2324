@@ -63,7 +63,7 @@ export function AssignmentModal({ visible, onClose, assignment }: AssignmentModa
               <View style={styles.editedPill}>
                 <MaterialIcons name="edit" size={11} color={Colors.textMuted} />
                 <Text style={[styles.editedPillText, { fontFamily: FF.regular }]}>
-                  {lang === 'bn' ? 'শেষ সম্পাদনা:' : 'Last edited by'} {assignment.updated_by} • {new Date(assignment.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  {lang === 'bn' ? 'সর্বশেষ সংশোধন:' : 'Last edited by'} {assignment.updated_by} • {new Date(assignment.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </Text>
               </View>
             ) : null}

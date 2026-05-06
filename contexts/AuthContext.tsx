@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { MOCK_USERS } from '../constants/mockData';
+import { supabase } from '../lib/supabase';
 import { Profile } from '../types';
 
 interface AuthContextType {
@@ -31,6 +31,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(parsed);
         if (parsed.role === 'teacher') setPanelMode('teacher');
         else setPanelMode('student');
+      } else {
+        // Fallback: check supabase session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+          if (profile) {
+            setUser(profile);
+            if (profile.role === 'teacher') setPanelMode('teacher');
+            else setPanelMode('student');
+          }
+        }
       }
     } catch {
       // ignore
@@ -40,15 +51,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (roll: string, password: string): Promise<boolean> => {
-    const found = MOCK_USERS.find(
-      u => u.roll_number.trim().toLowerCase() === roll.trim().toLowerCase() && u.password === password
-    );
-    if (found) {
-      setUser(found);
-      await AsyncStorage.setItem('et2324_user', JSON.stringify(found));
-      if (found.role === 'teacher') setPanelMode('teacher');
-      else setPanelMode('student');
-      return true;
+    try {
+      const email = `${roll.trim().toLowerCase()}@fpi.edu`;
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      
+      if (error || !data.user) {
+        console.error('Login failed:', error?.message);
+        return false;
+      }
+      
+      const { data: profile, error: profileErr } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
+      
+      if (profile) {
+        setUser(profile as Profile);
+        await AsyncStorage.setItem('et2324_user', JSON.stringify(profile));
+        if (profile.role === 'teacher') setPanelMode('teacher');
+        else setPanelMode('student');
+        return true;
+      }
+    } catch (e) {
+      console.error('Login exception:', e);
     }
     return false;
   };
@@ -56,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     setUser(null);
     await AsyncStorage.removeItem('et2324_user');
+    await supabase.auth.signOut();
   };
 
   return (
