@@ -111,3 +111,29 @@ export interface AuditLog {
   details: string;
   created_at: string;
 }
+
+// ── Board Result System Types ──────────────────────────────────────────────
+
+export interface SemesterResult {
+  id: string;
+  roll_no: string;
+  semester_number: number;
+  gpa: number | null;
+  is_missing: boolean;
+  published_at: string;
+}
+
+export interface ReferredSubject {
+  id: string;
+  roll_no: string;
+  semester_number: number;
+  subject_code: string;
+  subject_name: string;
+  subject_type: string;
+  cleared_in_semester: number | null;
+}
+
+export interface PublishedSemester {
+  semester_number: number;
+  published_at: string;
+}

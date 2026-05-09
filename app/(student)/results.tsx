@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { useData } from '../../hooks/useData';
 import { useLang } from '../../hooks/useLang';
@@ -17,18 +17,19 @@ const CGPA_WEIGHTS = [0.05, 0.05, 0.10, 0.10, 0.20, 0.20, 0.20, 0.10];
 
 function calcWeightedCGPA(gpas: number[]): number {
   let cgpa = 0;
-  gpas.forEach((gpa, i) => { cgpa += gpa * CGPA_WEIGHTS[i]; });
+  gpas.forEach((gpa, i) => { cgpa += gpa * (CGPA_WEIGHTS[i] || 0); });
   return parseFloat(cgpa.toFixed(2));
 }
 
 function calcPercentComplete(gpas: number[]): number {
   let pct = 0;
-  gpas.forEach((gpa, i) => { if (gpa > 0) pct += CGPA_WEIGHTS[i]; });
+  gpas.forEach((gpa, i) => { if (gpa > 0) pct += (CGPA_WEIGHTS[i] || 0); });
   return Math.round(pct * 100);
 }
 // ───────────────────────────────────────────────────────────────────────────
 
 const SEM_LABELS_BN = ['১ম', '২য়', '৩য়', '৪র্থ', '৫ম', '৬ষ্ঠ', '৭ম', '৮ম'];
+const SEM_LABELS_EN = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th'];
 
 const EXAM_TYPE_BN: Record<string, string> = {
   'Class Test': 'ক্লাস টেস্ট',
@@ -37,21 +38,30 @@ const EXAM_TYPE_BN: Record<string, string> = {
   'Final': 'চূড়ান্ত পরীক্ষা',
 };
 
+function formatRelativeTime(dateString: string, lang: 'en' | 'bn'): string {
+  const diffTime = Math.abs(new Date().getTime() - new Date(dateString).getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+  if (lang === 'bn') return `${diffDays} দিন আগে`;
+  return `${diffDays} days ago`;
+}
+
+function formatDate(dateString: string, lang: 'en' | 'bn'): string {
+  const date = new Date(dateString);
+  const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+  if (lang === 'bn') {
+    return date.toLocaleDateString('bn-BD', options);
+  }
+  return date.toLocaleDateString('en-US', options);
+}
+
 export default function StudentResults() {
   const { user } = useAuth();
-  const { results } = useData();
+  const { results, semesterResults, referredSubjects, publishedSemesters, boardResultsLoading } = useData();
   const { lang, tr } = useLang();
   const { category } = useLocalSearchParams<{ category?: string }>();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(category || null);
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
-
-  // ── Computed CGPA from weighted formula (index 0=1st sem … 7=8th sem) ───
-  const semesterGPAs = [0, 0, 3.60, 3.80, 0, 0, 0, 0];
-  const computedCGPA = calcWeightedCGPA(semesterGPAs);
-  const cgpaProgressPct = Math.round((computedCGPA / 4.0) * 100);
-  const percentComplete = calcPercentComplete(semesterGPAs);
-
-  // ─────────────────────────────────────────────────────────────────────────
+  const isBn = lang === 'bn';
 
   useEffect(() => {
     if (category) {
@@ -72,10 +82,219 @@ export default function StudentResults() {
     ? myResults.filter(r => {
         if (selectedCategory === 'Class Tests') return r.exam_type === 'Class Test' || r.exam_type === 'Quiz';
         if (selectedCategory === 'Mid-term') return r.exam_type === 'Mid-Term';
-        if (selectedCategory === 'Board') return r.exam_type === 'Final';
         return false;
       })
     : [];
+
+  // --- Board Result Logic ---
+  const myRoll = user?.roll_number || '';
+  
+  // Total yet to pass
+  const myUnclearedRefs = referredSubjects.filter(r => r.roll_no === myRoll && r.cleared_in_semester === null);
+  const totalYetToPass = myUnclearedRefs.length;
+
+  // Process GPAs
+  const semesterGPAs = Array(8).fill(0);
+  const mySemResults = semesterResults.filter(sr => sr.roll_no === myRoll);
+  mySemResults.forEach(sr => {
+    if (sr.gpa && sr.semester_number >= 1 && sr.semester_number <= 8) {
+      semesterGPAs[sr.semester_number - 1] = sr.gpa;
+    }
+  });
+
+  const computedCGPA = calcWeightedCGPA(semesterGPAs);
+  const cgpaProgressPct = Math.round((computedCGPA / 4.0) * 100);
+  
+  // Build Semester Cards
+  // Published semesters descending (newest first)
+  const publishedSemsDesc = [...publishedSemesters].sort((a, b) => b.semester_number - a.semester_number);
+
+  const renderBoardSection = () => {
+    if (boardResultsLoading) {
+      return (
+        <View style={{ padding: 40, alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={Colors.accent} />
+          <Text style={{ marginTop: 16, fontFamily: FF.medium, color: Colors.textSecondary }}>
+            {isBn ? 'ফলাফল লোড হচ্ছে...' : 'Loading results...'}
+          </Text>
+        </View>
+      );
+    }
+
+    if (publishedSemesters.length === 0) {
+      return (
+        <View style={styles.empty}>
+          <MaterialIcons name="school" size={44} color={Colors.textMuted} />
+          <Text style={[styles.emptyText, { fontFamily: FF.regular }]}>
+            {isBn ? 'কোনো বোর্ড ফলাফল প্রকাশিত হয়নি' : 'No board results published yet'}
+          </Text>
+        </View>
+      );
+    }
+
+    return (
+      <View style={{ paddingBottom: 24 }}>
+        {/* Top Banner */}
+        {publishedSemsDesc.length > 0 && (
+          <View style={[
+            styles.topBanner,
+            { backgroundColor: totalYetToPass > 0 ? Colors.dangerBg : Colors.successBg,
+              borderColor: totalYetToPass > 0 ? 'rgba(214,48,49,0.3)' : 'rgba(26,107,60,0.3)' }
+          ]}>
+            <MaterialIcons name={totalYetToPass > 0 ? "warning" : "check-circle"} size={24} color={totalYetToPass > 0 ? Colors.danger : Colors.success} />
+            <Text style={[styles.topBannerText, { fontFamily: FF.semiBold, color: totalYetToPass > 0 ? Colors.danger : Colors.success }]}>
+              {totalYetToPass > 0 
+                ? (isBn ? `${totalYetToPass} টি বিষয়ে পাস করতে হবে` : `${totalYetToPass} subjects yet to pass`)
+                : (isBn ? 'সব বিষয়ে পাস করেছেন ✓' : 'All Passed ✓')}
+            </Text>
+          </View>
+        )}
+
+        {/* CGPA Summary */}
+        <Card padding={24} style={{ marginBottom: 24 }}>
+          <View style={{ alignItems: 'center', marginBottom: 16 }}>
+            <Text style={{ fontSize: 48, color: Colors.accent, fontFamily: Fonts.en.bold }}>
+              {computedCGPA.toFixed(2)}
+            </Text>
+            <Text style={{ fontSize: FontSize.md, color: Colors.textSecondary, fontFamily: FF.regular, marginTop: -4 }}>
+              {isBn ? '৪.০ এর মধ্যে' : 'out of 4.0'}
+            </Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={[styles.progressBg, { flex: 1, marginBottom: 0, height: 8, borderRadius: 4 }]}>
+              <View style={[styles.progressFill, { width: `${cgpaProgressPct}%` as any, backgroundColor: Colors.accent, height: 8, borderRadius: 4 }]} />
+            </View>
+            <Text style={{ fontSize: FontSize.md, fontFamily: Fonts.en.bold, color: Colors.textPrimary }}>{cgpaProgressPct}%</Text>
+          </View>
+        </Card>
+
+        {/* Semester Cards */}
+        <Text style={[styles.progressTitle, { fontFamily: FF.bold, marginTop: 8, marginBottom: 16 }]}>
+          {isBn ? 'সেমিস্টার ফলাফল' : 'Semester Results'}
+        </Text>
+
+        {publishedSemsDesc.map(pubSem => {
+          const semRes = mySemResults.find(sr => sr.semester_number === pubSem.semester_number);
+          const semRefs = referredSubjects.filter(rs => rs.roll_no === myRoll && rs.semester_number === pubSem.semester_number);
+          const pendingSemRefs = semRefs.filter(rs => rs.cleared_in_semester === null);
+          
+          let state = 'passed';
+          let badgeColor = Colors.success;
+          let badgeBg = Colors.successBg;
+          let badgeText = isBn ? '✓ পাস' : '✓ Passed';
+
+          if (!semRes) {
+            // Technically shouldn't happen if seeded correctly, but fallback
+            state = 'missing';
+            badgeColor = Colors.textMuted;
+            badgeBg = Colors.bgSecondary;
+            badgeText = isBn ? 'ফলাফল নেই' : 'No Result';
+          } else if (semRes.is_missing) {
+            state = 'missing';
+            badgeColor = Colors.textMuted;
+            badgeBg = Colors.bgSecondary;
+            badgeText = isBn ? 'ফলাফল অনুপস্থিত' : 'Missing Result';
+          } else if (pendingSemRefs.length > 0) {
+            state = 'has_refs';
+            badgeColor = Colors.danger;
+            badgeBg = Colors.dangerBg;
+            badgeText = isBn ? `⊗ ${pendingSemRefs.length} টি বাকি` : `⊗ ${pendingSemRefs.length} yet to pass`;
+          }
+
+          const semLabel = isBn ? `${SEM_LABELS_BN[pubSem.semester_number - 1] || pubSem.semester_number} সেমিস্টার` : `${SEM_LABELS_EN[pubSem.semester_number - 1] || pubSem.semester_number} Semester`;
+
+          return (
+            <Card key={pubSem.semester_number} padding={0} style={{ marginBottom: 16, overflow: 'hidden' }}>
+              {/* Header */}
+              <View style={styles.semHeader}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <MaterialIcons name="school" size={20} color={Colors.textPrimary} />
+                  <Text style={[styles.semTitle, { fontFamily: FF.semiBold }]}>
+                    {semLabel}
+                  </Text>
+                </View>
+                <View style={[styles.semBadge, { backgroundColor: badgeBg }]}>
+                  <Text style={[styles.semBadgeText, { color: badgeColor, fontFamily: FF.medium }]}>
+                    {badgeText}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Body */}
+              <View style={{ padding: 16 }}>
+                {/* Dates */}
+                <View style={styles.dateRow}>
+                  <Text style={[styles.dateText, { fontFamily: FF.regular }]}>
+                    {isBn ? 'প্রকাশিত: ' : 'Published: '}
+                    {formatDate(pubSem.published_at, lang)}
+                  </Text>
+                  <Text style={[styles.dateText, { fontFamily: FF.regular, color: Colors.textMuted }]}>
+                    {formatRelativeTime(pubSem.published_at, lang)}
+                  </Text>
+                </View>
+
+                {/* GPA Box */}
+                {semRes && semRes.gpa !== null && (
+                  <View style={styles.gpaBox}>
+                    <Text style={[styles.gpaLabel, { fontFamily: FF.semiBold }]}>GPA</Text>
+                    <Text style={[styles.gpaValue, { fontFamily: Fonts.en.bold }]}>{semRes.gpa.toFixed(2)}</Text>
+                  </View>
+                )}
+
+                {/* Referred Subjects List */}
+                {semRefs.length > 0 && (
+                  <View style={styles.refsContainer}>
+                    <Text style={[styles.refsTitle, { fontFamily: FF.medium }]}>
+                      {isBn ? 'রেফার্ড বিষয়সমূহ' : 'Referred Subjects'}
+                    </Text>
+                    {semRefs.map((rs, idx) => {
+                      const isCleared = rs.cleared_in_semester !== null;
+                      return (
+                        <View key={rs.id} style={[styles.refRow, idx !== semRefs.length - 1 && styles.refBorder]}>
+                          <View style={{ flex: 1, flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+                            <Text style={[styles.refCode, { fontFamily: Fonts.en.medium, opacity: isCleared ? 0.5 : 1 }]}>
+                              {rs.subject_code}
+                            </Text>
+                            <View style={{ flex: 1 }}>
+                              <Text 
+                                style={[
+                                  styles.refName, 
+                                  { fontFamily: FF.regular },
+                                  isCleared && { textDecorationLine: 'line-through', color: Colors.textMuted }
+                                ]}
+                              >
+                                {rs.subject_name}
+                              </Text>
+                              <Text style={[styles.refType, { fontFamily: FF.regular, opacity: isCleared ? 0.5 : 1 }]}>
+                                [{rs.subject_type}]
+                              </Text>
+                            </View>
+                          </View>
+                          {isCleared ? (
+                            <View style={[styles.refStatusPill, { backgroundColor: Colors.successBg }]}>
+                              <Text style={[styles.refStatusText, { color: Colors.success, fontFamily: FF.medium }]}>
+                                {isBn ? `ক্লিয়ার (${SEM_LABELS_BN[rs.cleared_in_semester! - 1] || rs.cleared_in_semester})` : `Cleared (${SEM_LABELS_EN[rs.cleared_in_semester! - 1] || rs.cleared_in_semester})`}
+                              </Text>
+                            </View>
+                          ) : (
+                            <View style={[styles.refStatusPill, { backgroundColor: Colors.dangerBg }]}>
+                              <Text style={[styles.refStatusText, { color: Colors.danger, fontFamily: FF.medium }]}>
+                                {isBn ? 'পাস বাকি' : 'Pending'}
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                      );
+                    })}
+                  </View>
+                )}
+              </View>
+            </Card>
+          );
+        })}
+      </View>
+    );
+  };
 
   return (
     <ScreenWrapper scrollable={false} noPadding>
@@ -108,157 +327,59 @@ export default function StudentResults() {
         </ScrollView>
       ) : (
         <View style={{ paddingHorizontal: 16, flex: 1 }}>
-          <FlatList
-            data={filteredResults}
-            keyExtractor={i => i.id}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 24 }}
-            ListEmptyComponent={
-              <View style={styles.empty}>
-                <MaterialIcons name="bar-chart" size={44} color={Colors.textMuted} />
-                <Text style={[styles.emptyText, { fontFamily: FF.regular }]}>{tr('noData')}</Text>
-              </View>
-            }
-            ListHeaderComponent={
-              selectedCategory === 'Board' ? (
-                <View style={{ marginBottom: 16 }}>
-                  <Card padding={24} style={{ marginBottom: 24 }}>
-                    <View style={{ alignItems: 'center', marginBottom: 16 }}>
-                      <Text style={{ fontSize: 48, color: Colors.accent, fontFamily: Fonts.en.bold }}>
-                        {computedCGPA.toFixed(2)}
-                      </Text>
-                      <Text style={{ fontSize: FontSize.md, color: Colors.textSecondary, fontFamily: FF.regular, marginTop: -4 }}>
-                        {lang === 'bn' ? '৪.০ এর মধ্যে' : 'out of 4.0'}
-                      </Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                      <View style={[styles.progressBg, { flex: 1, marginBottom: 0, height: 8, borderRadius: 4 }]}>
-                        <View style={[styles.progressFill, { width: `${cgpaProgressPct}%` as any, backgroundColor: Colors.accent, height: 8, borderRadius: 4 }]} />
-                      </View>
-                      <Text style={{ fontSize: FontSize.md, fontFamily: Fonts.en.bold, color: Colors.textPrimary }}>{cgpaProgressPct}%</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingTop: 16, borderTopWidth: 1, borderTopColor: Colors.borderColor }}>
-                      <MaterialIcons name="trending-up" size={18} color={Colors.success} />
-                      <Text style={{ fontSize: FontSize.sm, color: Colors.success, fontFamily: FF.medium }}>
-                        {lang === 'bn' ? 'গত সেমিস্টার থেকে ০.২ বেশি' : 'Up 0.2 from last semester'}
-                      </Text>
-                    </View>
-                  </Card>
-
-                  <Text style={[styles.progressTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold, marginTop: 8, marginBottom: 16 }]}>
-                    {lang === 'bn' ? 'সেমিস্টার ব্রেকডাউন' : 'Semester Breakdown'}
-                  </Text>
-
-                  <Card padding={16} style={{ marginBottom: 16 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <View style={[styles.catIconBox, { backgroundColor: '#E8F5E9' }]}>
-                        <MaterialIcons name="auto-graph" size={22} color={Colors.success} />
-                      </View>
+          {selectedCategory === 'Board' ? (
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {renderBoardSection()}
+            </ScrollView>
+          ) : (
+            <FlatList
+              data={filteredResults}
+              keyExtractor={i => i.id}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 24 }}
+              ListEmptyComponent={
+                <View style={styles.empty}>
+                  <MaterialIcons name="bar-chart" size={44} color={Colors.textMuted} />
+                  <Text style={[styles.emptyText, { fontFamily: FF.regular }]}>{tr('noData')}</Text>
+                </View>
+              }
+              renderItem={({ item }: { item: Result }) => {
+                const pct = Math.round((item.marks / item.total_marks) * 100);
+                const isGood = pct >= 60;
+                return (
+                  <Card padding={16} style={{ marginBottom: 12 }}>
+                    <View style={styles.topRow}>
                       <View style={{ flex: 1 }}>
-                        <Text style={{ fontSize: FontSize.md, fontFamily: FF.semiBold, color: Colors.textPrimary }}>
-                          {lang === 'bn' ? '৪র্থ সেমিস্টার' : '4th Semester'}
-                        </Text>
-                        <Text style={{ fontSize: FontSize.sm, fontFamily: FF.regular, color: Colors.textSecondary, marginTop: 2 }}>
-                          {lang === 'bn' ? '২১ ক্রেডিট' : '21 Credits'}
-                        </Text>
-                      </View>
-                      <View style={{ alignItems: 'flex-end' }}>
-                        <Text style={{ fontSize: FontSize.lg + 2, fontFamily: Fonts.en.bold, color: Colors.success }}>3.80</Text>
-                        <Text style={{ fontSize: 10, fontFamily: Fonts.en.medium, color: Colors.textMuted }}>GPA</Text>
-                      </View>
-                    </View>
-                  </Card>
-
-                  <Card padding={16} style={{ marginBottom: 16 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <View style={[styles.catIconBox, { backgroundColor: '#E8F5E9' }]}>
-                        <MaterialIcons name="auto-graph" size={22} color={Colors.success} />
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <Text style={{ fontSize: FontSize.md, fontFamily: FF.semiBold, color: Colors.textPrimary }}>
-                          {lang === 'bn' ? '৩য় সেমিস্টার' : '3rd Semester'}
-                        </Text>
-                        <Text style={{ fontSize: FontSize.sm, fontFamily: FF.regular, color: Colors.textSecondary, marginTop: 2 }}>
-                          {lang === 'bn' ? '১৯ ক্রেডিট' : '19 Credits'}
-                        </Text>
-                      </View>
-                      <View style={{ alignItems: 'flex-end' }}>
-                        <Text style={{ fontSize: FontSize.lg + 2, fontFamily: Fonts.en.bold, color: Colors.success }}>3.60</Text>
-                        <Text style={{ fontSize: 10, fontFamily: Fonts.en.medium, color: Colors.textMuted }}>GPA</Text>
-                      </View>
-                    </View>
-                  </Card>
-
-
-                  {(user?.failed_subjects ?? 0) > 0 && (
-                    <>
-                      <Text style={[styles.progressTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold, marginTop: 8, marginBottom: 16 }]}>
-                        {lang === 'bn' ? 'উত্তীর্ণ হওয়া বাকি' : 'Subjects to Clear'}
-                      </Text>
-                      <Card padding={16} style={{ marginBottom: 24 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-                          <View style={[styles.catIconBox, { backgroundColor: Colors.dangerBg, marginTop: 2 }]}>
-                            <MaterialIcons name="warning" size={22} color={Colors.danger} />
-                          </View>
-                          <View style={{ flex: 1 }}>
-                            <Text style={{ fontSize: FontSize.md, fontFamily: FF.semiBold, color: Colors.textPrimary, marginBottom: 4 }}>
-                              {lang === 'bn' ? 'ইন্ডাস্ট্রিয়াল ম্যানেজমেন্ট' : 'Industrial Management'}
-                            </Text>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                              <MaterialIcons name="history" size={14} color={Colors.danger} />
-                              <Text style={{ fontSize: FontSize.sm, fontFamily: FF.medium, color: Colors.danger }}>
-                                {lang === 'bn' ? '৩য় সেমিস্টার' : '3rd Semester'}
-                              </Text>
-                            </View>
-                          </View>
+                        <Text style={[styles.subject, { fontFamily: FF.semiBold }]}>{item.subject}</Text>
+                        <View style={styles.row}>
+                          <StatusBadge
+                            type={typeMap[item.exam_type] ?? 'classTest'}
+                            customLabel={lang === 'bn' ? (EXAM_TYPE_BN[item.exam_type] ?? item.exam_type) : item.exam_type}
+                          />
                         </View>
-                      </Card>
-                    </>
-                  )}
-                  {filteredResults.length > 0 && (
-                    <Text style={[styles.progressTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold, marginTop: 8, marginBottom: 16 }]}>
-                      {lang === 'bn' ? 'বোর্ড পরীক্ষার ফলাফল' : 'Board Exam Results'}
-                    </Text>
-                  )}
-                </View>
-              ) : null
-            }
-          renderItem={({ item }: { item: Result }) => {
-            const pct = Math.round((item.marks / item.total_marks) * 100);
-            const isGood = pct >= 60;
-            return (
-              <Card padding={16}>
-                <View style={styles.topRow}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.subject, { fontFamily: FF.semiBold }]}>{item.subject}</Text>
-                    <View style={styles.row}>
-                      <StatusBadge
-                        type={typeMap[item.exam_type] ?? 'classTest'}
-                        customLabel={lang === 'bn' ? (EXAM_TYPE_BN[item.exam_type] ?? item.exam_type) : item.exam_type}
-                      />
+                        <View style={styles.progressBg}>
+                          <View style={[styles.progressFill, {
+                            width: `${pct}%` as any,
+                            backgroundColor: isGood ? Colors.accent : Colors.danger,
+                          }]} />
+                        </View>
+                        <View style={styles.metaRow}>
+                          <Text style={[styles.metaText, { fontFamily: Fonts.en.regular }]}>
+                            {pct}% · {item.date}
+                          </Text>
+                        </View>
+                      </View>
+                      <View style={[styles.scoreBox, { borderColor: isGood ? Colors.accent : Colors.danger }]}>
+                        <Text style={[styles.scoreNum, { fontFamily: Fonts.en.bold, color: isGood ? Colors.accent : Colors.danger }]}>{item.marks}</Text>
+                        <View style={styles.scoreDivider} />
+                        <Text style={[styles.scoreTotal, { fontFamily: Fonts.en.medium }]}>{item.total_marks}</Text>
+                      </View>
                     </View>
-                    <View style={styles.progressBg}>
-                      <View style={[styles.progressFill, {
-                        width: `${pct}%` as any,
-                        backgroundColor: isGood ? Colors.accent : Colors.danger,
-                      }]} />
-                    </View>
-                    <View style={styles.metaRow}>
-                      <Text style={[styles.metaText, { fontFamily: Fonts.en.regular }]}>
-                        {pct}% · {item.date}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={[styles.scoreBox, { borderColor: isGood ? Colors.accent : Colors.danger }]}>
-                    <Text style={[styles.scoreNum, { fontFamily: Fonts.en.bold, color: isGood ? Colors.accent : Colors.danger }]}>{item.marks}</Text>
-                    <View style={styles.scoreDivider} />
-                    <Text style={[styles.scoreTotal, { fontFamily: Fonts.en.medium }]}>{item.total_marks}</Text>
-                  </View>
-                </View>
-              </Card>
-            );
-          }}
-          />
+                  </Card>
+                );
+              }}
+            />
+          )}
         </View>
       )}
     </ScreenWrapper>
@@ -295,4 +416,40 @@ const styles = StyleSheet.create({
     justifyContent: 'center', alignItems: 'center', marginRight: 16,
   },
   catTitle: { flex: 1, fontSize: FontSize.md, color: Colors.textPrimary },
+  
+  // Board Result specific styles
+  topBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    padding: 16, borderRadius: Radius.lg, borderWidth: 1,
+    marginBottom: 20, marginTop: 8
+  },
+  topBannerText: { fontSize: FontSize.md + 1, flex: 1 },
+  semHeader: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    padding: 16, backgroundColor: Colors.bgSecondary,
+    borderBottomWidth: 1, borderBottomColor: Colors.borderColor
+  },
+  semTitle: { fontSize: FontSize.lg, color: Colors.textPrimary },
+  semBadge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: Radius.full },
+  semBadgeText: { fontSize: FontSize.sm },
+  dateRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
+  dateText: { fontSize: FontSize.sm, color: Colors.textSecondary },
+  gpaBox: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12,
+    backgroundColor: Colors.accentLight, padding: 12, borderRadius: Radius.md,
+    borderWidth: 1, borderColor: 'rgba(26,107,60,0.2)', marginBottom: 16
+  },
+  gpaLabel: { fontSize: FontSize.md, color: Colors.accent },
+  gpaValue: { fontSize: FontSize.xl + 4, color: Colors.accent },
+  refsContainer: {
+    borderTopWidth: 1, borderTopColor: Colors.borderColor, paddingTop: 16,
+  },
+  refsTitle: { fontSize: FontSize.sm, color: Colors.textSecondary, marginBottom: 12 },
+  refRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 },
+  refBorder: { borderBottomWidth: 1, borderBottomColor: Colors.borderColor },
+  refCode: { fontSize: FontSize.md, color: Colors.textPrimary, width: 55 },
+  refName: { fontSize: FontSize.md, color: Colors.textPrimary },
+  refType: { fontSize: FontSize.xs, color: Colors.textSecondary, marginTop: 2 },
+  refStatusPill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.full },
+  refStatusText: { fontSize: FontSize.xs },
 });

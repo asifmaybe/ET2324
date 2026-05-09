@@ -58,7 +58,7 @@ function getNextSession() {
 export default function StudentDashboard() {
   const { user } = useAuth();
   const { lang } = useLang();
-  const { assignments, exams, notices } = useData();
+  const { assignments, exams, notices, semesterResults, referredSubjects } = useData();
   const router = useRouter();
 
   const [selectedNotice, setSelectedNotice] = useState<any>(null);
@@ -80,7 +80,32 @@ export default function StudentDashboard() {
   const pendingCount = assignments.filter(a => a.status === 'active' || a.status === 'pending').length;
   const upcomingExams = exams.filter(e => e.upcoming).length;
 
-  const failedSubjects = user?.failed_subjects ?? 0;
+  // --- Dynamic Board Results Logic ---
+  const myRoll = user?.roll_number || '';
+  const myUnclearedRefs = referredSubjects.filter(r => r.roll_no === myRoll && r.cleared_in_semester === null);
+  const failedSubjects = myUnclearedRefs.length;
+
+  // Calculate CGPA
+  const semesterGPAs = Array(8).fill(0);
+  const mySemResults = semesterResults.filter(sr => sr.roll_no === myRoll);
+  mySemResults.forEach(sr => {
+    if (sr.gpa && sr.semester_number >= 1 && sr.semester_number <= 8) {
+      semesterGPAs[sr.semester_number - 1] = sr.gpa;
+    }
+  });
+
+  const CGPA_WEIGHTS = [0.05, 0.05, 0.10, 0.10, 0.20, 0.20, 0.20, 0.10];
+  let computedCGPA = 0;
+  let pctComplete = 0;
+  semesterGPAs.forEach((gpa, i) => { 
+    computedCGPA += gpa * CGPA_WEIGHTS[i]; 
+    if (gpa > 0) pctComplete += CGPA_WEIGHTS[i];
+  });
+  computedCGPA = parseFloat(computedCGPA.toFixed(2));
+  const cgpaProgressPct = Math.round((computedCGPA / 4.0) * 100);
+  const completionPct = Math.round(pctComplete * 100);
+  // -----------------------------------
+
   const nextSess = getNextSession();
   const [currentNoticeIndex, setCurrentNoticeIndex] = useState(0);
   const displayNotices = notices.slice(0, 4);
@@ -309,18 +334,18 @@ export default function StudentDashboard() {
                     {lang === 'bn' ? 'বর্তমান সিজিপিএ' : 'Current CGPA'}
                   </Text>
                   <View style={styles.progressBg}>
-                    <View style={[styles.progressFill, { width: '92%', backgroundColor: Colors.info }]} />
+                    <View style={[styles.progressFill, { width: `${completionPct}%` as any, backgroundColor: Colors.info }]} />
                   </View>
                   <Text style={[styles.statSub, { fontFamily: FF.regular }]}>
-                    {lang === 'bn' ? 'গত সেমিস্টার থেকে ০.২ বেশি' : 'Up 0.2 from last semester'}
+                    {lang === 'bn' ? `${completionPct}% সম্পন্ন` : `${completionPct}% Complete`}
                   </Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                   <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.info, lineHeight: 30 }]}>
-                    3.7<Text style={{ fontSize: FontSize.sm, color: Colors.textMuted }}>/4.0</Text>
+                    {computedCGPA.toFixed(2)}<Text style={{ fontSize: FontSize.sm, color: Colors.textMuted }}>/4.0</Text>
                   </Text>
                   <Text style={{ fontSize: FontSize.xs, color: Colors.textSecondary, fontFamily: Fonts.en.medium }}>
-                    92%
+                    {cgpaProgressPct}%
                   </Text>
                 </View>
               </View>

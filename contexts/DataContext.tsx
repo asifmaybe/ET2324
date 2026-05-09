@@ -3,7 +3,10 @@ import {
   MOCK_ASSIGNMENTS, MOCK_EXAMS, MOCK_NOTICES, MOCK_RESULTS,
   MOCK_ATTENDANCE_SESSIONS, MOCK_AUDIT_LOG
 } from '../constants/mockData';
-import { Assignment, Exam, Notice, Result, AttendanceSession, AuditLog } from '../types';
+import {
+  Assignment, Exam, Notice, Result, AttendanceSession, AuditLog,
+  SemesterResult, ReferredSubject, PublishedSemester,
+} from '../types';
 import { supabase } from '../lib/supabase';
 
 interface DataContextType {
@@ -13,6 +16,11 @@ interface DataContextType {
   results: Result[];
   attendanceSessions: AttendanceSession[];
   auditLog: AuditLog[];
+  // Board result system
+  semesterResults: SemesterResult[];
+  referredSubjects: ReferredSubject[];
+  publishedSemesters: PublishedSemester[];
+  boardResultsLoading: boolean;
   addAssignment: (a: Assignment) => void;
   updateAssignment: (a: Assignment) => void;
   deleteAssignment: (id: string) => void;
@@ -46,6 +54,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [auditLog, setAuditLog] = useState<AuditLog[]>([]);
   const [onlineAttendanceActive, setOnlineAttendanceActive] = useState(false);
 
+  // Board result system state
+  const [semesterResults, setSemesterResults] = useState<SemesterResult[]>([]);
+  const [referredSubjects, setReferredSubjects] = useState<ReferredSubject[]>([]);
+  const [publishedSemesters, setPublishedSemesters] = useState<PublishedSemester[]>([]);
+  const [boardResultsLoading, setBoardResultsLoading] = useState(true);
+
   useEffect(() => {
     async function fetchFromSupabase() {
       try {
@@ -63,8 +77,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
         const { data: auditData, error: audErr } = await supabase.from('audit_logs').select('*').order('created_at', { ascending: false });
         if (!audErr && auditData) setAuditLog(auditData as AuditLog[]);
+
+        // ── Board result system fetches ──
+        const { data: pubSemData, error: psErr } = await supabase.from('published_semesters').select('*').order('semester_number', { ascending: true });
+        if (!psErr && pubSemData) setPublishedSemesters(pubSemData as PublishedSemester[]);
+
+        const { data: semResData, error: srErr } = await supabase.from('semester_results').select('*').order('semester_number', { ascending: true });
+        if (!srErr && semResData) setSemesterResults(semResData as SemesterResult[]);
+
+        const { data: refSubData, error: rsErr } = await supabase.from('referred_subjects').select('*').order('semester_number', { ascending: true });
+        if (!rsErr && refSubData) setReferredSubjects(refSubData as ReferredSubject[]);
       } catch (err) {
         console.warn('Failed to fetch from Supabase:', err);
+      } finally {
+        setBoardResultsLoading(false);
       }
     }
     
@@ -150,6 +176,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   return (
     <DataContext.Provider value={{
       assignments, exams, notices, results, attendanceSessions, auditLog,
+      semesterResults, referredSubjects, publishedSemesters, boardResultsLoading,
       addAssignment, updateAssignment, deleteAssignment,
       addExam, updateExam, deleteExam,
       addNotice, updateNotice, deleteNotice,
