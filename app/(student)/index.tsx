@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -11,6 +11,7 @@ import { Card } from '../../components/ui/Card';
 import { NoticeModal } from '../../components/ui/NoticeModal';
 import { Colors, FontSize, Radius, Fonts } from '../../constants/theme';
 import { MOCK_ROUTINE } from '../../constants/mockData';
+import { NoticeCardSkeleton, DashboardSummarySkeleton, SkelBar, useShimmer } from '../../components/ui/SkeletonLoader';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const DAYS_BN: Record<string, string> = {
@@ -58,10 +59,13 @@ function getNextSession() {
 export default function StudentDashboard() {
   const { user } = useAuth();
   const { lang } = useLang();
-  const { assignments, exams, notices, semesterResults, referredSubjects } = useData();
+  const { assignments, exams, notices, semesterResults, referredSubjects, dataLoading } = useData();
   const router = useRouter();
 
   const [selectedNotice, setSelectedNotice] = useState<any>(null);
+
+  // Shimmer for skeleton loaders
+  const shimmer = useShimmer(dataLoading);
 
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
 
@@ -165,7 +169,16 @@ export default function StudentDashboard() {
         <View style={styles.pad}>
 
           {/* ── Notice Section ── */}
-          {currentNotice ? (
+          {dataLoading ? (
+            /* Skeleton loader while fetching from Supabase */
+            <View style={{ marginBottom: 12 }}>
+              <View style={styles.noticeSectionHeader}>
+                <SkelBar style={{ width: 140, height: 20 }} opacity={shimmer} />
+                <SkelBar style={{ width: 50, height: 14 }} opacity={shimmer} />
+              </View>
+              <NoticeCardSkeleton opacity={shimmer} />
+            </View>
+          ) : currentNotice ? (
             <View style={{ marginBottom: 12 }}>
               <View style={styles.noticeSectionHeader}>
                 <Text style={[styles.noticeMainTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>
@@ -256,100 +269,104 @@ export default function StudentDashboard() {
           <Text style={[styles.sectionTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>
             {lang === 'bn' ? 'সারসংক্ষেপ' : 'Summary'}
           </Text>
-          <TouchableOpacity onPress={() => router.push('/(student)/assignments')} activeOpacity={0.8} style={[styles.summaryCard, { marginBottom: 8 }]}>
-            <View style={styles.statRow}>
-              <View style={[styles.statIcon, { backgroundColor: Colors.accentLight }]}>
-                <MaterialIcons name="assignment" size={22} color={Colors.accent} />
-              </View>
-              <View style={styles.statText}>
-                <Text style={[styles.statLabel, { fontFamily: FF.semiBold }]}>
-                  {lang === 'bn' ? 'বাকি অ্যাসাইনমেন্ট' : 'Pending Assignments'}
-                </Text>
-                <Text style={[styles.statSub, { fontFamily: FF.regular }]}>
-                  {pendingCount === 1
-                    ? (lang === 'bn' ? `${pendingCount} টি কাজ জমা দিতে হবে` : `${pendingCount} task to submit`)
-                    : (lang === 'bn' ? `${pendingCount} টি কাজ জমা দিতে হবে` : `${pendingCount} tasks to submit`)}
-                </Text>
-              </View>
-              <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.accent }]}>
-                {pendingCount}
-              </Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* Upcoming Exams */}
-          <TouchableOpacity onPress={() => router.push('/(student)/exams')} activeOpacity={0.8} style={[styles.summaryCard, { marginBottom: 8 }]}>
-            <View style={styles.statRow}>
-              <View style={[styles.statIcon, { backgroundColor: Colors.accentLight }]}>
-                <MaterialIcons name="calendar-today" size={22} color={Colors.accent} />
-              </View>
-              <View style={styles.statText}>
-                <Text style={[styles.statLabel, { fontFamily: FF.semiBold }]}>
-                  {lang === 'bn' ? 'আসন্ন পরীক্ষা' : 'Upcoming Exams'}
-                </Text>
-                <Text style={[styles.statSub, { fontFamily: FF.regular }]}>
-                  {lang === 'bn'
-                    ? `${upcomingExams} টি এই মাসে নির্ধারিত`
-                    : `${upcomingExams} scheduled this month`}
-                </Text>
-              </View>
-              <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.accent }]}>
-                {upcomingExams}
-              </Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* CGPA Tracker / Failed Subjects */}
-          {failedSubjects > 0 ? (
-            <TouchableOpacity onPress={() => router.push({ pathname: '/(student)/results', params: { category: 'Board' } })} activeOpacity={0.8} style={[styles.summaryCard, { marginBottom: 12 }]}>
-              <View style={styles.statRow}>
-                <View style={[styles.statIcon, { backgroundColor: Colors.dangerBg }]}>
-                  <MaterialIcons name="warning" size={22} color={Colors.danger} />
-                </View>
-                <View style={[styles.statText, { flex: 1 }]}>
-                  <Text style={[styles.statLabel, { fontFamily: FF.semiBold }]}>
-                    {lang === 'bn' ? 'উত্তীর্ণ হওয়া বাকি' : 'Subjects to Clear'}
-                  </Text>
-                  <Text style={[styles.statSub, { fontFamily: FF.regular, color: Colors.danger, marginTop: 4 }]}>
-                    {lang === 'bn'
-                      ? `${failedSubjects} টি বিষয়ে পাস করতে হবে`
-                      : `${failedSubjects} subject${failedSubjects > 1 ? 's' : ''} yet to pass`}
-                  </Text>
-                </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.danger }]}>
-                    {failedSubjects}
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
+          {dataLoading ? (
+            <DashboardSummarySkeleton opacity={shimmer} />
           ) : (
-            <TouchableOpacity onPress={() => router.push({ pathname: '/(student)/results', params: { category: 'Board' } })} activeOpacity={0.8} style={[styles.summaryCard, { marginBottom: 12 }]}>
-              <View style={styles.statRow}>
-                <View style={[styles.statIcon, { backgroundColor: Colors.infoBg }]}>
-                  <MaterialIcons name="timeline" size={22} color={Colors.info} />
-                </View>
-                <View style={[styles.statText, { flex: 1 }]}>
-                  <Text style={[styles.statLabel, { fontFamily: FF.semiBold }]}>
-                    {lang === 'bn' ? 'বর্তমান সিজিপিএ' : 'Current CGPA'}
-                  </Text>
-                  <View style={styles.progressBg}>
-                    <View style={[styles.progressFill, { width: `${completionPct}%` as any, backgroundColor: Colors.info }]} />
+            <View>
+              <TouchableOpacity onPress={() => router.push('/(student)/assignments')} activeOpacity={0.8} style={[styles.summaryCard, { marginBottom: 8 }]}>
+                <View style={styles.statRow}>
+                  <View style={[styles.statIcon, { backgroundColor: Colors.accentLight }]}>
+                    <MaterialIcons name="assignment" size={22} color={Colors.accent} />
                   </View>
-                  <Text style={[styles.statSub, { fontFamily: FF.regular }]}>
-                    {lang === 'bn' ? `${completionPct}% সম্পন্ন` : `${completionPct}% Complete`}
+                  <View style={styles.statText}>
+                    <Text style={[styles.statLabel, { fontFamily: FF.semiBold }]}>
+                      {lang === 'bn' ? 'বাকি অ্যাসাইনমেন্ট' : 'Pending Assignments'}
+                    </Text>
+                    <Text style={[styles.statSub, { fontFamily: FF.regular }]}>
+                      {pendingCount === 1
+                        ? (lang === 'bn' ? `${pendingCount} টি কাজ জমা দিতে হবে` : `${pendingCount} task to submit`)
+                        : (lang === 'bn' ? `${pendingCount} টি কাজ জমা দিতে হবে` : `${pendingCount} tasks to submit`)}
+                    </Text>
+                  </View>
+                  <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.accent }]}>
+                    {pendingCount}
                   </Text>
                 </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.info, lineHeight: 30 }]}>
-                    {computedCGPA.toFixed(2)}<Text style={{ fontSize: FontSize.sm, color: Colors.textMuted }}>/4.0</Text>
-                  </Text>
-                  <Text style={{ fontSize: FontSize.xs, color: Colors.textSecondary, fontFamily: Fonts.en.medium }}>
-                    {cgpaProgressPct}%
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => router.push('/(student)/exams')} activeOpacity={0.8} style={[styles.summaryCard, { marginBottom: 8 }]}>
+                <View style={styles.statRow}>
+                  <View style={[styles.statIcon, { backgroundColor: Colors.accentLight }]}>
+                    <MaterialIcons name="calendar-today" size={22} color={Colors.accent} />
+                  </View>
+                  <View style={styles.statText}>
+                    <Text style={[styles.statLabel, { fontFamily: FF.semiBold }]}>
+                      {lang === 'bn' ? 'আসন্ন পরীক্ষা' : 'Upcoming Exams'}
+                    </Text>
+                    <Text style={[styles.statSub, { fontFamily: FF.regular }]}>
+                      {lang === 'bn'
+                        ? `${upcomingExams} টি এই মাসে নির্ধারিত`
+                        : `${upcomingExams} scheduled this month`}
+                    </Text>
+                  </View>
+                  <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.accent }]}>
+                    {upcomingExams}
                   </Text>
                 </View>
-              </View>
-            </TouchableOpacity>
+              </TouchableOpacity>
+
+              {failedSubjects > 0 ? (
+                <TouchableOpacity onPress={() => router.push({ pathname: '/(student)/results', params: { category: 'Board' } })} activeOpacity={0.8} style={[styles.summaryCard, { marginBottom: 12 }]}>
+                  <View style={styles.statRow}>
+                    <View style={[styles.statIcon, { backgroundColor: Colors.dangerBg }]}>
+                      <MaterialIcons name="warning" size={22} color={Colors.danger} />
+                    </View>
+                    <View style={[styles.statText, { flex: 1 }]}>
+                      <Text style={[styles.statLabel, { fontFamily: FF.semiBold }]}>
+                        {lang === 'bn' ? 'উত্তীর্ণ হওয়া বাকি' : 'Subjects to Clear'}
+                      </Text>
+                      <Text style={[styles.statSub, { fontFamily: FF.regular, color: Colors.danger, marginTop: 4 }]}>
+                        {lang === 'bn'
+                          ? `${failedSubjects} টি বিষয়ে পাস করতে হবে`
+                          : `${failedSubjects} subject${failedSubjects > 1 ? 's' : ''} yet to pass`}
+                      </Text>
+                    </View>
+                    <View style={{ alignItems: 'flex-end' }}>
+                      <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.danger }]}>
+                        {failedSubjects}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity onPress={() => router.push({ pathname: '/(student)/results', params: { category: 'Board' } })} activeOpacity={0.8} style={[styles.summaryCard, { marginBottom: 12 }]}>
+                  <View style={styles.statRow}>
+                    <View style={[styles.statIcon, { backgroundColor: Colors.infoBg }]}>
+                      <MaterialIcons name="timeline" size={22} color={Colors.info} />
+                    </View>
+                    <View style={[styles.statText, { flex: 1 }]}>
+                      <Text style={[styles.statLabel, { fontFamily: FF.semiBold }]}>
+                        {lang === 'bn' ? 'বর্তমান সিজিপিএ' : 'Current CGPA'}
+                      </Text>
+                      <View style={styles.progressBg}>
+                        <View style={[styles.progressFill, { width: `${completionPct}%` as any, backgroundColor: Colors.info }]} />
+                      </View>
+                      <Text style={[styles.statSub, { fontFamily: FF.regular }]}>
+                        {lang === 'bn' ? `${completionPct}% সম্পন্ন` : `${completionPct}% Complete`}
+                      </Text>
+                    </View>
+                    <View style={{ alignItems: 'flex-end' }}>
+                      <Text style={[styles.statCount, { fontFamily: Fonts.en.bold, color: Colors.info, lineHeight: 30 }]}>
+                        {computedCGPA.toFixed(2)}<Text style={{ fontSize: FontSize.sm, color: Colors.textMuted }}>/4.0</Text>
+                      </Text>
+                      <Text style={{ fontSize: FontSize.xs, color: Colors.textSecondary, fontFamily: Fonts.en.medium }}>
+                        {cgpaProgressPct}%
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              )}
+            </View>
           )}
 
           {/* ── Section: পরবতী সেশন ── */}
@@ -604,4 +621,20 @@ const styles = StyleSheet.create({
   sessionMetaText: { fontSize: FontSize.sm, color: 'rgba(255,255,255,0.90)' },
 
   noSession: { fontSize: FontSize.sm, color: Colors.textMuted, textAlign: 'center' },
+
+  /* Skeleton loader */
+  skelBar: {
+    backgroundColor: '#E0E0E0',
+    borderRadius: 6,
+  },
+  skelBlock: {
+    backgroundColor: '#E8E8E8',
+    borderRadius: Radius.md,
+  },
+  skelCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#E0E0E0',
+  },
 });

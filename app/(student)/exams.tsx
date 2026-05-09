@@ -6,6 +6,7 @@ import { ScreenWrapper } from '../../components/ui/ScreenWrapper';
 import { ScreenHeader } from '../../components/ui/ScreenHeader';
 import { Card } from '../../components/ui/Card';
 import { StatusBadge } from '../../components/ui/StatusBadge';
+import { ExamCardSkeleton, useShimmer } from '../../components/ui/SkeletonLoader';
 import { Colors, FontSize, Radius, Fonts } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Exam } from '../../types';
@@ -18,10 +19,11 @@ const EXAM_TYPE_BN: Record<string, string> = {
 };
 
 export default function StudentExams() {
-  const { exams } = useData();
+  const { exams, dataLoading } = useData();
   const { lang, tr } = useLang();
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
+  const shimmer = useShimmer(dataLoading);
 
   const filtered = exams.filter(e => e.upcoming === (tab === 'upcoming'));
   const typeMap: Record<string, any> = { 'Class Test': 'classTest', 'Quiz': 'quiz', 'Mid-Term': 'midTerm', 'Final': 'final' };
@@ -42,14 +44,23 @@ export default function StudentExams() {
         </TouchableOpacity>
       </View>
       <FlatList
-        data={filtered}
+        data={dataLoading ? [] : filtered}
         keyExtractor={i => i.id}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+        ListHeaderComponent={
+          dataLoading ? (
+            <View>
+              {[1, 2, 3, 4].map(k => <ExamCardSkeleton key={k} opacity={shimmer} />)}
+            </View>
+          ) : null
+        }
         ListEmptyComponent={
-          <View style={styles.empty}>
-            <MaterialIcons name="school" size={44} color={Colors.textMuted} />
-            <Text style={[styles.emptyText, { fontFamily: FF.regular }]}>{tr('noData')}</Text>
-          </View>
+          !dataLoading ? (
+            <View style={styles.empty}>
+              <MaterialIcons name="school" size={44} color={Colors.textMuted} />
+              <Text style={[styles.emptyText, { fontFamily: FF.regular }]}>{tr('noData')}</Text>
+            </View>
+          ) : null
         }
         renderItem={({ item }: { item: Exam }) => (
           <Card padding={16}>

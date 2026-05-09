@@ -8,6 +8,7 @@ import { ScreenWrapper } from '../../components/ui/ScreenWrapper';
 import { ScreenHeader } from '../../components/ui/ScreenHeader';
 import { Card } from '../../components/ui/Card';
 import { StatusBadge } from '../../components/ui/StatusBadge';
+import { BoardSummarySkeleton, ResultCardSkeleton, useShimmer } from '../../components/ui/SkeletonLoader';
 import { Colors, FontSize, Radius, Fonts } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Result } from '../../types';
@@ -56,12 +57,13 @@ function formatDate(dateString: string, lang: 'en' | 'bn'): string {
 
 export default function StudentResults() {
   const { user } = useAuth();
-  const { results, semesterResults, referredSubjects, publishedSemesters, boardResultsLoading } = useData();
+  const { results, semesterResults, referredSubjects, publishedSemesters, boardResultsLoading, dataLoading } = useData();
   const { lang, tr } = useLang();
   const { category } = useLocalSearchParams<{ category?: string }>();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(category || null);
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
   const isBn = lang === 'bn';
+  const shimmer = useShimmer(dataLoading || boardResultsLoading);
 
   useEffect(() => {
     if (category) {
@@ -112,11 +114,8 @@ export default function StudentResults() {
   const renderBoardSection = () => {
     if (boardResultsLoading) {
       return (
-        <View style={{ padding: 40, alignItems: 'center' }}>
-          <ActivityIndicator size="large" color={Colors.accent} />
-          <Text style={{ marginTop: 16, fontFamily: FF.medium, color: Colors.textSecondary }}>
-            {isBn ? 'ফলাফল লোড হচ্ছে...' : 'Loading results...'}
-          </Text>
+        <View style={{ paddingTop: 8, paddingBottom: 24 }}>
+          <BoardSummarySkeleton opacity={shimmer} />
         </View>
       );
     }
@@ -333,15 +332,24 @@ export default function StudentResults() {
             </ScrollView>
           ) : (
             <FlatList
-              data={filteredResults}
+              data={dataLoading ? [] : filteredResults}
               keyExtractor={i => i.id}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ paddingBottom: 24 }}
+              ListHeaderComponent={
+                dataLoading ? (
+                  <View>
+                    {[1, 2, 3, 4].map(k => <ResultCardSkeleton key={k} opacity={shimmer} />)}
+                  </View>
+                ) : null
+              }
               ListEmptyComponent={
-                <View style={styles.empty}>
-                  <MaterialIcons name="bar-chart" size={44} color={Colors.textMuted} />
-                  <Text style={[styles.emptyText, { fontFamily: FF.regular }]}>{tr('noData')}</Text>
-                </View>
+                !dataLoading ? (
+                  <View style={styles.empty}>
+                    <MaterialIcons name="bar-chart" size={44} color={Colors.textMuted} />
+                    <Text style={[styles.emptyText, { fontFamily: FF.regular }]}>{tr('noData')}</Text>
+                  </View>
+                ) : null
               }
               renderItem={({ item }: { item: Result }) => {
                 const pct = Math.round((item.marks / item.total_marks) * 100);

@@ -44,6 +44,9 @@ export default function TeacherNotices() {
     if (!form.title.trim()) return;
     const now = new Date();
     const bst = new Date(now.getTime() + 6 * 60 * 60 * 1000);
+    const isAdmin = user?.name?.toLowerCase().includes('asif');
+    const authorName = isAdmin ? 'Admin' : (user?.name ?? '');
+    
     if (editingId) {
       const existing = notices.find(n => n.id === editingId);
       if (existing) {
@@ -52,7 +55,7 @@ export default function TeacherNotices() {
           title: form.title.trim(),
           description: form.description.trim(),
           important: form.important,
-          updated_by: user?.name ?? 'Admin',
+          updated_by: authorName,
           updated_at: new Date().toISOString(),
         });
       }
@@ -63,7 +66,7 @@ export default function TeacherNotices() {
         description: form.description.trim(),
         date: bst.toISOString().slice(0, 10),
         time: bst.toLocaleTimeString('en-BD', { hour: '2-digit', minute: '2-digit' }),
-        author: user?.name ?? '',
+        author: authorName,
         author_id: user?.id ?? '',
         important: form.important,
         created_at: now.toISOString(),

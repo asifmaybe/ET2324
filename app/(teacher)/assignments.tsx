@@ -50,10 +50,12 @@ export default function TeacherAssignments() {
     const today = now.slice(0, 10);
     const assignedDate = editItem.id ? (editItem.assigned_date ?? today) : today;
     const autoStatus = computeStatus(assignedDate, editItem.due_date ?? '');
+    const isAdmin = user?.name?.toLowerCase().includes('asif');
+    const authorName = isAdmin ? 'Admin' : (user?.name ?? '');
     if (editItem.id) {
-      updateAssignment({ ...editItem, status: autoStatus, updated_by: user?.name ?? '', updated_at: now } as Assignment);
+      updateAssignment({ ...editItem, status: autoStatus, updated_by: authorName, updated_at: now } as Assignment);
     } else {
-      addAssignment({ ...editItem, status: autoStatus, assigned_date: today, created_by: user?.name ?? '', updated_by: user?.name ?? '', created_at: now, updated_at: now } as Assignment);
+      addAssignment({ ...editItem, status: autoStatus, assigned_date: today, created_by: authorName, updated_by: authorName, created_at: now, updated_at: now } as Assignment);
     }
     setModalVisible(false);
   };

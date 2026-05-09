@@ -7,7 +7,7 @@ import {
   Assignment, Exam, Notice, Result, AttendanceSession, AuditLog,
   SemesterResult, ReferredSubject, PublishedSemester,
 } from '../types';
-import { supabase } from '../lib/supabase';
+import { supabase, adminSupabase } from '../lib/supabase';
 
 interface DataContextType {
   assignments: Assignment[];
@@ -21,6 +21,7 @@ interface DataContextType {
   referredSubjects: ReferredSubject[];
   publishedSemesters: PublishedSemester[];
   boardResultsLoading: boolean;
+  dataLoading: boolean;
   addAssignment: (a: Assignment) => void;
   updateAssignment: (a: Assignment) => void;
   deleteAssignment: (id: string) => void;
@@ -59,6 +60,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [referredSubjects, setReferredSubjects] = useState<ReferredSubject[]>([]);
   const [publishedSemesters, setPublishedSemesters] = useState<PublishedSemester[]>([]);
   const [boardResultsLoading, setBoardResultsLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
     async function fetchFromSupabase() {
@@ -91,6 +93,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         console.warn('Failed to fetch from Supabase:', err);
       } finally {
         setBoardResultsLoading(false);
+        setDataLoading(false);
       }
     }
     
@@ -100,68 +103,68 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const addAudit = (action: string, performed_by: string, subject: string, details: string) => {
     const entry: AuditLog = { id: generateId(), action, performed_by, subject, details, created_at: new Date().toISOString() };
     setAuditLog(prev => [entry, ...prev]);
-    supabase.from('audit_logs').insert([entry]).then(({error}) => { if (error) console.warn('Supabase error', error); });
+    adminSupabase.from('audit_logs').insert([entry]).then(({error}) => { if (error) console.error('DB write error [audit_logs]:', error); });
   };
 
   const addAssignment = (a: Assignment) => {
     const newA = { ...a, id: generateId() };
     setAssignments(prev => [newA, ...prev]);
     addAudit('Assignment Created', a.created_by, a.subject, `"${a.title}" added`);
-    supabase.from('assignments').insert([newA]).then(({error}) => { if (error) console.warn('Supabase error', error); });
+    adminSupabase.from('assignments').insert([newA]).then(({error}) => { if (error) console.error('DB write error [assignments insert]:', error); });
   };
   const updateAssignment = (a: Assignment) => {
     setAssignments(prev => prev.map(x => x.id === a.id ? a : x));
     addAudit('Assignment Updated', a.updated_by, a.subject, `"${a.title}" updated`);
-    supabase.from('assignments').update(a).eq('id', a.id).then(({error}) => { if (error) console.warn('Supabase error', error); });
+    adminSupabase.from('assignments').update(a).eq('id', a.id).then(({error}) => { if (error) console.error('DB write error [assignments update]:', error); });
   };
   const deleteAssignment = (id: string) => {
     const a = assignments.find(x => x.id === id);
     setAssignments(prev => prev.filter(x => x.id !== id));
     if (a) addAudit('Assignment Deleted', 'Admin', a.subject, `"${a.title}" deleted`);
-    supabase.from('assignments').delete().eq('id', id).then(({error}) => { if (error) console.warn('Supabase error', error); });
+    adminSupabase.from('assignments').delete().eq('id', id).then(({error}) => { if (error) console.error('DB write error [assignments delete]:', error); });
   };
 
   const addExam = (e: Exam) => {
     const newE = { ...e, id: generateId() };
     setExams(prev => [newE, ...prev]);
     addAudit('Exam Added', e.created_by, e.subject, `${e.type} scheduled for ${e.date}`);
-    supabase.from('exams').insert([newE]).then(({error}) => { if (error) console.warn('Supabase error', error); });
+    adminSupabase.from('exams').insert([newE]).then(({error}) => { if (error) console.error('DB write error [exams insert]:', error); });
   };
   const updateExam = (e: Exam) => {
     setExams(prev => prev.map(x => x.id === e.id ? e : x));
     addAudit('Exam Updated', e.updated_by, e.subject, `${e.type} on ${e.date} updated`);
-    supabase.from('exams').update(e).eq('id', e.id).then(({error}) => { if (error) console.warn('Supabase error', error); });
+    adminSupabase.from('exams').update(e).eq('id', e.id).then(({error}) => { if (error) console.error('DB write error [exams update]:', error); });
   };
   const deleteExam = (id: string) => {
     const e = exams.find(x => x.id === id);
     setExams(prev => prev.filter(x => x.id !== id));
     if (e) addAudit('Exam Deleted', 'Admin', e.subject, `${e.type} on ${e.date} deleted`);
-    supabase.from('exams').delete().eq('id', id).then(({error}) => { if (error) console.warn('Supabase error', error); });
+    adminSupabase.from('exams').delete().eq('id', id).then(({error}) => { if (error) console.error('DB write error [exams delete]:', error); });
   };
 
   const addNotice = (n: Notice) => {
     const newN = { ...n, id: generateId() };
     setNotices(prev => [newN, ...prev]);
     addAudit('Notice Posted', n.author, '-', `"${n.title}" published`);
-    supabase.from('notices').insert([newN]).then(({error}) => { if (error) console.warn('Supabase error', error); });
+    adminSupabase.from('notices').insert([newN]).then(({error}) => { if (error) console.error('DB write error [notices insert]:', error); });
   };
   const updateNotice = (n: Notice) => {
     setNotices(prev => prev.map(x => x.id === n.id ? n : x));
     addAudit('Notice Updated', n.author, '-', `"${n.title}" updated`);
-    supabase.from('notices').update(n).eq('id', n.id).then(({error}) => { if (error) console.warn('Supabase error', error); });
+    adminSupabase.from('notices').update(n).eq('id', n.id).then(({error}) => { if (error) console.error('DB write error [notices update]:', error); });
   };
   const deleteNotice = (id: string) => {
     const n = notices.find(x => x.id === id);
     setNotices(prev => prev.filter(x => x.id !== id));
     if (n) addAudit('Notice Deleted', 'Admin', '-', `"${n.title}" removed`);
-    supabase.from('notices').delete().eq('id', id).then(({error}) => { if (error) console.warn('Supabase error', error); });
+    adminSupabase.from('notices').delete().eq('id', id).then(({error}) => { if (error) console.error('DB write error [notices delete]:', error); });
   };
 
   const addResult = (r: Result) => {
     const newR = { ...r, id: generateId() };
     setResults(prev => [newR, ...prev]);
     addAudit('Result Uploaded', r.uploaded_by, r.subject, `${r.exam_type} result for ${r.student_name}`);
-    supabase.from('results').insert([newR]).then(({error}) => { if (error) console.warn('Supabase error', error); });
+    adminSupabase.from('results').insert([newR]).then(({error}) => { if (error) console.error('DB write error [results insert]:', error); });
   };
 
   const addAttendanceSession = (s: AttendanceSession) => {
@@ -176,7 +179,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   return (
     <DataContext.Provider value={{
       assignments, exams, notices, results, attendanceSessions, auditLog,
-      semesterResults, referredSubjects, publishedSemesters, boardResultsLoading,
+      semesterResults, referredSubjects, publishedSemesters, boardResultsLoading, dataLoading,
       addAssignment, updateAssignment, deleteAssignment,
       addExam, updateExam, deleteExam,
       addNotice, updateNotice, deleteNotice,

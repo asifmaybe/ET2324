@@ -7,6 +7,7 @@ import { ScreenHeader } from '../../components/ui/ScreenHeader';
 import { Card } from '../../components/ui/Card';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { DeleteModal } from '../../components/ui/DeleteModal';
+import { AssignmentCardSkeleton, useShimmer } from '../../components/ui/SkeletonLoader';
 import { Colors, FontSize, Radius, Fonts } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Assignment } from '../../types';
@@ -15,8 +16,9 @@ import { AssignmentModal } from '../../components/ui/AssignmentModal';
 const FILTERS = ['all', 'active', 'pending', 'overdue', 'submitted', 'completed'];
 
 export default function StudentAssignments() {
-  const { assignments, updateAssignment } = useData();
+  const { assignments, updateAssignment, dataLoading } = useData();
   const { lang, tr } = useLang();
+  const shimmer = useShimmer(dataLoading);
   const [filter, setFilter] = useState('all');
   const [actionItem, setActionItem] = useState<{ id: string; type: 'submit' | 'cancel' } | null>(null);
   const [modalType, setModalType] = useState<'submit' | 'cancel'>('submit');
@@ -149,15 +151,24 @@ export default function StudentAssignments() {
         />
       </View>
       <FlatList
-        data={filtered}
+        data={dataLoading ? [] : filtered}
         keyExtractor={i => i.id}
         renderItem={renderItem}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+        ListHeaderComponent={
+          dataLoading ? (
+            <View>
+              {[1, 2, 3, 4].map(k => <AssignmentCardSkeleton key={k} opacity={shimmer} />)}
+            </View>
+          ) : null
+        }
         ListEmptyComponent={
-          <View style={styles.empty}>
-            <MaterialIcons name="assignment" size={44} color={Colors.textMuted} />
-            <Text style={[styles.emptyText, { fontFamily: FF.regular }]}>{tr('noData')}</Text>
-          </View>
+          !dataLoading ? (
+            <View style={styles.empty}>
+              <MaterialIcons name="assignment" size={44} color={Colors.textMuted} />
+              <Text style={[styles.emptyText, { fontFamily: FF.regular }]}>{tr('noData')}</Text>
+            </View>
+          ) : null
         }
       />
 

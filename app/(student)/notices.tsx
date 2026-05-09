@@ -12,14 +12,17 @@ import { Card } from '../../components/ui/Card';
 import { ActionButton } from '../../components/ui/ActionButton';
 import { DeleteModal } from '../../components/ui/DeleteModal';
 import { NoticeModal } from '../../components/ui/NoticeModal';
+import { NoticeCardSkeleton, useShimmer } from '../../components/ui/SkeletonLoader';
 import { Colors, FontSize, Radius, Fonts } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Notice } from '../../types';
 
+
 export default function StudentNotices() {
   const { user } = useAuth();
-  const { notices, addNotice, updateNotice, deleteNotice } = useData();
+  const { notices, addNotice, updateNotice, deleteNotice, dataLoading } = useData();
   const { lang, tr } = useLang();
+  const shimmer = useShimmer(dataLoading);
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -77,10 +80,17 @@ export default function StudentNotices() {
       <ScreenHeader title={lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notices'} />
 
       <FlatList
-        data={notices}
+        data={dataLoading ? [] : notices}
         keyExtractor={i => i.id}
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 96 }}
-        ListEmptyComponent={<View style={styles.empty}><Text style={[styles.emptyText, { fontFamily: FF.regular }]}>{tr('noData')}</Text></View>}
+        ListHeaderComponent={
+          dataLoading ? (
+            <View>
+              {[1, 2, 3].map(k => <NoticeCardSkeleton key={k} opacity={shimmer} />)}
+            </View>
+          ) : null
+        }
+        ListEmptyComponent={!dataLoading ? <View style={styles.empty}><Text style={[styles.emptyText, { fontFamily: FF.regular }]}>{tr('noData')}</Text></View> : null}
         renderItem={({ item }: { item: Notice }) => {
           const canEditDelete = user?.role === 'cr' || (user?.id && user.id === item.author_id);
 

@@ -198,8 +198,8 @@ export function HamburgerMenu() {
             ) : null}
 
 
-            {/* Panel Switching (CR Only) */}
-            {user?.role === 'cr' ? (
+            {/* Panel Switching (CR or Admin) */}
+            {(user?.role === 'cr' || user?.name?.toLowerCase().includes('asif')) ? (
               <>
                 <TouchableOpacity
                   style={styles.menuItem}

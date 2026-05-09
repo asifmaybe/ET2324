@@ -61,10 +61,17 @@ export default function TeacherDashboard() {
     }
   };
 
-  const panelLabel = lang === 'bn' ? 'শিক্ষক প্যানেল' : 'Teacher Panel';
-  const roleLabel = user?.role === 'cr'
+  const isAdmin = user?.name?.toLowerCase().includes('asif');
+  
+  const panelLabel = isAdmin 
+    ? (lang === 'bn' ? 'অ্যাডমিন প্যানেল' : 'Admin Panel') 
+    : (lang === 'bn' ? 'শিক্ষক প্যানেল' : 'Teacher Panel');
+    
+  const roleLabel = isAdmin ? null : (user?.role === 'cr'
     ? (lang === 'bn' ? 'ক্লাস রিপ্রেজেন্টেটিভ' : 'Class Representative')
-    : (lang === 'bn' ? 'শিক্ষক' : 'Teacher');
+    : (lang === 'bn' ? 'শিক্ষক' : 'Teacher'));
+    
+  const displayName = isAdmin ? 'ADMIN' : (user?.name?.toUpperCase() ?? 'ADMIN');
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -74,9 +81,11 @@ export default function TeacherDashboard() {
           <View style={styles.headerLeft}>
             <Text style={[styles.panelLabel, { fontFamily: FF.regular }]}>{panelLabel}</Text>
             <Text style={[styles.userName, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>
-              {user?.name?.toUpperCase() ?? 'ADMIN'}
+              {displayName}
             </Text>
-            <Text style={[styles.roleLabel, { fontFamily: FF.regular }]}>{roleLabel}</Text>
+            {roleLabel && (
+              <Text style={[styles.roleLabel, { fontFamily: FF.regular }]}>{roleLabel}</Text>
+            )}
           </View>
           <View style={styles.headerRight}>
             <TouchableOpacity style={styles.iconBtn}>
@@ -218,6 +227,26 @@ export default function TeacherDashboard() {
               </View>
             </TouchableOpacity>
           ))}
+
+          {/* Admin Tools (Golam Rabbani Asif only) */}
+          {user?.name?.toLowerCase().includes('asif') && (
+            <View style={{ marginBottom: 20 }}>
+              <Text style={[styles.sectionTitle, { fontFamily: lang === 'bn' ? Fonts.bn.bold : Fonts.en.bold }]}>
+                {lang === 'bn' ? 'অ্যাডমিন টুলস' : 'Admin Tools'}
+              </Text>
+              <TouchableOpacity onPress={() => router.push('/(teacher)/publish-board' as any)} activeOpacity={0.8} style={[styles.overviewCard, { borderColor: Colors.accent, borderWidth: 2 }]}>
+                <View style={styles.overviewRow}>
+                  <View style={[styles.overviewIcon, { backgroundColor: Colors.accentLight }]}>
+                    <MaterialIcons name="publish" size={20} color={Colors.accent} />
+                  </View>
+                  <Text style={[styles.overviewLabel, { fontFamily: FF.semiBold, color: Colors.accent }]}>
+                    {lang === 'bn' ? 'বোর্ড ফলাফল প্রকাশ করুন' : 'Publish Board Results'}
+                  </Text>
+                  <MaterialIcons name="chevron-right" size={24} color={Colors.accent} />
+                </View>
+              </TouchableOpacity>
+            </View>
+          )}
 
           {/* Audit Log */}
           <View style={[styles.sectionRow, { marginBottom: 12 }]}>

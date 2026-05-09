@@ -50,10 +50,14 @@ export default function TeacherExams() {
     const now = new Date().toISOString();
     const today = now.slice(0, 10);
     const autoUpcoming = !editItem.date || editItem.date >= today;
+    
+    const isAdmin = user?.name?.toLowerCase().includes('asif');
+    const authorName = isAdmin ? 'Admin' : (user?.name ?? '');
+    
     if (editItem.id) {
-      updateExam({ ...editItem, upcoming: autoUpcoming, updated_by: user?.name ?? '', updated_at: now } as Exam);
+      updateExam({ ...editItem, upcoming: autoUpcoming, updated_by: authorName, updated_at: now } as Exam);
     } else {
-      addExam({ ...editItem, upcoming: autoUpcoming, created_by: user?.name ?? '', updated_by: user?.name ?? '', created_at: now, updated_at: now } as Exam);
+      addExam({ ...editItem, upcoming: autoUpcoming, created_by: authorName, updated_by: authorName, created_at: now, updated_at: now } as Exam);
     }
     setModalVisible(false);
   };

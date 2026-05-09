@@ -17,8 +17,10 @@ export default function Index() {
 
   if (!user) return <Redirect href="/login" />;
 
+  const isAdmin = user.name?.toLowerCase().includes('asif');
+
   if (user.role === 'teacher') return <Redirect href="/(teacher)" />;
-  if (user.role === 'cr') {
+  if (user.role === 'cr' || isAdmin) {
     if (panelMode === 'teacher') return <Redirect href="/(teacher)" />;
     return <Redirect href="/(student)" />;
   }

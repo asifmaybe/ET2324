@@ -23,9 +23,16 @@ export default function TeacherLayout() {
 
   useEffect(() => {
     if (!user) { router.replace('/login'); return; }
-    if (user.role === 'student') { router.replace('/(student)'); return; }
-    if (user.role === 'cr' && panelMode === 'student') { router.replace('/(student)'); return; }
-  }, [user, panelMode, router]);
+    
+    // Check if user is Asif (the Admin)
+    const isAdmin = user.name?.toLowerCase().includes('asif');
+    
+    // Only strictly block pure students from the teacher panel
+    if (user.role === 'student' && !isAdmin) { 
+      router.replace('/(student)'); 
+      return; 
+    }
+  }, [user, router]);
 
   const FF = lang === 'bn' ? Fonts.bn : Fonts.en;
 
@@ -103,6 +110,10 @@ export default function TeacherLayout() {
         title: lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notices',
         tabBarIcon: ({ color, focused }) => pill('campaign', lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notices', focused, color),
         tabBarItemStyle: { marginRight: 8 },
+      }} />
+      <Tabs.Screen name="publish-board" options={{
+        title: 'Publish',
+        href: null,
       }} />
     </Tabs>
   );
